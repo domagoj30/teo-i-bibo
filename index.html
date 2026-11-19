@@ -506,7 +506,7 @@ function pickVoice(){
 }
 if(synth){ pickVoice(); try{ synth.addEventListener('voiceschanged', pickVoice); }catch(e){} }
 const bubble = $('#bubble');
-/* Snimljeni glas: glas.bin = sve recenice (mp3) jedna za drugom, glas.json = gdje je koja.
+/* Snimljeni glas: glas.mp3 = sve recenice (mp3) jedna za drugom, glas.json = gdje je koja.
    Tekst se dijeli na recenice; svaka ima svoju snimku. Recenica bez snimke ide ugradenim glasom uredaja. */
 const SPLIT = /(?<=[.!?])\s+/;
 let pack = null, packBin = null, curSrc = null;
@@ -517,7 +517,7 @@ let packUrl = '', packSize = 0, probe = null;
 async function loadPack(){
   try{
     const idx = await (await fetch('glas.json', {cache:'no-cache'})).json();
-    packUrl = 'glas.bin?v=' + idx.v; packSize = idx.size; pack = idx.clips;
+    packUrl = 'glas.mp3?v=' + idx.v; packSize = idx.size; pack = idx.clips;
   }catch(e){ pack = null; }
 }
 /* Svaka recenica se dohvaca zasebno (HTTP Range), pa se nista veliko ne ucitava unaprijed.
