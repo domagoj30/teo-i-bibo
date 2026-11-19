@@ -81,6 +81,12 @@ button:focus-visible{outline:4px solid var(--gold); outline-offset:3px}
 #letterKey{width:clamp(70px,19vh,140px); height:clamp(60px,16vh,120px); display:flex; align-items:baseline; justify-content:center; gap:1.2vh; line-height:1.55}
 #letterKey b{font-size:clamp(38px,11vh,84px); font-weight:800}
 #letterKey small{font-size:clamp(22px,6vh,46px); font-weight:700; opacity:.6}
+#mic{display:flex; flex-direction:column; align-items:center; gap:.6vh}
+#mic span{width:clamp(44px,12vh,88px); height:clamp(44px,12vh,88px); border-radius:50%; background:var(--paper); box-shadow:0 .8vh 0 var(--shadow);
+  display:flex; align-items:center; justify-content:center; font-size:clamp(22px,6.5vh,48px); line-height:1; opacity:.55; transition:.2s}
+#mic.live span{opacity:1; background:var(--go); animation:pulse .5s infinite alternate ease-in-out}
+#mic small{font-size:clamp(11px,2.2vh,15px); font-weight:700; background:var(--paper); border-radius:2vh; padding:0 1.4vh; min-height:1em; max-width:50vw; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+#mic small:empty{visibility:hidden}
 .key.on{background:var(--accent); color:var(--accent-ink); transform:translateY(.7vh); box-shadow:0 .2vh 0 var(--shadow)}
 .pulse{animation:pulse 1s infinite alternate ease-in-out}
 @keyframes pulse{to{transform:scale(1.08)}}
@@ -113,6 +119,10 @@ button:focus-visible{outline:4px solid var(--gold); outline-offset:3px}
       <button data-l="catch" aria-label="Zadatak: hvatanje">🌠</button>
       <button data-l="count" aria-label="Zadatak: brojevi">🔢</button>
       <button data-l="letters" aria-label="Zadatak: slova">🔤</button>
+      <button data-l="animals" aria-label="Zadatak: životinje">🐶</button>
+      <button data-l="sayit" aria-label="Zadatak: reci što je ovo">🎤</button>
+      <button data-l="saycolor" aria-label="Zadatak: reci boju">🌈</button>
+      <button data-l="saycount" aria-label="Zadatak: reci koliko">🗣️</button>
     </div>
     <div id="slots" class="pill"></div>
     <div id="tools">
@@ -136,6 +146,7 @@ button:focus-visible{outline:4px solid var(--gold); outline-offset:3px}
       <button class="key" data-n="1">1</button><button class="key" data-n="2">2</button><button class="key" data-n="3">3</button><button class="key" data-n="4">4</button><button class="key" data-n="5">5</button>
     </div>
     <button id="letterKey" class="key" hidden></button>
+    <div id="mic" hidden><span>🎤</span><small id="heard"></small></div>
   </div>
 </div>
 
@@ -143,7 +154,7 @@ button:focus-visible{outline:4px solid var(--gold); outline-offset:3px}
   <h1>Teo <b>i</b> Bibo</h1>
   <div class="bottom">
     <button id="play" class="pulse" aria-label="Kreni">▶</button>
-    <p>Za roditelje: uključite zvuk. Bibo govori hrvatski ako uređaj ima hrvatski glas, inače pijuče i piše u oblačiću. Sličice gore lijevo biraju zadatak.</p>
+    <p>Za roditelje: uključite zvuk. Bibo govori hrvatski ako uređaj ima hrvatski glas, inače pijuče i piše u oblačiću. Sličice gore lijevo biraju zadatak. Za zadatke u kojima Teo odgovara glasom dopustite mikrofon.</p>
   </div>
 </div>
 
@@ -155,7 +166,7 @@ button:focus-visible{outline:4px solid var(--gold); outline-offset:3px}
 'use strict';
 const NAME = 'Teo';          // ime djeteta koje Bibo izgovara
 const GOAL = 5;              // zvjezdica po zadatku
-const LEVELS = ['balloons','stars','jump','colors','catch','count','letters'];
+const LEVELS = ['balloons','stars','jump','colors','catch','count','letters','animals','sayit','saycolor','saycount'];
 const $ = s => document.querySelector(s);
 const canvas = $('#c');
 
@@ -251,9 +262,44 @@ const countStars = [0,1,2,3,4].map(() => { const s = mesh(STARGEO, STARMAT, 0,3.
 
 const BCOL = [0xff4d6d,0xffc928,0x3ecf8e,0x4d9bff,0xb86bff];
 const COLORS = [
-  {n:'crveni', c:0xff3b4e, css:'#ff3b4e'}, {n:'plavi', c:0x2f7dff, css:'#2f7dff'},
-  {n:'žuti', c:0xffc928, css:'#ffc928'}, {n:'zeleni', c:0x2fbf5b, css:'#2fbf5b'}
+  {n:'crveni', f:'crvena', k:'crven', c:0xff3b4e, css:'#ff3b4e'}, {n:'plavi', f:'plava', k:'plav', c:0x2f7dff, css:'#2f7dff'},
+  {n:'žuti', f:'žuta', k:'zut', c:0xffc928, css:'#ffc928'}, {n:'zeleni', f:'zelena', k:'zelen', c:0x2fbf5b, css:'#2fbf5b'}
 ];
+/* slicice: e = sličica, n = naziv, acc = akuzativ ("klikni kravu"), k = korijeni koje priznajemo u govoru */
+const ANIMALS = [
+  {e:'🐶', n:'pas', acc:'psa', k:['pas','pes','psa','psic','cuk']}, {e:'🐱', n:'mačka', acc:'mačku', k:['mack','maca','mac','mic']},
+  {e:'🐮', n:'krava', acc:'kravu', k:['krav']}, {e:'🐷', n:'svinja', acc:'svinju', k:['svinj','pras']},
+  {e:'🐴', n:'konj', acc:'konja', k:['konj']}, {e:'🦆', n:'patka', acc:'patku', k:['patk','pace','paci']},
+  {e:'🐟', n:'riba', acc:'ribu', k:['rib']}, {e:'🐸', n:'žaba', acc:'žabu', k:['zab']},
+  {e:'🐘', n:'slon', acc:'slona', k:['slon']}, {e:'🦁', n:'lav', acc:'lava', k:['lav']},
+  {e:'🐻', n:'medvjed', acc:'medvjeda', k:['medvjed','medo','meda']}
+];
+const THINGS = [
+  {e:'🍎', n:'jabuka', acc:'jabuku', k:['jabuk']}, {e:'🍌', n:'banana', acc:'bananu', k:['banan']},
+  {e:'🚗', n:'auto', acc:'auto', k:['aut']}, {e:'⚽', n:'lopta', acc:'loptu', k:['lopt']},
+  {e:'☀️', n:'sunce', acc:'sunce', k:['sunc']}, {e:'🏠', n:'kuća', acc:'kuću', k:['kuc']}
+];
+const texCache = {};
+function emojiTex(e){
+  if(texCache[e]) return texCache[e];
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const x = c.getContext('2d');
+  x.fillStyle = '#ffffff'; x.beginPath(); x.arc(128,128,122,0,Math.PI*2); x.fill();
+  x.lineWidth = 10; x.strokeStyle = '#ff8a1f'; x.stroke();
+  x.font = '150px "Noto Color Emoji","Segoe UI Emoji","Apple Color Emoji",sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText(e, 128, 140);
+  return texCache[e] = new THREE.CanvasTexture(c);
+}
+const pics = [0,1,2].map(() => {
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({transparent:true})); sp.visible = false; scene.add(sp);
+  return {sp, item:null, base:new THREE.Vector3(), ph:rnd(0,6), size:1.7, shake:0};
+});
+function clearPics(){ pics.forEach(p => p.sp.visible = false); hoveredPic = null; }
+function showPic(i, item, x, y, size){
+  const p = pics[i]; p.item = item; p.base.set(x,y,0); p.size = size; p.shake = 0;
+  p.sp.material.map = emojiTex(item.e); p.sp.material.needsUpdate = true;
+  p.sp.position.copy(p.base); p.sp.scale.setScalar(.01); p.sp.visible = true;
+}
 const HIT = new THREE.MeshBasicMaterial({transparent:true, opacity:0, depthWrite:false});
 let balloons = [];
 function clearBalloons(){ balloons.forEach(b => scene.remove(b.g)); balloons = []; hovered = null; }
@@ -317,24 +363,77 @@ function pickVoice(){
 }
 if(synth){ pickVoice(); try{ synth.addEventListener('voiceschanged', pickVoice); }catch(e){} }
 const bubble = $('#bubble');
-function say(text){
+function say(text, onDone){
+  stopListen();                      // dok Bibo govori ne slusamo, da ne cuje sam sebe
   bubble.textContent = text; bubble.hidden = false;
   clearTimeout(talkTimer);
   const id = ++sayId, ms = 700 + text.length*65;
+  const cb = onDone || (voiceRound() ? listen : null);
+  let fired = false;
+  const done = () => { if(id !== sayId || fired) return; fired = true; talking = false; if(cb) cb(); };
   talking = true;
   if(!muted && voice && synth){
     try{
       synth.cancel();
       const u = new SpeechSynthesisUtterance(text);
       u.voice = voice; u.lang = voice.lang; u.pitch = 1.6; u.rate = .95;
-      u.onend = u.onerror = () => { if(id === sayId) talking = false; };
+      u.onend = u.onerror = done;
       setTimeout(() => { if(id === sayId) synth.speak(u); }, 70);
     }catch(e){}
-    talkTimer = setTimeout(() => { if(id === sayId) talking = false; }, ms + 4000);
+    talkTimer = setTimeout(done, ms + 4000);
   } else {
     if(!muted) sfx.beeps(Math.min(9, Math.ceil(text.length/7)));
-    talkTimer = setTimeout(() => { if(id === sayId) talking = false; }, ms);
+    talkTimer = setTimeout(done, ms);
   }
+}
+
+/* ---------- slusanje (prepoznavanje govora) ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let micOK = !!SR, rec = null, listening = false, wantListen = false, vr = null, vMiss = 0;
+const MICERR = ['not-allowed','service-not-allowed','audio-capture','network','language-not-supported'];
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d');
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+function voiceRound(){ return mode === 'voice' && roundActive && !!vr && !busy; }
+function setMic(){ $('#mic').classList.toggle('live', listening); }
+function stopListen(){ wantListen = false; if(rec && listening){ try{ rec.abort(); }catch(e){} } }
+function listen(){
+  if(!voiceRound() || !micOK) return;
+  if(!rec){
+    rec = new SR(); rec.lang = 'hr-HR'; rec.interimResults = true; rec.maxAlternatives = 5; rec.continuous = false;
+    rec.onresult = onHeard;
+    rec.onerror = e => { if(MICERR.includes(e.error)){ micOK = false; wantListen = false; micFallback(); } };
+    rec.onend = () => { listening = false; setMic(); if(wantListen) setTimeout(listen, 250); };
+  }
+  wantListen = true;
+  if(listening) return;
+  try{ rec.start(); listening = true; }catch(e){ setTimeout(() => { if(wantListen) listen(); }, 500); }
+  setMic();
+}
+function onHeard(e){
+  if(!voiceRound()) return;
+  let all = '', fin = false, last = '';
+  for(let i = e.resultIndex; i < e.results.length; i++){
+    const r = e.results[i]; if(r.isFinal) fin = true;
+    for(let j = 0; j < r.length; j++){ all += ' ' + r[j].transcript; }
+    last = r[0].transcript;
+  }
+  $('#heard').textContent = last.trim();
+  lastAction = T;
+  if(vr.match(norm(all))){ const v = vr; stopListen(); roundActive = false; v.right(false); return; }
+  if(!fin) return;
+  vMiss++;
+  if(vMiss >= 3){ const v = vr; stopListen(); roundActive = false; v.right(true); return; }
+  if(vMiss === 2 && state === 'saycount') $('#nums').hidden = false;
+  sfx.oops();
+  say(vMiss === 1 ? 'Nisam dobro čuo. Reci još jednom, glasno!' : vr.help, listen);
+}
+function startVoice(cfg, question){ vr = cfg; vMiss = 0; roundActive = true; $('#heard').textContent = ''; say(question, listen); }
+function micFallback(){
+  listening = false; setMic();
+  if(mode !== 'voice') return;
+  roundActive = false;
+  say('Mikrofon ne radi. Odgovaraj klikom!');
+  later(() => setLevel(state), 2600);
 }
 const PRAISE = ['Bravo, '+NAME+'!','Super!','Tako je!','Odlično, '+NAME+'!','Jupi!','Ti si majstor!','Fantastično!','To, '+NAME+'!'];
 let lastPraise = -1;
@@ -345,7 +444,7 @@ const NUM = ['jedan','dva','tri','četiri','pet'];
 let state = 'start', count = 0, round = 0, T = 0, lastAction = 0, busy = false, gen = 0;
 let vy = 0, onGround = true, happy = 0, spin = 0, facing = 0, walk = 0, nextBlink = 2, blink = 0;
 let starActive = false, roundActive = false, nextConfetti = 0, hovered = null;
-let target = -1, countN = 0, misses = 0, letter = '';
+let target = -1, countN = 0, misses = 0, letter = '', mode = '', hoveredPic = null, picTarget = null, picPool = ANIMALS, question = '';
 const keys = {up:false, down:false, left:false, right:false};
 const slotsEl = $('#slots'); const slots = [];
 for(let i=0;i<GOAL;i++){ const s = document.createElement('span'); s.textContent = '★'; slotsEl.appendChild(s); slots.push(s); }
@@ -356,6 +455,10 @@ const LETTERS = (function(){
 })();
 function later(fn, ms){ const g = gen; setTimeout(() => { if(g === gen) fn(); }, ms); }
 function hint(){
+  if(mode === 'voice') return question;
+  if(mode === 'picclick' && picTarget) return 'Klikni '+picTarget.acc+'!';
+  if(mode === 'colorclick') return 'Klikni '+COLORS[target].n+' balon!';
+  if(mode === 'count') return 'Izbroji zvjezdice i pritisni taj broj!';
   switch(state){
     case 'balloons': return 'Pomakni strelicu na balon i klikni!';
     case 'stars': return 'Pritisni strelice na tipkovnici i dovedi me do zvjezdice!';
@@ -371,12 +474,17 @@ function setLevel(l){
   gen++; state = l; count = 0; busy = false; roundActive = false; lastAction = T; misses = 0;
   slots.forEach(s => s.classList.remove('on'));
   document.querySelectorAll('#levels button').forEach(s => s.classList.toggle('on', s.dataset.l === l));
-  $('#mouseHint').hidden = l !== 'balloons';
-  $('#colorHint').hidden = l !== 'colors';
+  mode = l === 'balloons' ? 'pop' : l === 'colors' ? 'colorclick' : l === 'animals' ? 'picclick' : l === 'count' ? 'count'
+       : l === 'sayit' ? (micOK ? 'voice' : 'picclick') : l === 'saycolor' ? (micOK ? 'voice' : 'colorclick')
+       : l === 'saycount' ? (micOK ? 'voice' : 'count') : '';
+  stopListen(); vr = null; clearPics(); $('#heard').textContent = '';
+  $('#mic').hidden = mode !== 'voice';
+  $('#mouseHint').hidden = !(mode === 'pop' || mode === 'picclick');
+  $('#colorHint').hidden = mode !== 'colorclick';
   $('#pad').hidden = !(l === 'stars' || l === 'catch');
   $('#pad').classList.toggle('lr', l === 'catch');
   $('#spaceBtn').hidden = l !== 'jump';
-  $('#nums').hidden = l !== 'count';
+  $('#nums').hidden = mode !== 'count';
   $('#letterKey').hidden = l !== 'letters';
   $('#again').hidden = true;
   clearBalloons();
@@ -400,6 +508,14 @@ function setLevel(l){
     countRound(true);
   } else if(l === 'letters'){
     letterRound(true);
+  } else if(l === 'animals'){
+    picPool = ANIMALS; picsRound(true, 'Sada životinje! ');
+  } else if(l === 'sayit'){
+    if(mode === 'voice') sayItRound(true); else { picPool = THINGS; picsRound(true, 'Pogledaj sličice! '); }
+  } else if(l === 'saycolor'){
+    if(mode === 'voice') sayColorRound(true); else colorRound(true);
+  } else if(l === 'saycount'){
+    if(mode === 'voice') sayCountRound(true); else countRound(true);
   } else if(l === 'finale'){
     sfx.fanfare(); happy = 999;
     say('Bravo, '+NAME+'! Prošao si sve zadatke! Ti si pravi prvak!');
@@ -447,28 +563,98 @@ function dropStar(){
   starBlob.position.set(x,.02,0);
 }
 /* 6: brojevi */
-function countRound(first){
+function pickCount(){
   let n; do{ n = 1 + Math.floor(Math.random()*5); }while(n === countN); countN = n;
   countStars.forEach((s,i) => { s.visible = i < n; s.position.set((i-(n-1)/2)*1.3, 3.9, 0); s.scale.setScalar(.01); });
-  roundActive = true;
+}
+function countRound(first){
+  pickCount(); roundActive = true;
   say(first ? 'Idemo brojati! Koliko je zvjezdica? Pritisni taj broj!' : 'Koliko je zvjezdica?');
 }
+function countRight(helped){
+  const n = countN;
+  countStars.forEach(s => { if(s.visible){ burst(s.position, 0xffc928, 8, 3); s.visible = false; } });
+  addStar(null, helped ? 'Ima ih '+NUM[n-1]+'!' : 'Tako je! '+cap(NUM[n-1])+'!');
+  if(count < GOAL) later(() => { if(mode === 'voice') sayCountRound(false); else countRound(false); }, 1700);
+}
 function answer(n){
-  if(state !== 'count' || !roundActive || busy) return;
+  if(!(state === 'count' || state === 'saycount') || !roundActive || busy) return;
   lastAction = T;
-  if(n === countN){
-    roundActive = false;
-    countStars.forEach(s => { if(s.visible){ burst(s.position, 0xffc928, 8, 3); s.visible = false; } });
-    addStar(null, 'Tako je! '+NUM[n-1].charAt(0).toUpperCase()+NUM[n-1].slice(1)+'!');
-    if(count < GOAL) later(() => countRound(false), 1700);
-  } else { sfx.oops(); say('To je '+NUM[n-1]+'. Izbroji opet!'); }
+  if(n === countN){ stopListen(); roundActive = false; countRight(false); }
+  else { sfx.oops(); say('To je '+NUM[n-1]+'. Izbroji opet!'); }
+}
+/* 8: zivotinje - poslusaj i klikni slicicu */
+function picsRound(first, intro){
+  clearPics();
+  let three, t;
+  do{ three = shuffle(picPool).slice(0,3); t = three[Math.floor(Math.random()*3)]; }while(t === picTarget);
+  picTarget = t;
+  [-3.6,0,3.6].forEach((x,i) => showPic(i, three[i], x, x === 0 ? 4 : 3.3, 1.7));
+  roundActive = true;
+  say((first ? intro : '') + 'Gdje je '+t.n+'? Klikni '+t.acc+'!');
+}
+function clickPic(p){
+  if(busy || !roundActive) return;
+  lastAction = T;
+  if(p.item !== picTarget){ p.shake = .5; sfx.oops(); say('To je '+p.item.n+'. Nađi '+picTarget.acc+'!'); return; }
+  roundActive = false; sfx.pop(); burst(p.sp.position, null, 18, 5); clearPics();
+  addStar(null, 'Tako je! '+cap(p.item.n)+'!');
+  if(count < GOAL) later(() => picsRound(false, ''), 1700);
+}
+/* 9: reci sto je na slicici */
+const SAYPOOL = ANIMALS.concat(THINGS);
+let sayItem = null;
+function sayItRound(first){
+  clearPics();
+  let it; do{ it = SAYPOOL[Math.floor(Math.random()*SAYPOOL.length)]; }while(it === sayItem); sayItem = it;
+  showPic(1, it, 0, 4, 2);
+  question = 'Što je ovo? Reci glasno!';
+  startVoice({
+    match: h => it.k.some(s => h.includes(s)),
+    help: 'To je '+it.n+'. Reci: '+it.n+'!',
+    right: helped => {
+      sfx.pop(); burst(pics[1].sp.position, null, 18, 5); clearPics();
+      addStar(null, helped ? 'To je '+it.n+'!' : 'Tako je! '+cap(it.n)+'!');
+      if(count < GOAL) later(() => sayItRound(false), 1800);
+    }
+  }, first ? 'Sada mi odgovaraj glasom! Što je ovo?' : 'Što je ovo?');
+}
+/* 10: reci boju balona */
+function sayColorRound(first){
+  clearBalloons();
+  let t; do{ t = Math.floor(Math.random()*COLORS.length); }while(t === target); target = t;
+  const c = COLORS[t];
+  makeBalloon(c.c, new THREE.Vector3(0,4.1,0), t);
+  question = 'Koje je boje balon? Reci glasno!';
+  startVoice({
+    match: h => h.includes(c.k),
+    help: 'Balon je '+c.n+'. Reci: '+c.f+'!',
+    right: helped => {
+      const b = balloons[0]; if(b){ sfx.pop(); burst(b.g.position, b.col, 18, 5); }
+      clearBalloons();
+      addStar(null, helped ? 'Balon je '+c.n+'!' : 'Tako je! '+cap(c.f)+'!');
+      if(count < GOAL) later(() => sayColorRound(false), 1800);
+    }
+  }, first ? 'Koje je boje balon? Reci glasno!' : 'Koje je boje balon?');
+}
+/* 11: reci koliko je zvjezdica */
+const NUMK = [['jedan','jedna','jedno','1'],['dva','dvije','2'],['tri','3'],['cetiri','4'],['pet','5']];
+function sayCountRound(first){
+  pickCount(); $('#nums').hidden = true;
+  const n = countN;
+  question = 'Koliko je zvjezdica? Reci broj!';
+  startVoice({
+    match: h => { const w = h.split(/[^a-z0-9]+/); return NUMK[n-1].some(x => w.includes(x)); },
+    help: 'Ima ih '+NUM[n-1]+'. Reci: '+NUM[n-1]+'!',
+    right: helped => countRight(helped)
+  }, first ? 'Izbroji zvjezdice i reci mi broj! Koliko ih je?' : 'Koliko je zvjezdica?');
 }
 /* 7: slova */
 function letterRound(first){
   letter = LETTERS[count];
   $('#letterKey').innerHTML = '<b>'+letter+'</b><small>'+letter.toLowerCase()+'</small>';
   roundActive = true;
-  say((first ? 'Za kraj, slova! ' : '') + 'Pritisni slovo '+letter+'!');
+  say((first ? 'Sada slova! ' : '') + 'Pritisni slovo '+letter+'!');
 }
 function typed(ch){
   if(state !== 'letters' || !roundActive || busy) return;
@@ -484,7 +670,7 @@ function typed(ch){
 function tickle(){ spin = Math.PI*2; happy = Math.max(happy,1.5); sfx.giggle(); say('Hi hi hi! To škaklja!'); lastAction = T; }
 function clickBalloon(b){
   lastAction = T;
-  if(state === 'colors'){
+  if(mode === 'colorclick'){
     if(busy) return;
     if(b.ci !== target){ b.shake = .5; sfx.oops(); say('To je '+COLORS[b.ci].n+'. Nađi '+COLORS[target].n+'!'); return; }
     balloons = balloons.filter(x => x !== b); scene.remove(b.g); hovered = null;
@@ -500,18 +686,28 @@ function clickBalloon(b){
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(0,0);
 function setNdc(e){ const r = canvas.getBoundingClientRect(); ndc.x = (e.clientX-r.left)/r.width*2-1; ndc.y = -(e.clientY-r.top)/r.height*2+1; }
 function pickBalloon(){
-  if(!(state === 'balloons' || state === 'colors') || !balloons.length) return null;
+  if(!(mode === 'pop' || mode === 'colorclick') || !balloons.length) return null;
   scene.updateMatrixWorld();
   ray.setFromCamera(ndc, camera);
   const h = ray.intersectObjects(balloons.map(b => b.hit), false);
   return h.length ? balloons.find(b => b.hit === h[0].object) : null;
 }
-canvas.addEventListener('pointermove', e => { setNdc(e); hovered = pickBalloon(); });
+function pickPic(){
+  if(mode !== 'picclick') return null;
+  const vis = pics.filter(p => p.sp.visible); if(!vis.length) return null;
+  scene.updateMatrixWorld();
+  ray.setFromCamera(ndc, camera);
+  const h = ray.intersectObjects(vis.map(p => p.sp), false);
+  return h.length ? vis.find(p => p.sp === h[0].object) : null;
+}
+canvas.addEventListener('pointermove', e => { setNdc(e); hovered = pickBalloon(); hoveredPic = pickPic(); });
 canvas.addEventListener('pointerdown', e => {
   if(state === 'start') return;
   setNdc(e);
   const b = pickBalloon();
   if(b){ clickBalloon(b); return; }
+  const p = pickPic();
+  if(p){ clickPic(p); return; }
   ray.setFromCamera(ndc, camera);
   if(ray.intersectObject(bot, true).length) tickle();
 });
@@ -551,6 +747,14 @@ if(!document.fullscreenEnabled) $('#full').hidden = true;
 function begin(){
   if(state !== 'start') return;
   $('#start').hidden = true; $('#hud').hidden = false; pickVoice();
+  if(SR){ // pitaj za mikrofon odmah, dok je roditelj tu
+    try{
+      const p = new SR(); p.lang = 'hr-HR';
+      p.onstart = () => { try{ p.abort(); }catch(e){} };
+      p.onerror = e => { if(MICERR.includes(e.error)) micOK = false; };
+      p.start();
+    }catch(e){}
+  }
   tone(660,.1,'sine',.15); setLevel('balloons');
 }
 $('#play').addEventListener('click', begin);
@@ -592,9 +796,9 @@ function updateBot(dt){
   nextBlink -= dt; if(nextBlink < 0){ blink = .13; nextBlink = rnd(2,4.5); }
   blink = Math.max(0, blink - dt);
   eyes.forEach(e => e.scale.y = blink > 0 ? .012 : .1);
-  const look = state === 'balloons' || state === 'colors' || state === 'start';
+  const look = mode === 'pop' || mode === 'colorclick' || mode === 'picclick' || state === 'start';
   head.rotation.y = lerp(head.rotation.y, look ? ndc.x*.6 : 0, k);
-  head.rotation.x = lerp(head.rotation.x, (look ? -ndc.y*.3 : (state === 'catch' || state === 'count' ? -.35 : 0)) + (talking ? Math.sin(T*11)*.07 : 0), k);
+  head.rotation.x = lerp(head.rotation.x, (look ? -ndc.y*.3 : (state === 'catch' || mode === 'count' || mode === 'voice' ? -.35 : 0)) + (talking ? Math.sin(T*11)*.07 : 0), k);
   head.rotation.z = talking ? Math.sin(T*6)*.05 : lerp(head.rotation.z, 0, k);
   antenna.scale.setScalar(talking ? .1 + Math.abs(Math.sin(T*14))*.05 : .1);
   chest.material.emissiveIntensity = .6 + Math.sin(T*3)*.3;
@@ -617,6 +821,12 @@ function tick(){
     if(state === 'stars') star.position.y = 1 + Math.sin(T*3)*.15;
     if(state === 'catch' && starActive) star.position.y -= 1.5*dt;
   }
+  pics.forEach(p => { if(p.sp.visible){
+    p.shake = Math.max(0, p.shake - dt);
+    p.sp.scale.setScalar(lerp(p.sp.scale.x, p.size*(p === hoveredPic ? 1.2 : 1), .15));
+    p.sp.position.set(p.base.x, p.base.y + Math.sin(T*1.5+p.ph)*.15, p.base.z);
+    p.sp.material.rotation = Math.sin(T*45)*.5*p.shake;
+  } });
   countStars.forEach((s,i) => { if(s.visible){ s.rotation.y += dt*2; s.position.y = 3.9 + Math.sin(T*3+i)*.1; s.scale.setScalar(lerp(s.scale.x, 1, .15)); } });
   updateBot(dt);
   if(starActive && !busy){
