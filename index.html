@@ -139,8 +139,9 @@ button:focus-visible{outline:4px solid var(--gold); outline-offset:3px}
 <div id="start">
   <h1>Teo <b>i</b> Bibo</h1>
   <div class="bottom">
-    <button id="play" class="pulse" aria-label="Kreni">▶</button>
-    <p>Za roditelje: uključite zvuk. Bibo govori hrvatski ako uređaj ima hrvatski glas, inače pijuče i piše u oblačiću. Teo bira planet, a sličice gore lijevo biraju zadatak na planetu. Za zadatke u kojima odgovara glasom dopustite mikrofon.</p>
+    <button id="play" class="pulse" aria-label="Kreni" hidden>▶</button>
+    <p id="loading">Učitavam Bibin glas…</p>
+    <p>Za roditelje: uključite zvuk. Bibo govori snimljenim glasom; ako se snimke ne učitaju, govori glasom uređaja.Teo bira planet, a sličice gore lijevo biraju zadatak na planetu. Za zadatke u kojima odgovara glasom dopustite mikrofon.</p>
   </div>
 </div>
 
@@ -200,18 +201,19 @@ const shuffle = a => { const b = a.slice(); for(let i = b.length-1; i > 0; i--){
 
 /* otok (boja tla se mijenja po planetu) */
 const GRASS = new THREE.MeshStandardMaterial({color:0x6fd35b, roughness:.55}), SIDE = new THREE.MeshStandardMaterial({color:0x4fae45, roughness:.55});
-mesh(new THREE.CylinderGeometry(7.2,7.2,.6,56), GRASS, 0,-.3,0);
-mesh(new THREE.CylinderGeometry(7.25,6.6,.5,56), SIDE, 0,-.75,0);
-const under = mesh(new THREE.ConeGeometry(6.6,5,40), mat(0x9a6a44), 0,-3.5,0); under.rotation.x = Math.PI;
+const land = new THREE.Group(); scene.add(land);   // otok se skriva dok smo u svemiru
+mesh(new THREE.CylinderGeometry(7.2,7.2,.6,56), GRASS, 0,-.3,0, land);
+mesh(new THREE.CylinderGeometry(7.25,6.6,.5,56), SIDE, 0,-.75,0, land);
+const under = mesh(new THREE.ConeGeometry(6.6,5,40), mat(0x9a6a44), 0,-3.5,0, land); under.rotation.x = Math.PI;
 for(let i=0;i<26;i++){
   const a = rnd(0,Math.PI*2), r = rnd(2.2,6.8), x = Math.cos(a)*r, z = Math.sin(a)*r;
-  mesh(new THREE.CylinderGeometry(.03,.03,.3,6), mat(0x3d9140), x,.15,z);
-  const f = mesh(SPH, mat([0xff6f91,0xffd23f,0xffffff,0xb388ff,0xff9f43][i%5]), x,.34,z); f.scale.set(.13,.09,.13);
+  mesh(new THREE.CylinderGeometry(.03,.03,.3,6), mat(0x3d9140), x,.15,z, land);
+  const f = mesh(SPH, mat([0xff6f91,0xffd23f,0xffffff,0xb388ff,0xff9f43][i%5]), x,.34,z, land); f.scale.set(.13,.09,.13);
 }
 [[-5.4,-3.2,1.2],[5.2,-3.6,1.4],[-2.6,-5.6,1],[2.9,-5.4,.9],[6.2,-.4,.8],[-6.3,-.2,.8]].forEach(([x,z,s])=>{
-  mesh(new THREE.CylinderGeometry(.18*s,.24*s,1.2*s,10), mat(0x8a5a35), x,.6*s,z);
-  const c1 = mesh(SPH, mat(0x2fa35a), x,1.7*s,z); c1.scale.set(.95*s,.85*s,.95*s);
-  const c2 = mesh(SPH, mat(0x3fbf6a), x+.3*s,2.3*s,z); c2.scale.set(.6*s,.55*s,.6*s);
+  mesh(new THREE.CylinderGeometry(.18*s,.24*s,1.2*s,10), mat(0x8a5a35), x,.6*s,z, land);
+  const c1 = mesh(SPH, mat(0x2fa35a), x,1.7*s,z, land); c1.scale.set(.95*s,.85*s,.95*s);
+  const c2 = mesh(SPH, mat(0x3fbf6a), x+.3*s,2.3*s,z, land); c2.scale.set(.6*s,.55*s,.6*s);
 });
 const clouds = [];
 for(let i=0;i<7;i++){
@@ -433,8 +435,7 @@ function labelTex(txt, gold){
 }
 const mapGroup = new THREE.Group(); mapGroup.visible = false; scene.add(mapGroup);
 const planets = WORLDS.map((w,i) => {
-  const m = i - (WORLDS.length-1)/2;
-  const g = new THREE.Group(); g.position.set(m*1.45, 4.47 - .11*m*m, 1.5); mapGroup.add(g);
+  const g = new THREE.Group(); g.position.set(-4.8 + 3.2*(i%4), i < 4 ? 4 : .3, 0); mapGroup.add(g);   // dva reda po cetiri planeta
   const ball = new THREE.Group(); g.add(ball);
   const b = mesh(SPH, mat(w.col,{roughness:.7}), 0,0,0, ball); b.scale.setScalar(.75);
   [[.35,.4,.5,.3],[-.45,-.2,.5,.24],[.1,-.5,-.45,.3],[-.3,.45,-.4,.26]].forEach(([x,y,z,s]) => { const p = mesh(SPH, mat(w.grass,{roughness:.8}), x,y,z, ball); p.scale.set(s,s*.8,s); });
@@ -444,6 +445,15 @@ const planets = WORLDS.map((w,i) => {
   const label = new THREE.Sprite(new THREE.SpriteMaterial({transparent:true})); label.scale.set(1.3,.49,1); label.position.set(0,-1.15,0); g.add(label);
   return {g, ball, hit, label, i, y:g.position.y, s:1};
 });
+/* svemirski brod: Bibo sjedi pod staklenom kupolom */
+const ship = new THREE.Group(); ship.visible = false; scene.add(ship);
+(function(){
+  const hull = mesh(SPH, mat(0xff8a1f,{roughness:.35}), 0,-.3,0, ship); hull.scale.set(1.25,.32,1.25);
+  const rim = mesh(new THREE.TorusGeometry(1.2,.09,10,40), mat(0xffffff,{roughness:.3}), 0,-.3,0, ship); rim.rotation.x = Math.PI/2;
+  for(let i=0;i<8;i++){ const a = i/8*Math.PI*2; const l = mesh(SPH, glow(i%2 ? 0x4de8ff : 0xffd23f), Math.cos(a)*.95,-.48,Math.sin(a)*.95, ship); l.scale.setScalar(.09); }
+  const dome = mesh(SPH, new THREE.MeshStandardMaterial({color:0x9fe8ff, transparent:true, opacity:.28, roughness:.1, depthWrite:false}), 0,.2,0, ship); dome.scale.setScalar(.88);
+})();
+const flame = mesh(new THREE.ConeGeometry(.28,.9,12), glow(0xffd23f), 0,-1,0, ship); flame.rotation.x = Math.PI;
 function refreshMap(){
   planets.forEach(p => {
     const w = WORLDS[p.i], n = w.levels.filter(l => done.has(l)).length;
@@ -496,28 +506,97 @@ function pickVoice(){
 }
 if(synth){ pickVoice(); try{ synth.addEventListener('voiceschanged', pickVoice); }catch(e){} }
 const bubble = $('#bubble');
+/* Snimljeni glas: glas.bin = sve recenice (mp3) jedna za drugom, glas.json = gdje je koja.
+   Tekst se dijeli na recenice; svaka ima svoju snimku. Recenica bez snimke ide ugradenim glasom uredaja. */
+const SPLIT = /(?<=[.!?])\s+/;
+let pack = null, packBin = null, curSrc = null;
+const bufCache = new Map();
+window.__miss = [];
+function ensureAc(){ try{ ac = ac || new (window.AudioContext||window.webkitAudioContext)(); if(ac.state === 'suspended') ac.resume(); }catch(e){} return ac; }
+let packUrl = '', packSize = 0, probe = null;
+async function loadPack(){
+  try{
+    const idx = await (await fetch('glas.json', {cache:'no-cache'})).json();
+    packUrl = 'glas.bin?v=' + idx.v; packSize = idx.size; pack = idx.clips;
+  }catch(e){ pack = null; }
+}
+/* Svaka recenica se dohvaca zasebno (HTTP Range), pa se nista veliko ne ucitava unaprijed.
+   Ako posluzitelj ne podrzava Range i vrati cijelu datoteku, zadrzimo je i dalje rezemo iz nje. */
+async function clipBytes(s){
+  const off = pack[s][0], len = pack[s][1];
+  if(probe) await probe;
+  if(packBin) return packBin.slice(off, off+len);
+  const job = (async () => {
+    const r = await fetch(packUrl, {headers:{Range:'bytes='+off+'-'+(off+len-1)}});
+    const ab = await r.arrayBuffer();
+    if(r.status === 206 && ab.byteLength === len) return ab;
+    if(ab.byteLength >= packSize){ packBin = ab; return ab.slice(off, off+len); }
+    throw new Error('range');
+  })();
+  if(!probe) probe = job.then(() => {}, () => {});
+  return job;
+}
+function clipBuf(s){
+  if(bufCache.has(s)) return bufCache.get(s);
+  const p = clipBytes(s).then(ab => new Promise((res, rej) => ac.decodeAudioData(ab, res, rej)));
+  bufCache.set(s, p); p.catch(() => bufCache.delete(s));
+  return p;
+}
+/* snimke imaju tisinu na pocetku i kraju; rezemo je da recenice teku jedna za drugom bez dugih stanki */
+function trimOf(b){
+  if(b._t) return b._t;
+  const d = b.getChannelData(0), n = d.length, sr = b.sampleRate; let a = 0, e = n-1;
+  while(a < n && Math.abs(d[a]) < .012) a++;
+  while(e > a && Math.abs(d[e]) < .012) e--;
+  const s = Math.max(0, a/sr - .03);
+  return b._t = [s, Math.min(b.duration - s, (e-a)/sr + .25)];
+}
+function playBuf(b){
+  return new Promise(res => {
+    const src = ac.createBufferSource(), t = trimOf(b); src.buffer = b; src.connect(ac.destination); src.onended = res; curSrc = src; src.start(0, t[0], t[1]);
+  });
+}
+function stopVoice(){
+  if(curSrc){ try{ curSrc.onended = null; curSrc.stop(); }catch(e){} curSrc = null; }
+  if(synth){ try{ synth.cancel(); }catch(e){} }
+}
+function speakTTS(s){
+  return new Promise(res => {
+    const ms = 700 + s.length*65;
+    if(voice && synth){
+      try{
+        const u = new SpeechSynthesisUtterance(s);
+        u.voice = voice; u.lang = voice.lang; u.pitch = 1.08; u.rate = .9; u.volume = 1;
+        u.onend = u.onerror = res; synth.speak(u);
+      }catch(e){}
+      setTimeout(res, ms + 4000);
+    } else { sfx.beeps(Math.min(9, Math.ceil(s.length/7))); setTimeout(res, ms); }
+  });
+}
 function say(text, onDone){
   stopListen();                      // dok Bibo govori ne slusamo, da ne cuje sam sebe
   bubble.textContent = text; bubble.hidden = false;
-  clearTimeout(talkTimer);
+  clearTimeout(talkTimer); stopVoice();
   const id = ++sayId, ms = 700 + text.length*65;
   const cb = onDone || (voiceRound() ? listen : null);
   let fired = false;
   const fin = () => { if(id !== sayId || fired) return; fired = true; talking = false; if(cb) cb(); };
   talking = true;
-  if(!muted && voice && synth){
-    try{
-      synth.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.voice = voice; u.lang = voice.lang; u.pitch = 1.08; u.rate = .9; u.volume = 1;   // prirodna visina i malo sporije, da bude razgovjetno
-      u.onend = u.onerror = fin;
-      setTimeout(() => { if(id === sayId) synth.speak(u); }, 70);
-    }catch(e){}
-    talkTimer = setTimeout(fin, ms + 4000);
-  } else {
-    if(!muted) sfx.beeps(Math.min(9, Math.ceil(text.length/7)));
-    talkTimer = setTimeout(fin, ms);
-  }
+  if(muted){ talkTimer = setTimeout(fin, ms); return; }
+  (async () => {
+    const parts = text.split(SPLIT);
+    if(pack && ensureAc()) parts.forEach(s => { if(pack[s]) clipBuf(s).catch(() => {}); });   // sve recenice dohvati odmah, usporedno
+    for(const s of parts){
+      if(id !== sayId) return;
+      if(pack && pack[s] && ensureAc()){
+        try{ const b = await clipBuf(s); if(id !== sayId) return; await playBuf(b); continue; }catch(e){}
+      } else if(pack) window.__miss.push(s);
+      if(id !== sayId) return;
+      await speakTTS(s);
+    }
+    fin();
+  })();
+  talkTimer = setTimeout(fin, ms + 15000);
 }
 const PRAISE = ['Bravo, '+NAME+'!','Super!','Tako je!','Odlično, '+NAME+'!','Jupi!','Ti si majstor!','Fantastično!','To, '+NAME+'!'];
 let lastPraise = -1;
@@ -528,6 +607,64 @@ const NUMSAY = ['jedna','dvije','tri','četiri','pet','šest','sedam','osam','de
 const NUMK = [['jedan','jedna','jedno','1'],['dva','dvije','2'],['tri','3'],['cetiri','4'],['pet','5'],['sest','6'],['sedam','7'],['osam','8'],['devet','9']];
 const numName = ch => ch === '0' ? 'nula' : NUM[+ch-1];
 $('#nums').innerHTML = NUM.map((_, i) => '<button class="key" data-n="'+(i+1)+'">'+(i+1)+'</button>').join('');
+
+/* Popis SVIH recenica koje Bibo moze izgovoriti - iz njega se snimaju glasovne snimke (alat/glas.py).
+   Kad se promijeni neka recenica u igri, promijeniti je i ovdje pa ponovno pokrenuti alat. */
+/*@LINES*/
+function allLines(){
+  const L = [], add = (...a) => a.forEach(t => L.push(t));
+  add('Bok, '+NAME+'! Ja sam Bibo, tvoj robot prijatelj. Ovo je naš svemirski brod! Strelicama doleti do planeta!',
+      'Svi planeti su tvoji! Doleti do planeta i igraj opet!', 'Na koji planet letimo sada? Strelicama doleti do planeta!',
+      'Strelicama doleti do planeta ili klikni na planet!',
+      'Vidiš li balone? Pomakni strelicu na balon i klikni!',
+      'Pomozi mi doći do zvjezdice. Pritisni strelice na tipkovnici!',
+      'Zvjezdica je visoko. Pritisni veliku dugu tipku da skočim!',
+      'Zvjezdice padaju s neba! Strelicama lijevo i desno dovedi me ispod zvjezdice!',
+      'Leptiri! Ulovi ih! Klikni ih dok lete!', 'Ulovi leptire! Klikni ih dok lete!',
+      'Trčimo! Preskoči balvan! Pritisni dugu tipku kad dođe blizu!', 'Ups! Pritisni dugu tipku kad balvan dođe blizu!',
+      'Idemo svirati! Pritisni tipke s brojevima!', 'Bravo! Kakva glazba!',
+      'Voće pada s neba! Strelicama lijevo i desno dovedi me ispod voća!', 'Njam njam!', 'Njam njam! Hvala!',
+      'Pronađi dvije iste sličice! Klikni na karticu!', 'Bravo! Dvije iste sličice!', 'Nisu iste. Probaj opet!',
+      'Skupi sve zvjezdice! Pritisni strelice na tipkovnici!',
+      'Svemirci se skrivaju! Brzo, klikni svemirca!',
+      'Bravo, '+NAME+'! Osvojio si sve planete! Ti si pravi prvak!', 'Bravo, '+NAME+'! Osvojio si cijeli planet! Letimo na sljedeći!',
+      'Idemo brojati! Koliko je zvjezdica? Pritisni taj broj!', 'Izbroji zvjezdice i pritisni taj broj!', 'Izbroji opet!',
+      'Tražimo životinje!', 'Poslušaj kako se životinje glasaju!', 'Pogledaj sličice!', 'Tražimo oblike!', 'Sada pazi!',
+      'Pogledaj lica!', 'Tražimo odjeću!', 'Pogledaj nebo!', 'Što ovdje ne pripada?', 'Gladan sam!', 'Klikni ga!', 'Tako je!',
+      'Tražimo brojeve na tipkovnici!', 'Lansiramo raketu! Odbrojavaj sa mnom!', 'Tražimo slova na tipkovnici!',
+      'Jedan! Kreni! Raketa leti!', 'Bravo!',
+      'Nisam dobro čuo. Reci još jednom, glasno!', 'Sada mi odgovaraj glasom! Što je ovo?', 'Što je ovo? Reci glasno!',
+      'Kakav je ovo balon? Koje je boje? Reci glasno!', 'Izbroji zvjezdice i reci mi broj! Koliko ih je?',
+      'Koliko je zvjezdica? Reci broj!', 'Izbroji sa mnom!', 'Mikrofon ne radi. Odgovaraj klikom!',
+      'Hi hi hi! To škaklja!', 'Ups! Probaj opet!', 'Sada tražimo boje!', 'Gledaj koliko su veliki!', 'Pogledaj dvije hrpe zvjezdica!',
+      'Pomakni strelicu na balon i klikni!', 'Pritisni strelice na tipkovnici i dovedi me do zvjezdice!',
+      'Pritisni veliku dugu tipku da skočim!', 'Strelicama lijevo i desno dovedi me ispod zvjezdice!',
+      'Pritisni dugu tipku kad balvan dođe blizu!', 'Strelicama lijevo i desno dovedi me ispod voća!');
+  PRAISE.forEach(p => add(p));
+  WORLDS.forEach(w => add(w.n+'!'));
+  const seen = new Set();
+  ANIMALS.concat(THINGS, SHAPES, CLOTHES, WEATHER).forEach(it => {
+    if(seen.has(it.n)) return; seen.add(it.n);
+    add('Gdje '+(it.pl ? 'su' : 'je')+' '+it.n+'? Klikni '+it.acc+'!', toJe(it)+'. Nađi '+it.acc+'!', 'Tako je! '+cap(it.n)+'!',
+        toJe(it)+'. Reci: '+it.n+'!', toJe(it)+'!', 'Gladan sam! Daj mi '+it.acc+'!');
+  });
+  ANIMALS.filter(a => a.snd).forEach(a => add('Tko kaže '+a.snd+'?', 'To je '+a.n+'. '+cap(a.n)+' kaže '+a.snd+'.', 'Tako je! '+cap(a.n)+' kaže '+a.snd+'!'));
+  CATS.forEach(a => {
+    add('Što nije '+a.w+'?');
+    a.list.forEach(it => add(cap(it.n)+' je '+a.w+'.'));
+    CATS.forEach(b => { if(b !== a) b.list.forEach(it => add(cap(it.n)+' nije '+a.w+'!')); });
+  });
+  FACES.forEach(f => add('Tko je '+f.adj+'?', 'On je '+f.adj+'.', 'On je '+f.adj+'!'));
+  COLORS.forEach(c => add('Klikni '+c.n+' balon!', 'To je '+c.n+' balon.', 'Nađi '+c.n+' balon!', 'Ovo je '+c.n+' balon. Reci: '+c.n+'!', 'Ovo je '+c.n+' balon!', cap(c.n)+' balon!'));
+  NUM.forEach((n, i) => add(cap(NUMF[i])+'!', cap(NUMF[i])+'.', 'Reci: '+NUMSAY[i]+'!', 'To je broj '+n+'.', 'Pritisni broj '+n+'!', 'Broj '+n+'!', 'Nađi broj '+n+'!', cap(n)+'!'));
+  add('To je broj nula.');
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZČĆŽŠĐ'.split('').forEach(l => add('Pritisni slovo '+l+'!', 'Slovo '+l+'!', 'To je slovo '+l+'.', 'Nađi slovo '+l+'!'));
+  ['najveći','najmanji'].forEach(w => add('Klikni '+w+' balon!', 'Taj nije '+w+'.', 'Nađi '+w+' balon!'));
+  ['više','manje'].forEach(w => add('Gdje ima '+w+' zvjezdica?', 'Klikni tu hrpu!', 'Tu ima '+w+'!', 'Tu ima '+w+'.', 'Klikni tu hrpu ili pritisni strelicu!'));
+  add('Koliko je zvjezdica?', 'Što je ovo?', 'Kakav je ovo balon?', 'Kakav je ovo balon? Reci glasno!', 'Klikni na planet!', 'Brzo, klikni svemirca!', 'Pritisni tipke s brojevima!');
+  return L;
+}
+/*@END*/
 
 /* ---------- slusanje (prepoznavanje govora) ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -584,6 +721,7 @@ let vy = 0, onGround = true, happy = 0, spin = 0, facing = 0, walk = 0, nextBlin
 let starActive = false, roundActive = false, nextConfetti = 0, hovered = null, hoveredPic = null;
 let target = -1, countN = 0, misses = 0, letter = '', letters = [], mode = '', picTarget = null, picPool = ANIMALS, question = '';
 let picKind = 'name', oddCat = CATS[0], sizeWant = 'najveći', logOn = false, logScored = false, bonks = 0, sayItem = null;
+let shipVx = 0, shipVy = 0, dest = null, destPlanet = -1, hoverPl = -1;
 let memFirst = null, memLock = false, memLeft = 0, moreSide = 0, moreWant = 'više';
 const played = new Set(), NOTES = [523,587,659,698,784,880,988,1047,1175];
 const keys = {up:false, down:false, left:false, right:false};
@@ -591,7 +729,7 @@ const slotsEl = $('#slots'); const slots = [];
 for(let i=0;i<GOAL;i++){ const s = document.createElement('span'); s.textContent = '★'; slotsEl.appendChild(s); slots.push(s); }
 function later(fn, ms){ const g = gen; setTimeout(() => { if(g === gen) fn(); }, ms); }
 function hint(){
-  if(state === 'map') return 'Klikni na planet!';
+  if(state === 'map') return 'Strelicama doleti do planeta ili klikni na planet!';
   if(mode === 'voice') return question;
   if(mode === 'picclick' && picTarget) return picAsk();
   if(mode === 'colorclick') return 'Klikni '+COLORS[target].n+' balon!';
@@ -638,16 +776,23 @@ function setLevel(l){
   /* karta ili planet */
   mapGroup.visible = spaceStars.visible = isMap; clouds.forEach(c => c.visible = !isMap); sel = -1;
   $('#levels').hidden = $('#slots').hidden = isMap;
-  if(isMap){ setSky('#0b1440','#43318a'); GRASS.color.setHex(0x6fd35b); SIDE.color.setHex(0x4fae45); refreshMap(); }
+  land.visible = blob.visible = !isMap; ship.visible = isMap;
+  if(isMap){
+    setSky('#070b2e','#3b2a7a'); refreshMap();
+    ship.add(bot); bot.position.set(0,-.3,0); bot.scale.setScalar(.5);
+    ship.position.set(0,2.15,.6); ship.scale.setScalar(1); ship.rotation.z = 0;
+    shipVx = shipVy = 0; dest = null; destPlanet = hoverPl = -1; vy = 0; onGround = true;
+  }
   else {
+    if(bot.parent !== scene){ scene.add(bot); bot.position.set(0,0,0); bot.scale.setScalar(1); }
     const w = WORLDS[world]; setSky(w.sky[0], w.sky[1]); GRASS.color.setHex(w.grass); SIDE.color.setHex(w.side); buildBar();
     if(w.space){ spaceStars.visible = true; clouds.forEach(c => c.visible = false); }
   }
   const lr = l === 'catch' || l === 'apples' || l === 'more';
   $('#mic').hidden = mode !== 'voice';
-  $('#mouseHint').hidden = !(mode === 'pop' || mode === 'picclick' || mode === 'sizeclick' || mode === 'flyclick' || mode === 'memory' || isMap);
+  $('#mouseHint').hidden = !(mode === 'pop' || mode === 'picclick' || mode === 'sizeclick' || mode === 'flyclick' || mode === 'memory');
   $('#colorHint').hidden = mode !== 'colorclick';
-  $('#pad').hidden = !(l === 'stars' || l === 'gather' || lr);
+  $('#pad').hidden = !(l === 'stars' || l === 'gather' || lr || isMap);
   $('#pad').classList.toggle('lr', lr);
   $('#spaceBtn').hidden = !(l === 'jump' || l === 'hurdles');
   $('#nums').hidden = !(mode === 'count' || mode === 'piano');
@@ -655,8 +800,8 @@ function setLevel(l){
   $('#again').hidden = true;
   if(isMap){
     const all = LEVELS.every(x => done.has(x));
-    say(firstMap ? 'Bok, '+NAME+'! Ja sam Bibo, tvoj robot prijatelj. Na koji planet letimo? Klikni na planet!'
-      : all ? 'Svi planeti su tvoji! Klikni na planet i igraj opet!' : 'Na koji planet letimo sada? Klikni na planet!');
+    say(firstMap ? 'Bok, '+NAME+'! Ja sam Bibo, tvoj robot prijatelj. Ovo je naš svemirski brod! Strelicama doleti do planeta!'
+      : all ? 'Svi planeti su tvoji! Doleti do planeta i igraj opet!' : 'Na koji planet letimo sada? Strelicama doleti do planeta!');
     firstMap = false;
   } else if(l === 'balloons'){
     spawnBalloons(); say('Vidiš li balone? Pomakni strelicu na balon i klikni!');
@@ -728,9 +873,30 @@ function setLevel(l){
 }
 function choosePlanet(i){
   if(state !== 'map' || busy) return;
-  busy = true; sel = i; world = i; sfx.whoosh(); spin = Math.PI*4; if(onGround){ vy = 12; onGround = false; }
-  say(WORLDS[i].n+'!');
-  later(() => { const w = WORLDS[i].levels; setLevel(w.find(l => !done.has(l)) || w[0]); }, 1600);
+  busy = true; world = i; destPlanet = i; sfx.whoosh();
+  if(sel !== i){ sel = i; say(WORLDS[i].n+'!'); }
+  later(() => { const w = WORLDS[i].levels; setLevel(w.find(l => !done.has(l)) || w[0]); }, 1700);
+}
+/* let brodom: strelice ili klik; kad brod dotakne planet, slijecemo */
+function flyShip(dt, k){
+  let dx = 0, dy = 0;
+  if(busy){ const p = planets[destPlanet].g.position; dest = {x:p.x, y:p.y}; ship.scale.setScalar(lerp(ship.scale.x, .15, .06)); }
+  else { dx = (keys.right?1:0)-(keys.left?1:0); dy = (keys.up?1:0)-(keys.down?1:0); if(dx || dy){ dest = null; destPlanet = -1; lastAction = T; } }
+  if(!dx && !dy && dest){
+    const ex = dest.x - ship.position.x, ey = dest.y - ship.position.y, d = Math.hypot(ex, ey);
+    if(d > .08){ dx = ex/d; dy = ey/d; } else if(!busy) dest = null;
+  }
+  const l = Math.hypot(dx, dy) || 1;
+  shipVx = lerp(shipVx, dx/l*5.5, k*.6); shipVy = lerp(shipVy, dy/l*5.5, k*.6);
+  ship.position.x = Math.max(-6.3, Math.min(6.3, ship.position.x + shipVx*dt));
+  ship.position.y = Math.max(-1.7, Math.min(5, ship.position.y + shipVy*dt));
+  ship.rotation.z = lerp(ship.rotation.z, -shipVx*.07, .1);
+  flame.scale.y = .6 + Math.hypot(shipVx, shipVy)*.25 + Math.sin(T*30)*.15;
+  if(busy) return;
+  let best = -1, bd = 1e9;
+  planets.forEach(p => { const d = Math.hypot(p.g.position.x - ship.position.x, p.g.position.y - ship.position.y); if(d < bd){ bd = d; best = p.i; } });
+  if(bd < 1.9) focusPlanet(best); else if(hoverPl < 0 && sel >= 0) sel = -1;
+  if(bd < 1 && (destPlanet < 0 || destPlanet === best)) choosePlanet(best);
 }
 function addStar(pos, text){
   if(busy) return;
@@ -756,7 +922,7 @@ function placeStar(){
 /* skok */
 function skyStar(){ star.position.set(0,4.2,0); star.scale.setScalar(.01); star.visible = true; starBlob.visible = false; starActive = true; }
 function jump(){
-  if(state === 'start' || !onGround) return;
+  if(state === 'start' || state === 'map' || !onGround) return;
   vy = 9.8; onGround = false; sfx.jump(); lastAction = T;
 }
 /* boje: pet balona, sedam mogucih boja */
@@ -1048,12 +1214,18 @@ function pickPlanet(){
 function focusPlanet(i){ if(i !== sel){ sel = i; if(i >= 0){ say(WORLDS[i].n+'!'); lastAction = T; } } }
 canvas.addEventListener('pointermove', e => {
   setNdc(e); hovered = pickBalloon(); hoveredPic = pickPic();
-  if(state === 'map' && !busy){ const i = pickPlanet(); if(i >= 0) focusPlanet(i); }
+  if(state === 'map' && !busy){ const i = pickPlanet(); hoverPl = i; if(i >= 0) focusPlanet(i); }
 });
 canvas.addEventListener('pointerdown', e => {
   if(state === 'start') return;
   setNdc(e);
-  const pl = pickPlanet(); if(pl >= 0){ choosePlanet(pl); return; }
+  if(state === 'map'){   // klik na planet: brod leti do njega; klik u prazno: brod leti na to mjesto
+    if(busy) return;
+    const pl = pickPlanet(); lastAction = T;
+    if(pl >= 0){ const p = planets[pl].g.position; destPlanet = pl; dest = {x:p.x, y:p.y}; focusPlanet(pl); }
+    else { ray.setFromCamera(ndc, camera); const t = (.6 - ray.ray.origin.z)/ray.ray.direction.z; destPlanet = -1; dest = {x:ray.ray.origin.x + ray.ray.direction.x*t, y:ray.ray.origin.y + ray.ray.direction.y*t}; }
+    return;
+  }
   const b = pickBalloon(); if(b){ clickBalloon(b); return; }
   const p = pickPic(); if(p){ clickPic(p); return; }
   if(state === 'more' && ndc.y > -.15 && Math.abs(ndc.x) > .12){ moreAnswer(ndc.x < 0 ? -1 : 1); return; }
@@ -1066,8 +1238,7 @@ window.addEventListener('keydown', e => {
   if(e.ctrlKey || e.metaKey || e.altKey) return;
   if(state === 'start'){ if(e.code === 'Enter' || e.code === 'Space'){ e.preventDefault(); begin(); } return; }
   if(state === 'map'){
-    if(e.code === 'ArrowLeft' || e.code === 'ArrowRight'){ e.preventDefault(); if(!busy) focusPlanet(Math.max(0, Math.min(WORLDS.length-1, (sel < 0 ? 3 : sel +(e.code === 'ArrowLeft' ? -1 : 1))))); return; }
-    if((e.code === 'Enter' || e.code === 'Space') && sel >= 0){ e.preventDefault(); if(!e.repeat) choosePlanet(sel); return; }
+    if((e.code === 'Enter' || e.code === 'Space') && sel >= 0 && !busy){ e.preventDefault(); const p = planets[sel].g.position; destPlanet = sel; dest = {x:p.x, y:p.y}; return; }
   }
   const k = KEYMAP[e.code];
   if(k){ e.preventDefault(); keys[k] = true; padBtn(k).classList.add('on'); }
@@ -1094,7 +1265,7 @@ $('#nums').addEventListener('click', e => { const b = e.target.closest('button')
 $('#letterKey').addEventListener('click', () => { typed(letter); $('#letterKey').blur(); });
 $('#spaceBtn').addEventListener('pointerdown', e => { e.preventDefault(); jump(); });
 $('#levels').addEventListener('click', e => { const b = e.target.closest('button'); if(!b || state === 'start') return; setLevel(b.dataset.l); });
-$('#mute').addEventListener('click', () => { muted = !muted; $('#mute').textContent = muted ? '🔇' : '🔊'; if(muted && synth) synth.cancel(); $('#mute').blur(); });
+$('#mute').addEventListener('click', () => { muted = !muted; $('#mute').textContent = muted ? '🔇' : '🔊'; if(muted) stopVoice(); $('#mute').blur(); });
 $('#full').addEventListener('click', () => {
   try{ if(document.fullscreenElement) document.exitFullscreen(); else { const p = document.documentElement.requestFullscreen(); if(p && p.catch) p.catch(()=>{}); } }catch(e){}
   $('#full').blur();
@@ -1102,7 +1273,7 @@ $('#full').addEventListener('click', () => {
 if(!document.fullscreenEnabled) $('#full').hidden = true;
 function begin(){
   if(state !== 'start') return;
-  $('#start').hidden = true; $('#hud').hidden = false; pickVoice();
+  $('#start').hidden = true; $('#hud').hidden = false; pickVoice(); ensureAc();
   if(SR){ // pitaj za mikrofon odmah, dok je roditelj tu
     try{
       const p = new SR(); p.lang = 'hr-HR';
@@ -1114,6 +1285,12 @@ function begin(){
   tone(660,.1,'sine',.15); setLevel('map');
 }
 $('#play').addEventListener('click', begin);
+/* glas se ucitava prije pocetka; ako ne uspije (ili traje predugo), igra krece s glasom uredaja */
+(function(){
+  const ready = () => { $('#loading').hidden = true; $('#play').hidden = false; };
+  const t = setTimeout(ready, 8000);
+  loadPack().then(() => { clearTimeout(t); ready(); });
+})();
 $('#replay').addEventListener('click', () => { happy = 0; setLevel('map'); });
 
 /* ---------- petlja ---------- */
@@ -1123,9 +1300,10 @@ const clock = new THREE.Clock();
 function updateBot(dt){
   const k = 1 - Math.pow(.0005, dt);
   let mx = 0, mz = 0, steer = false;
+  if(state === 'map') flyShip(dt, k);
   if((state === 'stars' || state === 'gather') && !busy){ mx = (keys.right?1:0)-(keys.left?1:0); mz = (keys.down?1:0)-(keys.up?1:0); steer = true; }
   else if((state === 'catch' || state === 'apples') && !busy){ mx = (keys.right?1:0)-(keys.left?1:0); steer = mx !== 0; if(Math.abs(bot.position.z) > .1) mz = -Math.sign(bot.position.z); else bot.position.z = 0; }
-  else if(state !== 'start'){ const d = Math.hypot(bot.position.x, bot.position.z); if(d > .1){ mx = -bot.position.x/d; mz = -bot.position.z/d; } else { bot.position.x = bot.position.z = 0; } }
+  else if(state !== 'start' && state !== 'map'){ const d = Math.hypot(bot.position.x, bot.position.z); if(d > .1){ mx = -bot.position.x/d; mz = -bot.position.z/d; } else { bot.position.x = bot.position.z = 0; } }
   const moving = mx !== 0 || mz !== 0;
   if(moving){
     const l = Math.hypot(mx,mz); bot.position.x += mx/l*4.2*dt; bot.position.z += mz/l*4.2*dt;
@@ -1135,7 +1313,7 @@ function updateBot(dt){
   } else facing = lerpAngle(facing, state === 'hurdles' ? Math.PI/2 : 0, k*.5);
   walk = lerp(walk, moving || (state === 'hurdles' && !busy) ? 1 : 0, k);
   if(state === 'finale' && onGround){ vy = 6.5; onGround = false; }
-  if(!onGround || vy > 0){ vy -= 24*dt; bot.position.y += vy*dt; if(bot.position.y <= 0){ bot.position.y = 0; vy = 0; onGround = true; } }
+  if(state !== 'map' && (!onGround || vy > 0)){ vy -= 24*dt; bot.position.y += vy*dt; if(bot.position.y <= 0){ bot.position.y = 0; vy = 0; onGround = true; } }
   spin = Math.max(0, spin - dt*9);
   bot.rotation.y = facing + spin + (state === 'finale' ? Math.sin(T*3)*.6 : 0);
   const sw = Math.sin(T*14)*.7*walk;
@@ -1165,7 +1343,7 @@ function tick(){
   const dt = Math.min(clock.getDelta(), .05); T += dt;
   clouds.forEach(c => { c.position.x += c.userData.v*dt; if(c.position.x > 24) c.position.x = -24; });
   if(mapGroup.visible) planets.forEach(p => {
-    p.s = lerp(p.s, p.i === sel ? 1.3 : 1, .15); p.g.scale.setScalar(p.s*.68); p.g.position.z = p.i === sel ? 2.2 : 1.5;
+    p.s = lerp(p.s, p.i === sel ? 1.25 : 1, .15); p.g.scale.setScalar(p.s*.9);
     p.g.position.y = p.y + Math.sin(T*1.2 + p.i)*.12; p.ball.rotation.y += dt*.5;
   });
   balloons.forEach(b => {
