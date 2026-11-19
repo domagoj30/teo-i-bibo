@@ -155,17 +155,24 @@ const NAME = 'Teo';          // ime djeteta koje Bibo izgovara
 const GOAL = 5;              // zvjezdica po zadatku
 const ICON = {balloons:'🎈', colors:'🎨', size:'📏', shapes:'🔺', flies:'🦋', stars:'⭐', jump:'🚀', catch:'🌠', hurdles:'🏃',
   animals:'🐶', sounds:'🐮', things:'🚗', odd:'🤔', count:'🔢', digits:'7️⃣', letters:'🔤', piano:'🎹', sayit:'🎤', saycolor:'🌈', saycount:'🗣️',
-  feed:'🍽️', apples:'🍎', memory:'🃏', countdown:'⏱️', gather:'✨', more:'⚖️', aliens:'👽', faces:'😀', clothes:'👕', weather:'🌧️'};
+  feed:'🍽️', apples:'🍎', memory:'🃏', countdown:'⏱️', gather:'✨', more:'⚖️', aliens:'👽', faces:'😀', clothes:'👕', weather:'🌧️',
+  vehicles:'🚚', turn:'↔️', light:'🚦', rise:'🎉', hide:'🎁', dodge:'☄️',
+  foods:'🥕', memfood:'🍓', memcars:'🚙', memmix:'🧠'};
 const WORLDS = [
   {n:'Planet balona', e:'🎈', col:0xff5d7a, grass:0x6fd35b, side:0x4fae45, sky:['#3fa9ff','#cdf2ff'], levels:['balloons','colors','size','shapes','flies']},
   {n:'Planet skakanja', e:'🚀', col:0xffb02e, grass:0xf0c668, side:0xd6a23e, sky:['#ff9a57','#ffecc2'], levels:['stars','jump','catch','hurdles']},
   {n:'Planet životinja', e:'🐶', col:0x39c46a, grass:0x58c98a, side:0x3aa56c, sky:['#2fc4bb','#d6fff3'], levels:['animals','sounds','things','odd']},
   {n:'Planet brojeva i slova', e:'🔢', col:0x6a7bff, grass:0x9aa8ff, side:0x7684e6, sky:['#6d5cff','#e6e0ff'], levels:['count','digits','letters','piano']},
   {n:'Planet razgovora', e:'🎤', col:0xd76bff, grass:0xf29ad0, side:0xd476b0, sky:['#ff6fb1','#ffe3f1'], levels:['sayit','saycolor','saycount']},
-  {n:'Planet hrane', e:'🍎', col:0xff7043, grass:0xffd08a, side:0xe0a85c, sky:['#ff8a65','#fff0d6'], levels:['feed','apples','memory']},
+  {n:'Planet hrane', e:'🍎', col:0xff7043, grass:0xffd08a, side:0xe0a85c, sky:['#ff8a65','#fff0d6'], levels:['feed','foods','apples']},
   {n:'Svemirski planet', e:'👽', col:0x5c6bc0, grass:0xb9b4d6, side:0x8f8ab5, sky:['#141a4d','#5a4aa8'], space:true, levels:['countdown','gather','more','aliens']},
-  {n:'Planet smijeha', e:'😀', col:0xffd54f, grass:0xa5e06a, side:0x7fc04a, sky:['#34b3ff','#fff6c9'], levels:['faces','clothes','weather']}
+  {n:'Planet smijeha', e:'😀', col:0xffd54f, grass:0xa5e06a, side:0x7fc04a, sky:['#34b3ff','#fff6c9'], levels:['faces','clothes','weather']},
+  {n:'Planet prometa', e:'🚗', col:0x607d8b, grass:0xbfc7cc, side:0x98a3a9, sky:['#5aa9e6','#e8f4ff'], levels:['vehicles','turn','light']},
+  {n:'Planet zabave', e:'🎪', col:0xe040fb, grass:0xffb3e6, side:0xe085c5, sky:['#7c4dff','#ffd6f5'], levels:['rise','hide','dodge']},
+  {n:'Planet pamćenja', e:'🃏', col:0x26a69a, grass:0x9be0d6, side:0x6fc0b5, sky:['#00897b','#d9fff8'], levels:['memory','memfood','memcars','memmix']}
 ];
+/* mjesta planeta na karti: tri reda u cik-cak rasporedu, s prolazima za brod */
+const MAPPOS = [[-6,4.5],[-2,4.5],[2,4.5],[6,4.5],[-4,2.05],[0,2.05],[4,2.05],[-6,-.4],[-2,-.4],[2,-.4],[6,-.4]];
 const LEVELS = [].concat(...WORLDS.map(w => w.levels));
 const $ = s => document.querySelector(s);
 const canvas = $('#c');
@@ -326,6 +333,11 @@ const VEHICLES = [
   {e:'🚲', n:'bicikl', acc:'bicikl', k:['bicik']}, {e:'🚢', n:'brod', acc:'brod', k:['brod']},
   {e:'🚜', n:'traktor', acc:'traktor', k:['traktor']}
 ];
+const VEHX = [
+  {e:'🚁', n:'helikopter', acc:'helikopter', k:['helikopter']}, {e:'🚀', n:'raketa', acc:'raketu', k:['raket']},
+  {e:'🏍️', n:'motor', acc:'motor', k:['motor']}, {e:'🚚', n:'kamion', acc:'kamion', k:['kamion']},
+  {e:'🚓', n:'policijski auto', acc:'policijski auto', k:['polic']}, {e:'🚒', n:'vatrogasni kamion', acc:'vatrogasni kamion', k:['vatrogas']}
+];
 const FOODX = [
   {e:'🥕', n:'mrkva', acc:'mrkvu', k:['mrkv']}, {e:'🍞', n:'kruh', acc:'kruh', k:['kruh']},
   {e:'🧀', n:'sir', acc:'sir', k:['sir']}, {e:'🥛', n:'mlijeko', acc:'mlijeko', k:['mlijek','mlek']},
@@ -397,7 +409,7 @@ function backTex(){
   x.fillStyle = '#ffffff'; x.font = '800 150px "Baloo 2","Trebuchet MS",sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('?', 128, 138);
   return texCache.back = new THREE.CanvasTexture(c);
 }
-const pics = [0,1,2,3,4,5,6,7].map(() => {
+const pics = [0,1,2,3,4,5,6,7,8,9,10,11].map(() => {
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({transparent:true})); sp.visible = false; scene.add(sp);
   return {sp, item:null, base:new THREE.Vector3(), ph:rnd(0,6), size:1.6, shake:0, fly:null};
 });
@@ -409,6 +421,17 @@ function showPic(i, item, x, y, size){
 }
 const log = mesh(new THREE.CylinderGeometry(.38,.38,1.6,16), mat(0x9a6a44), 8,.38,0); log.rotation.x = Math.PI/2; log.visible = false;
 mesh(new THREE.CylinderGeometry(.26,.26,1.62,16), mat(0xd9a66b), 0,0,0, log);
+/* semafor */
+const lightG = new THREE.Group(); lightG.position.set(2.6,0,-.3); lightG.visible = false; scene.add(lightG);
+mesh(new THREE.CylinderGeometry(.08,.08,2.2,10), mat(0x555b66), 0,1.1,0, lightG);
+mesh(new THREE.BoxGeometry(.6,1.3,.4), mat(0x2b2f3a), 0,2.7,0, lightG);
+const lampR = mesh(SPH, new THREE.MeshStandardMaterial({color:0xff3b3b, emissive:0xff0000}), 0,3.02,.2, lightG); lampR.scale.setScalar(.22);
+const lampG = mesh(SPH, new THREE.MeshStandardMaterial({color:0x3bff6a, emissive:0x00ff40}), 0,2.4,.2, lightG); lampG.scale.setScalar(.22);
+function setLight(g){
+  lightGreen = g;
+  lampR.material.emissiveIntensity = g ? .03 : 1.2; lampR.material.color.setHex(g ? 0x5a1f1f : 0xff3b3b);
+  lampG.material.emissiveIntensity = g ? 1.2 : .03; lampG.material.color.setHex(g ? 0x3bff6a : 0x1f5a2c);
+}
 const BOX = new THREE.BoxGeometry(.13,.13,.04);
 let parts = [];
 function burst(pos, col, n, power){
@@ -435,14 +458,14 @@ function labelTex(txt, gold){
 }
 const mapGroup = new THREE.Group(); mapGroup.visible = false; scene.add(mapGroup);
 const planets = WORLDS.map((w,i) => {
-  const g = new THREE.Group(); g.position.set(-4.8 + 3.2*(i%4), i < 4 ? 4 : .3, 0); mapGroup.add(g);   // dva reda po cetiri planeta
+  const g = new THREE.Group(); g.position.set(MAPPOS[i][0], MAPPOS[i][1], 0); mapGroup.add(g);
   const ball = new THREE.Group(); g.add(ball);
   const b = mesh(SPH, mat(w.col,{roughness:.7}), 0,0,0, ball); b.scale.setScalar(.75);
   [[.35,.4,.5,.3],[-.45,-.2,.5,.24],[.1,-.5,-.45,.3],[-.3,.45,-.4,.26]].forEach(([x,y,z,s]) => { const p = mesh(SPH, mat(w.grass,{roughness:.8}), x,y,z, ball); p.scale.set(s,s*.8,s); });
   const ring = mesh(new THREE.TorusGeometry(1.05,.05,8,48), mat(0xffffff,{roughness:.4}), 0,0,0, g); ring.rotation.x = 1.25; ring.rotation.y = i%2 ? .35 : -.35;
   const hit = mesh(SPH, HIT, 0,0,0, g); hit.scale.setScalar(1.15);
   const icon = new THREE.Sprite(new THREE.SpriteMaterial({map:emojiTex(w.e, true), transparent:true, depthTest:false})); icon.scale.setScalar(.8); icon.position.set(0,0,.8); g.add(icon);
-  const label = new THREE.Sprite(new THREE.SpriteMaterial({transparent:true})); label.scale.set(1.3,.49,1); label.position.set(0,-1.15,0); g.add(label);
+  const label = new THREE.Sprite(new THREE.SpriteMaterial({transparent:true})); label.scale.set(1.9,.71,1); label.position.set(0,-1.45,0); g.add(label);
   return {g, ball, hit, label, i, y:g.position.y, s:1};
 });
 /* svemirski brod: Bibo sjedi pod staklenom kupolom */
@@ -640,10 +663,16 @@ function allLines(){
       'Pomakni strelicu na balon i klikni!', 'Pritisni strelice na tipkovnici i dovedi me do zvjezdice!',
       'Pritisni veliku dugu tipku da skočim!', 'Strelicama lijevo i desno dovedi me ispod zvjezdice!',
       'Pritisni dugu tipku kad balvan dođe blizu!', 'Strelicama lijevo i desno dovedi me ispod voća!');
+  add('Tražimo hranu!', 'Bravo! Sve si pronašao!',
+      'Tražimo vozila!', 'Vozimo se! Slušaj kamo skrećemo!',
+      'Skreni lijevo!', 'Skreni desno!', 'Idi gore!', 'Idi dolje!', 'To je lijevo.', 'To je desno.', 'To je gore.', 'To je dolje.',
+      'Ovo je semafor! Kad je zeleno, pritisni dugu tipku! Kad je crveno, čekaj!', 'Zeleno! Kreni!', 'Crveno je! Čekaj zeleno!',
+      'Baloni lete u nebo! Pukni ih prije nego pobjegnu!', 'Pazi gdje se tko skriva!', 'Tu nije. Probaj opet!',
+      'Pazi, padaju kometi! Bježi strelicama lijevo ili desno!', 'Ups! Makni se!');
   PRAISE.forEach(p => add(p));
   WORLDS.forEach(w => add(w.n+'!'));
   const seen = new Set();
-  ANIMALS.concat(THINGS, SHAPES, CLOTHES, WEATHER).forEach(it => {
+  ANIMALS.concat(THINGS, SHAPES, CLOTHES, WEATHER, VEHX).forEach(it => {
     if(seen.has(it.n)) return; seen.add(it.n);
     add('Gdje '+(it.pl ? 'su' : 'je')+' '+it.n+'? Klikni '+it.acc+'!', toJe(it)+'. Nađi '+it.acc+'!', 'Tako je! '+cap(it.n)+'!',
         toJe(it)+'. Reci: '+it.n+'!', toJe(it)+'!', 'Gladan sam! Daj mi '+it.acc+'!');
@@ -721,6 +750,11 @@ let vy = 0, onGround = true, happy = 0, spin = 0, facing = 0, walk = 0, nextBlin
 let starActive = false, roundActive = false, nextConfetti = 0, hovered = null, hoveredPic = null;
 let target = -1, countN = 0, misses = 0, letter = '', letters = [], mode = '', picTarget = null, picPool = ANIMALS, question = '';
 let picKind = 'name', oddCat = CATS[0], sizeWant = 'najveći', logOn = false, logScored = false, bonks = 0, sayItem = null;
+let lightGreen = false, lightT = 0, turnDir = '', hideIdx = -1;
+const DIRS = {
+  left:{sym:'◀', say:'Skreni lijevo!', is:'To je lijevo.'}, right:{sym:'▶', say:'Skreni desno!', is:'To je desno.'},
+  up:{sym:'▲', say:'Idi gore!', is:'To je gore.'}, down:{sym:'▼', say:'Idi dolje!', is:'To je dolje.'}
+};
 let shipVx = 0, shipVy = 0, dest = null, destPlanet = -1, hoverPl = -1;
 let memFirst = null, memLock = false, memLeft = 0, moreSide = 0, moreWant = 'više';
 const played = new Set(), NOTES = [523,587,659,698,784,880,988,1047,1175];
@@ -734,6 +768,11 @@ function hint(){
   if(mode === 'picclick' && picTarget) return picAsk();
   if(mode === 'colorclick') return 'Klikni '+COLORS[target].n+' balon!';
   if(mode === 'sizeclick') return 'Klikni '+sizeWant+' balon!';
+  if(state === 'turn') return DIRS[turnDir].say;
+  if(state === 'light') return 'Kad je zeleno, pritisni dugu tipku!';
+  if(state === 'rise') return 'Pukni ih prije nego pobjegnu!';
+  if(state === 'dodge') return 'Bježi strelicama lijevo ili desno!';
+  if(mode === 'hide') return roundActive && picTarget ? 'Gdje je '+picTarget.n+'?' : 'Pazi gdje se tko skriva!';
   if(state === 'aliens') return 'Brzo, klikni svemirca!';
   if(mode === 'memory') return 'Pronađi dvije iste sličice! Klikni na karticu!';
   if(state === 'apples') return 'Strelicama lijevo i desno dovedi me ispod voća!';
@@ -764,11 +803,12 @@ function setLevel(l){
   slots.forEach(s => s.classList.remove('on'));
   mode = ({balloons:'pop', colors:'colorclick', size:'sizeclick', flies:'flyclick', piano:'piano', count:'count',
            animals:'picclick', sounds:'picclick', things:'picclick', odd:'picclick', shapes:'picclick',
-           feed:'picclick', faces:'picclick', clothes:'picclick', weather:'picclick', memory:'memory', aliens:'flyclick',
+           feed:'picclick', faces:'picclick', clothes:'picclick', weather:'picclick', memory:'memory', aliens:'flyclick', vehicles:'picclick', rise:'pop', hide:'hide',
+           foods:'picclick', memfood:'memory', memcars:'memory', memmix:'memory',
            sayit: micOK ? 'voice' : 'picclick', saycolor: micOK ? 'voice' : 'colorclick', saycount: micOK ? 'voice' : 'count'})[l] || '';
   stopListen(); vr = null; clearPics(); clearBalloons(); $('#heard').textContent = '';
   picKind = ({sounds:'sound', odd:'odd', feed:'feed', faces:'face'})[l] || 'name';
-  log.visible = logOn = false; $('#spaceBtn').classList.remove('pulse');
+  log.visible = logOn = false; $('#spaceBtn').classList.remove('pulse'); lightG.visible = l === 'light';
   played.clear(); document.querySelectorAll('#nums .key').forEach(b => b.classList.remove('on'));
   star.visible = starBlob.visible = starActive = false;
   countStars.forEach(s => s.visible = false);
@@ -780,7 +820,7 @@ function setLevel(l){
   if(isMap){
     setSky('#070b2e','#3b2a7a'); refreshMap();
     ship.add(bot); bot.position.set(0,-.3,0); bot.scale.setScalar(.5);
-    ship.position.set(0,2.15,.6); ship.scale.setScalar(1); ship.rotation.z = 0;
+    ship.position.set(-2,2.05,.6); ship.scale.setScalar(.6); ship.rotation.z = 0;
     shipVx = shipVy = 0; dest = null; destPlanet = hoverPl = -1; vy = 0; onGround = true;
   }
   else {
@@ -788,15 +828,15 @@ function setLevel(l){
     const w = WORLDS[world]; setSky(w.sky[0], w.sky[1]); GRASS.color.setHex(w.grass); SIDE.color.setHex(w.side); buildBar();
     if(w.space){ spaceStars.visible = true; clouds.forEach(c => c.visible = false); }
   }
-  const lr = l === 'catch' || l === 'apples' || l === 'more';
+  const lr = l === 'catch' || l === 'apples' || l === 'more' || l === 'dodge';
   $('#mic').hidden = mode !== 'voice';
   $('#mouseHint').hidden = !(mode === 'pop' || mode === 'picclick' || mode === 'sizeclick' || mode === 'flyclick' || mode === 'memory');
   $('#colorHint').hidden = mode !== 'colorclick';
-  $('#pad').hidden = !(l === 'stars' || l === 'gather' || lr || isMap);
+  $('#pad').hidden = !(l === 'stars' || l === 'gather' || l === 'turn' || lr || isMap);
   $('#pad').classList.toggle('lr', lr);
-  $('#spaceBtn').hidden = !(l === 'jump' || l === 'hurdles');
+  $('#spaceBtn').hidden = !(l === 'jump' || l === 'hurdles' || l === 'light');
   $('#nums').hidden = !(mode === 'count' || mode === 'piano');
-  $('#letterKey').hidden = !(l === 'letters' || l === 'digits' || l === 'countdown');
+  $('#letterKey').hidden = !(l === 'letters' || l === 'digits' || l === 'countdown' || l === 'turn');
   $('#again').hidden = true;
   if(isMap){
     const all = LEVELS.every(x => done.has(x));
@@ -848,8 +888,10 @@ function setLevel(l){
     picPool = WEATHER; picsRound(true, 'Pogledaj nebo! ');
   } else if(l === 'apples'){
     later(dropStar, 1200); say('Voće pada s neba! Strelicama lijevo i desno dovedi me ispod voća!');
-  } else if(l === 'memory'){
+  } else if(MEM[l]){
     memBoard(); say('Pronađi dvije iste sličice! Klikni na karticu!');
+  } else if(l === 'foods'){
+    picPool = FOODS; picsRound(true, 'Tražimo hranu! ');
   } else if(l === 'countdown'){
     letters = ['5','4','3','2','1']; showPic(7, {e:'🚀', plain:true}, 2.8, 1.3, 1.9); keyRound(true);
   } else if(l === 'gather'){
@@ -858,6 +900,20 @@ function setLevel(l){
     moreRound(true);
   } else if(l === 'aliens'){
     later(spawnAlien, 1500); say('Svemirci se skrivaju! Brzo, klikni svemirca!');
+  } else if(l === 'vehicles'){
+    picPool = VEHICLES.concat(VEHX); picsRound(true, 'Tražimo vozila! ');
+  } else if(l === 'turn'){
+    turnRound(true);
+  } else if(l === 'light'){
+    setLight(false); lightT = T + 7.5;
+    say('Ovo je semafor! Kad je zeleno, pritisni dugu tipku! Kad je crveno, čekaj!');
+  } else if(l === 'rise'){
+    for(let i = 0; i < 4; i++) spawnRiser(rnd(.5,3.2));
+    say('Baloni lete u nebo! Pukni ih prije nego pobjegnu!');
+  } else if(l === 'hide'){
+    hideRound(true);
+  } else if(l === 'dodge'){
+    later(dropStar, 3500); say('Pazi, padaju kometi! Bježi strelicama lijevo ili desno!');
   } else if(l === 'sayit'){
     if(mode === 'voice') sayItRound(true); else { picPool = THINGS.concat(ANIMALS); picsRound(true, 'Pogledaj sličice! '); }
   } else if(l === 'saycolor'){
@@ -888,15 +944,15 @@ function flyShip(dt, k){
   }
   const l = Math.hypot(dx, dy) || 1;
   shipVx = lerp(shipVx, dx/l*5.5, k*.6); shipVy = lerp(shipVy, dy/l*5.5, k*.6);
-  ship.position.x = Math.max(-6.3, Math.min(6.3, ship.position.x + shipVx*dt));
-  ship.position.y = Math.max(-1.7, Math.min(5, ship.position.y + shipVy*dt));
+  ship.position.x = Math.max(-7.8, Math.min(7.8, ship.position.x + shipVx*dt));
+  ship.position.y = Math.max(-2.2, Math.min(5.3, ship.position.y + shipVy*dt));
   ship.rotation.z = lerp(ship.rotation.z, -shipVx*.07, .1);
   flame.scale.y = .6 + Math.hypot(shipVx, shipVy)*.25 + Math.sin(T*30)*.15;
   if(busy) return;
   let best = -1, bd = 1e9;
   planets.forEach(p => { const d = Math.hypot(p.g.position.x - ship.position.x, p.g.position.y - ship.position.y); if(d < bd){ bd = d; best = p.i; } });
-  if(bd < 1.9) focusPlanet(best); else if(hoverPl < 0 && sel >= 0) sel = -1;
-  if(bd < 1 && (destPlanet < 0 || destPlanet === best)) choosePlanet(best);
+  if(bd < 1.5) focusPlanet(best); else if(hoverPl < 0 && sel >= 0) sel = -1;
+  if(bd < .75 && (destPlanet < 0 || destPlanet === best)) choosePlanet(best);   // tek kad brod stvarno uleti u planet
 }
 function addStar(pos, text){
   if(busy) return;
@@ -923,6 +979,12 @@ function placeStar(){
 function skyStar(){ star.position.set(0,4.2,0); star.scale.setScalar(.01); star.visible = true; starBlob.visible = false; starActive = true; }
 function jump(){
   if(state === 'start' || state === 'map' || !onGround) return;
+  if(state === 'light'){   // semafor: skok vrijedi samo na zeleno
+    if(busy) return;
+    lastAction = T;
+    if(!lightGreen){ sfx.oops(); say('Crveno je! Čekaj zeleno!'); return; }
+    setLight(false); lightT = T + rnd(2,3.5); addStar(new THREE.Vector3(bot.position.x, 2.8, 0));
+  }
   vy = 9.8; onGround = false; sfx.jump(); lastAction = T;
 }
 /* boje: pet balona, sedam mogucih boja */
@@ -937,10 +999,54 @@ function colorRound(first){
 }
 /* hvatanje zvjezdica koje padaju */
 function dropStar(){
-  let x; do{ x = bot.position.x + (Math.random() < .5 ? -1 : 1)*rnd(1.5,4.2); }while(Math.abs(x) > 5);
+  let x;
+  if(state === 'dodge') x = Math.max(-5, Math.min(5, bot.position.x + rnd(-.5,.5)));   // komet cilja Bibu
+  else do{ x = bot.position.x + (Math.random() < .5 ? -1 : 1)*rnd(1.5,4.2); }while(Math.abs(x) > 5);
   star.position.set(x,7.6,0); star.scale.setScalar(.01); star.visible = starBlob.visible = true; starActive = true;
   starBlob.position.set(x,.02,0);
   if(state === 'apples'){ showPic(7, {e:pick(['🍎','🍐','🍊','🍌','🍓']), plain:true}, x, 7.6, 1.2); pics[7].follow = true; }
+  if(state === 'dodge'){ showPic(7, {e:'☄️', plain:true}, x, 7.6, 1.4); pics[7].follow = true; }
+}
+/* skretanje: pritisni strelicu koju Bibo kaze */
+function turnRound(first){
+  let d; do{ d = pick(['left','right','up','down']); }while(d === turnDir); turnDir = d;
+  $('#letterKey').innerHTML = '<b>'+DIRS[d].sym+'</b>';
+  roundActive = true;
+  say((first ? 'Vozimo se! Slušaj kamo skrećemo! ' : '') + DIRS[d].say);
+}
+function turnAnswer(k){
+  if(state !== 'turn' || !roundActive || busy) return;
+  lastAction = T;
+  if(k === turnDir){
+    roundActive = false; spin = Math.PI*2;
+    addStar(new THREE.Vector3(bot.position.x, 2.8, 0));
+    if(count < GOAL) later(() => turnRound(false), 1500);
+  } else { sfx.oops(); say(DIRS[k].is+' '+DIRS[turnDir].say); }
+}
+/* baloni koji bjeze u nebo */
+function spawnRiser(y){
+  makeBalloon(pick(BCOL), new THREE.Vector3(rnd(-5,5), y || rnd(.4,1), rnd(.6,1.6)), 0);
+  balloons[balloons.length-1].rise = rnd(.8,1.3);
+}
+/* tko se gdje sakrio */
+function hideRound(first){
+  clearPics(); roundActive = false;
+  const two = shuffle(ANIMALS).slice(0,2), at = shuffle([0,1,2,3]).slice(0,2);
+  [-4.4,-1.6,1.6,4.4].forEach((x,i) => { const j = at.indexOf(i); showPic(i, j >= 0 ? two[j] : {e:'🎁'}, x, 3.4, 1.6); });
+  const t = rndi(2); hideIdx = at[t]; picTarget = two[t];
+  say((first ? 'Pazi gdje se tko skriva! ' : '') + cap(two[0].n)+'! '+cap(two[1].n)+'!');
+  later(() => {
+    pics.slice(0,4).forEach(p => { p.sp.material.map = emojiTex('🎁'); p.sp.material.needsUpdate = true; p.sp.scale.setScalar(p.size*.6); });
+    roundActive = true; say('Gdje je '+picTarget.n+'?');
+  }, first ? 5200 : 3400);
+}
+function hideClick(p){
+  if(busy || !roundActive) return;
+  lastAction = T;
+  if(pics.indexOf(p) !== hideIdx){ p.shake = .5; sfx.oops(); say('Tu nije. Probaj opet!'); return; }
+  roundActive = false; p.sp.material.map = emojiTex(picTarget.e); p.sp.material.needsUpdate = true; sfx.pop(); burst(p.sp.position, null, 16, 5);
+  addStar(null, 'Tako je! '+cap(picTarget.n)+'!');
+  if(count < GOAL) later(() => hideRound(false), 1900);
 }
 /* skupi sve zvjezdice */
 function gatherStars(){
@@ -974,11 +1080,20 @@ function moreAnswer(side){
   } else { sfx.oops(); say('Tu ima '+(moreWant === 'više' ? 'manje' : 'više')+'. Gdje ima '+moreWant+' zvjezdica?'); }
 }
 /* parovi slicica */
+const MEM = {
+  memory:{pool:() => ANIMALS, pairs:3}, memfood:{pool:() => FOODS, pairs:4},
+  memcars:{pool:() => VEHICLES.concat(VEHX), pairs:5}, memmix:{pool:() => ANIMALS.concat(FOODS, VEHICLES), pairs:6}
+};
 function memBoard(){
   clearPics(); memFirst = null; memLock = false;
-  const pairs = Math.min(3, GOAL - count); memLeft = pairs;
-  const items = shuffle(ANIMALS).slice(0, pairs), cards = shuffle(items.concat(items)), n = cards.length;
-  cards.forEach((it,i) => { showPic(i, it, (i-(n-1)/2)*1.9, 3.7, 1.5); const p = pics[i]; p.card = {open:false}; p.sp.material.map = backTex(); p.sp.material.needsUpdate = true; });
+  const cfg = MEM[state], pairs = cfg.pairs; memLeft = pairs;
+  const items = shuffle(cfg.pool()).slice(0, pairs), cards = shuffle(items.concat(items)), n = cards.length;
+  const rows = n <= 6 ? 1 : 2, cols = n/rows, size = rows === 1 ? 1.5 : 1.3, gap = rows === 1 ? 1.9 : 1.75;   // do 6 kartica u jednom redu, inace dva reda
+  cards.forEach((it,i) => {
+    const r = Math.floor(i/cols), c = i % cols;
+    showPic(i, it, (c-(cols-1)/2)*gap, rows === 1 ? 3.7 : (r === 0 ? 4.45 : 3.2), size);
+    const p = pics[i]; p.card = {open:false}; p.sp.material.map = backTex(); p.sp.material.needsUpdate = true;
+  });
 }
 function memClick(p){
   if(busy || memLock || !p.card || p.card.open) return;
@@ -988,8 +1103,11 @@ function memClick(p){
   if(a.item === p.item){
     later(() => {
       sfx.pop(); burst(a.sp.position, null, 10, 4); burst(p.sp.position, null, 10, 4); a.sp.visible = p.sp.visible = false;
-      memLock = false; memLeft--; addStar(null, 'Bravo! Dvije iste sličice!');
-      if(memLeft === 0 && count < GOAL) later(memBoard, 1600);
+      memLock = false; memLeft--;
+      /* zvjezdica po paru; zadnja zvjezdica stize tek kad su sve kartice otkrivene */
+      if(memLeft === 0){ while(count < GOAL-1){ count++; slots[count-1].classList.add('on'); } addStar(null, 'Bravo! Sve si pronašao!'); }
+      else if(count < GOAL-1) addStar(null, 'Bravo! Dvije iste sličice!');
+      else { sfx.ding(); say('Bravo! Dvije iste sličice!'); }
     }, 500);
   } else {
     sfx.oops(); say(cap(p.item.n)+'! Nisu iste. Probaj opet!');
@@ -1051,6 +1169,7 @@ function picAsk(){
 const toJe = it => 'To '+(it.pl ? 'su' : 'je')+' '+it.n;
 function clickPic(p){
   if(mode === 'memory'){ memClick(p); return; }
+  if(mode === 'hide'){ hideClick(p); return; }
   if(mode === 'flyclick'){
     if(busy || !p.sp.visible) return;
     lastAction = T; sfx.pop(); burst(p.sp.position, null, 14, 4); p.sp.visible = false; hoveredPic = null;
@@ -1192,6 +1311,7 @@ function clickBalloon(b){
     return;
   }
   popIt(b);
+  if(state === 'rise' && count < GOAL) later(() => spawnRiser(), 500);
 }
 
 /* ---------- unos ---------- */
@@ -1203,7 +1323,7 @@ function pickBalloon(){
   const o = cast(balloons.map(b => b.hit)); return o ? balloons.find(b => b.hit === o) : null;
 }
 function pickPic(){
-  if(!(mode === 'picclick' || mode === 'flyclick' || mode === 'memory')) return null;
+  if(!(mode === 'picclick' || mode === 'flyclick' || mode === 'memory' || mode === 'hide')) return null;
   const vis = pics.filter(p => p.sp.visible); if(!vis.length) return null;
   const o = cast(vis.map(p => p.sp)); return o ? vis.find(p => p.sp === o) : null;
 }
@@ -1241,7 +1361,7 @@ window.addEventListener('keydown', e => {
     if((e.code === 'Enter' || e.code === 'Space') && sel >= 0 && !busy){ e.preventDefault(); const p = planets[sel].g.position; destPlanet = sel; dest = {x:p.x, y:p.y}; return; }
   }
   const k = KEYMAP[e.code];
-  if(k){ e.preventDefault(); keys[k] = true; padBtn(k).classList.add('on'); }
+  if(k){ e.preventDefault(); keys[k] = true; padBtn(k).classList.add('on'); if(state === 'turn' && !e.repeat) turnAnswer(k); }
   if(e.code === 'Space'){ e.preventDefault(); $('#spaceBtn').classList.add('on'); if(!e.repeat) jump(); }
   if(e.repeat) return;
   if(mode === 'piano' && /^[1-9]$/.test(e.key)) playKey(+e.key);
@@ -1258,7 +1378,7 @@ window.addEventListener('keyup', e => {
 window.addEventListener('blur', () => { for(const k in keys){ keys[k] = false; padBtn(k).classList.remove('on'); } });
 document.querySelectorAll('#pad .key').forEach(b => {
   const k = b.dataset.k;
-  b.addEventListener('pointerdown', e => { e.preventDefault(); keys[k] = true; b.classList.add('on'); if(state === 'more' && (k === 'left' || k === 'right')) moreAnswer(k === 'left' ? -1 : 1); });
+  b.addEventListener('pointerdown', e => { e.preventDefault(); keys[k] = true; b.classList.add('on'); if(state === 'more' && (k === 'left' || k === 'right')) moreAnswer(k === 'left' ? -1 : 1); if(state === 'turn') turnAnswer(k); });
   ['pointerup','pointerleave','pointercancel'].forEach(ev => b.addEventListener(ev, () => { keys[k] = false; b.classList.remove('on'); }));
 });
 $('#nums').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; if(mode === 'piano') playKey(+b.dataset.n); else answer(+b.dataset.n); b.blur(); });
@@ -1302,7 +1422,7 @@ function updateBot(dt){
   let mx = 0, mz = 0, steer = false;
   if(state === 'map') flyShip(dt, k);
   if((state === 'stars' || state === 'gather') && !busy){ mx = (keys.right?1:0)-(keys.left?1:0); mz = (keys.down?1:0)-(keys.up?1:0); steer = true; }
-  else if((state === 'catch' || state === 'apples') && !busy){ mx = (keys.right?1:0)-(keys.left?1:0); steer = mx !== 0; if(Math.abs(bot.position.z) > .1) mz = -Math.sign(bot.position.z); else bot.position.z = 0; }
+  else if((state === 'catch' || state === 'apples' || state === 'dodge') && !busy){ mx = (keys.right?1:0)-(keys.left?1:0); steer = mx !== 0; if(Math.abs(bot.position.z) > .1) mz = -Math.sign(bot.position.z); else bot.position.z = 0; }
   else if(state !== 'start' && state !== 'map'){ const d = Math.hypot(bot.position.x, bot.position.z); if(d > .1){ mx = -bot.position.x/d; mz = -bot.position.z/d; } else { bot.position.x = bot.position.z = 0; } }
   const moving = mx !== 0 || mz !== 0;
   if(moving){
@@ -1343,9 +1463,16 @@ function tick(){
   const dt = Math.min(clock.getDelta(), .05); T += dt;
   clouds.forEach(c => { c.position.x += c.userData.v*dt; if(c.position.x > 24) c.position.x = -24; });
   if(mapGroup.visible) planets.forEach(p => {
-    p.s = lerp(p.s, p.i === sel ? 1.25 : 1, .15); p.g.scale.setScalar(p.s*.9);
+    p.s = lerp(p.s, p.i === sel ? 1.25 : 1, .15); p.g.scale.setScalar(p.s*.68);
     p.g.position.y = p.y + Math.sin(T*1.2 + p.i)*.12; p.ball.rotation.y += dt*.5;
   });
+  if(state === 'rise'){
+    balloons.filter(b => b.rise && (b.base.y += b.rise*dt) > 5.9).forEach(b => { balloons = balloons.filter(x => x !== b); scene.remove(b.g); if(!busy) spawnRiser(); });
+  }
+  if(state === 'light' && !busy && T > lightT){
+    if(lightGreen){ setLight(false); lightT = T + rnd(2,3.5); }
+    else { setLight(true); lightT = T + 3.4; tone(990,.15,'sine',.2); say('Zeleno! Kreni!'); }
+  }
   balloons.forEach(b => {
     b.s = lerp(b.s, b === hovered ? 1.25 : 1, .2);
     b.g.scale.setScalar(lerp(b.g.scale.x, b.s*b.size, .12));
@@ -1355,9 +1482,9 @@ function tick(){
   });
   if(star.visible){
     star.rotation.y += dt*2.5;
-    star.scale.setScalar(lerp(star.scale.x, starActive && state !== 'apples' ? 1 + Math.sin(T*5)*.08 : .01, .15));
+    star.scale.setScalar(lerp(star.scale.x, starActive && state !== 'apples' && state !== 'dodge' ? 1 + Math.sin(T*5)*.08 : .01, .15));
     if(state === 'stars') star.position.y = 1 + Math.sin(T*3)*.15;
-    if((state === 'catch' || state === 'apples') && starActive) star.position.y -= 1.9*dt;
+    if((state === 'catch' || state === 'apples' || state === 'dodge') && starActive) star.position.y -= (state === 'dodge' ? 2.1 : 1.9)*dt;
   }
   if(state === 'gather' && !busy) countStars.forEach(s => {
     if(s.visible && Math.hypot(bot.position.x - s.position.x, bot.position.z - s.position.z) < 1){ s.visible = false; addStar(s.position); }
@@ -1395,6 +1522,17 @@ function tick(){
     if(state === 'jump' && bot.position.y > 1.45){
       starActive = false; addStar(star.position);
       if(count < GOAL) later(skyStar, 1000);
+    }
+    if(state === 'dodge'){   // komet: zvjezdica za svaki koji promasi Bibu
+      if(star.position.y < 2.6 && star.position.y > .9 && Math.abs(bot.position.x - star.position.x) < 1){
+        starActive = false; starBlob.visible = false; pics[7].sp.visible = false; sfx.oops(); spin = Math.PI*2; burst(star.position, 0xff8a1f, 10, 3);
+        if(misses++ % 2 === 0) say('Ups! Makni se!');
+        later(dropStar, 1000);
+      } else if(star.position.y < .5){
+        starActive = false; starBlob.visible = false; pics[7].sp.visible = false; burst(star.position, 0xffffff, 8, 2);
+        addStar(star.position);
+        if(count < GOAL) later(dropStar, 800);
+      }
     }
     if(state === 'catch' || state === 'apples'){
       if(star.position.y < 2.8 && star.position.y > .9 && Math.abs(bot.position.x - star.position.x) < 1.15){
