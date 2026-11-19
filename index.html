@@ -11,7 +11,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
 <style>
-/* Layout: 3D otok preko cijelog zaslona; razine i zvjezdice gore, Bibin oblacic ispod njih, tipke-pomoc dolje.
+/* Layout: 3D otok preko cijelog zaslona; zadaci planeta i zvjezdice gore, Bibin oblacic ispod njih, tipke-pomoc dolje.
    Sve velicine prate VISINU zaslona (vh), da stane i na mali djecji laptop. */
 :root{
   --sky-top:#3fa9ff; --sky-bottom:#cdf2ff;
@@ -22,11 +22,9 @@
   --font:'Baloo 2','Comic Sans MS','Trebuchet MS',system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --sky-top:#0b1440; --sky-bottom:#4a3a8c; --paper:#1c2550; --ink:#f2f5ff;
-  --slot:rgba(255,255,255,.25); --shadow:rgba(0,0,0,.5); color-scheme:dark } }
+  --paper:#1c2550; --ink:#f2f5ff; --slot:rgba(255,255,255,.25); --shadow:rgba(0,0,0,.5); color-scheme:dark } }
 :root[data-theme="dark"]{
-  --sky-top:#0b1440; --sky-bottom:#4a3a8c; --paper:#1c2550; --ink:#f2f5ff;
-  --slot:rgba(255,255,255,.25); --shadow:rgba(0,0,0,.5); color-scheme:dark }
+  --paper:#1c2550; --ink:#f2f5ff; --slot:rgba(255,255,255,.25); --shadow:rgba(0,0,0,.5); color-scheme:dark }
 
 [hidden]{display:none!important}
 html,body{height:100%}
@@ -46,14 +44,16 @@ button:focus-visible{outline:4px solid var(--gold); outline-offset:3px}
   padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px));
 }
 #hud{justify-content:space-between}
-#top{width:100%; display:flex; align-items:center; justify-content:space-between; gap:1vh 10px; flex-wrap:wrap}
-.pill{background:var(--paper); border-radius:999px; box-shadow:0 .7vh 0 var(--shadow); padding:.5vh 1.8vh; display:flex; gap:.9vh; align-items:center}
-#levels button{pointer-events:auto; background:none; font-size:clamp(15px,3.6vh,30px); line-height:1.2; opacity:.35; transition:.3s}
-#levels button.on{opacity:1; transform:scale(1.3)}
+#top{width:100%; display:flex; align-items:center; justify-content:space-between; gap:1vh 10px; flex-wrap:wrap; min-height:7vh}
+.pill{background:var(--paper); border-radius:999px; box-shadow:0 .7vh 0 var(--shadow); padding:.5vh 1.8vh; display:flex; gap:1.4vh; align-items:center}
+#levels button{pointer-events:auto; background:none; font-size:clamp(18px,4.6vh,38px); line-height:1.2; opacity:.4; transition:.3s; position:relative}
+#levels button.on{opacity:1; transform:scale(1.25)}
+#levels button.done::after{content:'★'; position:absolute; right:-.9vh; bottom:-.6vh; font-size:.55em; color:var(--gold); -webkit-text-stroke:1px var(--ink)}
+#levels button[data-l="map"]{opacity:1; border-right:.4vh solid var(--slot); padding-right:1.4vh}
 #slots span{font-size:clamp(20px,5.4vh,46px); line-height:1; color:var(--slot); transition:color .2s}
 #slots span.on{color:var(--gold); animation:pop .5s}
 @keyframes pop{0%{transform:scale(.3) rotate(-40deg)}60%{transform:scale(1.5) rotate(10deg)}100%{transform:scale(1)}}
-#tools{display:flex; gap:8px}
+#tools{display:flex; gap:8px; margin-left:auto}
 #tools button{pointer-events:auto; width:clamp(30px,5.6vh,44px); height:clamp(30px,5.6vh,44px); border-radius:50%; background:var(--paper); font-size:clamp(14px,2.6vh,20px); box-shadow:0 .5vh 0 var(--shadow)}
 
 #bubble{
@@ -71,12 +71,12 @@ button:focus-visible{outline:4px solid var(--gold); outline-offset:3px}
   pointer-events:auto; background:var(--paper); color:var(--ink); font-weight:800;
   border-radius:1.8vh; box-shadow:0 .9vh 0 var(--shadow); transition:transform .08s, background .08s, box-shadow .08s;
 }
-#pad .key,#nums .key{width:clamp(38px,9vh,72px); height:clamp(38px,9vh,72px); font-size:clamp(18px,4.2vh,34px)}
+#pad .key,#nums .key{width:clamp(34px,8.6vh,68px); height:clamp(34px,8.6vh,68px); font-size:clamp(18px,4.2vh,34px)}
 #pad .key[data-k="up"]{grid-column:2}
 #pad .key[data-k="left"]{grid-column:1}
 #pad.lr .key[data-k="up"],#pad.lr .key[data-k="down"]{display:none}
 #pad.lr{grid-template-columns:repeat(2,auto); gap:3vh}
-#nums{display:flex; gap:1.4vh}
+#nums{display:flex; gap:1.1vh; flex-wrap:wrap; justify-content:center}
 #spaceBtn{width:min(64vw,440px); height:clamp(40px,9vh,72px); font-size:clamp(15px,3.2vh,26px); letter-spacing:.12em}
 #letterKey{width:clamp(70px,19vh,140px); height:clamp(60px,16vh,120px); display:flex; align-items:baseline; justify-content:center; gap:1.2vh; line-height:1.55}
 #letterKey b{font-size:clamp(38px,11vh,84px); font-weight:800}
@@ -101,7 +101,7 @@ button:focus-visible{outline:4px solid var(--gold); outline-offset:3px}
   background:var(--go); color:var(--accent-ink); font-size:clamp(36px,11vh,90px); line-height:1;
   box-shadow:0 1.3vh 0 var(--shadow); border:.8vh solid var(--accent-ink);
 }
-#start p{margin:0; font-size:clamp(11px,2.2vh,15px); font-weight:500; background:var(--paper); padding:.6vh 2vh; border-radius:2vh; max-width:560px}
+#start p{margin:0; font-size:clamp(11px,2.2vh,15px); font-weight:500; background:var(--paper); padding:.6vh 2vh; border-radius:2vh; max-width:600px}
 #again{justify-content:flex-end; padding-bottom:calc(5vh + env(safe-area-inset-bottom,0px))}
 #replay{background:var(--accent)}
 @media (prefers-reduced-motion: reduce){ .pulse,#mouseHint,#colorHint,#slots span.on{animation:none} }
@@ -111,25 +111,8 @@ button:focus-visible{outline:4px solid var(--gold); outline-offset:3px}
 
 <div id="hud" hidden>
   <div id="top">
-    <div id="levels" class="pill">
-      <button data-l="balloons" aria-label="Zadatak: baloni">🎈</button>
-      <button data-l="stars" aria-label="Zadatak: zvjezdice">⭐</button>
-      <button data-l="jump" aria-label="Zadatak: skok">🚀</button>
-      <button data-l="colors" aria-label="Zadatak: boje">🎨</button>
-      <button data-l="catch" aria-label="Zadatak: hvatanje">🌠</button>
-      <button data-l="count" aria-label="Zadatak: brojevi">🔢</button>
-      <button data-l="letters" aria-label="Zadatak: slova">🔤</button>
-      <button data-l="animals" aria-label="Zadatak: životinje">🐶</button>
-      <button data-l="sounds" aria-label="Zadatak: tko kaže mu">🐮</button>
-      <button data-l="size" aria-label="Zadatak: veliko i malo">📏</button>
-      <button data-l="flies" aria-label="Zadatak: ulovi leptire">🦋</button>
-      <button data-l="hurdles" aria-label="Zadatak: preskoči balvan">🏃</button>
-      <button data-l="piano" aria-label="Zadatak: sviraj">🎹</button>
-      <button data-l="sayit" aria-label="Zadatak: reci što je ovo">🎤</button>
-      <button data-l="saycolor" aria-label="Zadatak: reci boju">🌈</button>
-      <button data-l="saycount" aria-label="Zadatak: reci koliko">🗣️</button>
-    </div>
-    <div id="slots" class="pill"></div>
+    <div id="levels" class="pill" hidden></div>
+    <div id="slots" class="pill" hidden></div>
     <div id="tools">
       <button id="mute" aria-label="Zvuk uključen ili isključen">🔊</button>
       <button id="full" aria-label="Cijeli zaslon">⛶</button>
@@ -147,9 +130,7 @@ button:focus-visible{outline:4px solid var(--gold); outline-offset:3px}
       <button class="key" data-k="right" aria-label="Desno">▶</button>
     </div>
     <button id="spaceBtn" class="key" hidden>RAZMAK</button>
-    <div id="nums" hidden>
-      <button class="key" data-n="1">1</button><button class="key" data-n="2">2</button><button class="key" data-n="3">3</button><button class="key" data-n="4">4</button><button class="key" data-n="5">5</button>
-    </div>
+    <div id="nums" hidden></div>
     <button id="letterKey" class="key" hidden></button>
     <div id="mic" hidden><span>🎤</span><small id="heard"></small></div>
   </div>
@@ -159,11 +140,11 @@ button:focus-visible{outline:4px solid var(--gold); outline-offset:3px}
   <h1>Teo <b>i</b> Bibo</h1>
   <div class="bottom">
     <button id="play" class="pulse" aria-label="Kreni">▶</button>
-    <p>Za roditelje: uključite zvuk. Bibo govori hrvatski ako uređaj ima hrvatski glas, inače pijuče i piše u oblačiću. Sličice gore lijevo biraju zadatak. Za zadatke u kojima Teo odgovara glasom dopustite mikrofon.</p>
+    <p>Za roditelje: uključite zvuk. Bibo govori hrvatski ako uređaj ima hrvatski glas, inače pijuče i piše u oblačiću. Teo bira planet, a sličice gore lijevo biraju zadatak na planetu. Za zadatke u kojima odgovara glasom dopustite mikrofon.</p>
   </div>
 </div>
 
-<div id="again" hidden><button id="replay" class="pulse" aria-label="Igraj opet">↻</button></div>
+<div id="again" hidden><button id="replay" class="pulse" aria-label="Natrag na kartu planeta">🪐</button></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -171,7 +152,16 @@ button:focus-visible{outline:4px solid var(--gold); outline-offset:3px}
 'use strict';
 const NAME = 'Teo';          // ime djeteta koje Bibo izgovara
 const GOAL = 5;              // zvjezdica po zadatku
-const LEVELS = ['balloons','stars','jump','colors','catch','count','letters','animals','sounds','size','flies','hurdles','piano','sayit','saycolor','saycount'];
+const ICON = {balloons:'🎈', colors:'🎨', size:'📏', shapes:'🔺', flies:'🦋', stars:'⭐', jump:'🚀', catch:'🌠', hurdles:'🏃',
+  animals:'🐶', sounds:'🐮', things:'🚗', odd:'🤔', count:'🔢', digits:'7️⃣', letters:'🔤', piano:'🎹', sayit:'🎤', saycolor:'🌈', saycount:'🗣️'};
+const WORLDS = [
+  {n:'Planet balona', e:'🎈', col:0xff5d7a, grass:0x6fd35b, side:0x4fae45, sky:['#3fa9ff','#cdf2ff'], levels:['balloons','colors','size','shapes','flies']},
+  {n:'Planet skakanja', e:'🚀', col:0xffb02e, grass:0xf0c668, side:0xd6a23e, sky:['#ff9a57','#ffecc2'], levels:['stars','jump','catch','hurdles']},
+  {n:'Planet životinja', e:'🐶', col:0x39c46a, grass:0x58c98a, side:0x3aa56c, sky:['#2fc4bb','#d6fff3'], levels:['animals','sounds','things','odd']},
+  {n:'Planet brojeva i slova', e:'🔢', col:0x6a7bff, grass:0x9aa8ff, side:0x7684e6, sky:['#6d5cff','#e6e0ff'], levels:['count','digits','letters','piano']},
+  {n:'Planet razgovora', e:'🎤', col:0xd76bff, grass:0xf29ad0, side:0xd476b0, sky:['#ff6fb1','#ffe3f1'], levels:['sayit','saycolor','saycount']}
+];
+const LEVELS = [].concat(...WORLDS.map(w => w.levels));
 const $ = s => document.querySelector(s);
 const canvas = $('#c');
 
@@ -189,6 +179,7 @@ function resize(){
   camera.updateProjectionMatrix();
 }
 window.addEventListener('resize', resize); resize();
+function setSky(a, b){ const s = document.documentElement.style; s.setProperty('--sky-top', a); s.setProperty('--sky-bottom', b); }
 
 scene.add(new THREE.HemisphereLight(0xffffff, 0x7fbf6a, 0.95));
 const sun = new THREE.DirectionalLight(0xffffff, 0.75); sun.position.set(5,10,7); scene.add(sun);
@@ -199,11 +190,14 @@ function glow(color){ return mat(color, {emissive:color, emissiveIntensity:.9});
 function mesh(geo, m, x,y,z, parent){ const o = new THREE.Mesh(geo, m); o.position.set(x||0,y||0,z||0); (parent||scene).add(o); return o; }
 const SPH = new THREE.SphereGeometry(1, 28, 20);
 const rnd = (a,b) => a + Math.random()*(b-a);
-const shuffle = a => a.slice().sort(() => Math.random()-.5);
+const rndi = n => Math.floor(Math.random()*n);
+const pick = a => a[rndi(a.length)];
+const shuffle = a => { const b = a.slice(); for(let i = b.length-1; i > 0; i--){ const j = rndi(i+1); const t = b[i]; b[i] = b[j]; b[j] = t; } return b; };
 
-/* otok */
-mesh(new THREE.CylinderGeometry(7.2,7.2,.6,56), mat(0x6fd35b), 0,-.3,0);
-mesh(new THREE.CylinderGeometry(7.25,6.6,.5,56), mat(0x4fae45), 0,-.75,0);
+/* otok (boja tla se mijenja po planetu) */
+const GRASS = new THREE.MeshStandardMaterial({color:0x6fd35b, roughness:.55}), SIDE = new THREE.MeshStandardMaterial({color:0x4fae45, roughness:.55});
+mesh(new THREE.CylinderGeometry(7.2,7.2,.6,56), GRASS, 0,-.3,0);
+mesh(new THREE.CylinderGeometry(7.25,6.6,.5,56), SIDE, 0,-.75,0);
 const under = mesh(new THREE.ConeGeometry(6.6,5,40), mat(0x9a6a44), 0,-3.5,0); under.rotation.x = Math.PI;
 for(let i=0;i<26;i++){
   const a = rnd(0,Math.PI*2), r = rnd(2.2,6.8), x = Math.cos(a)*r, z = Math.sin(a)*r;
@@ -221,6 +215,11 @@ for(let i=0;i<7;i++){
   for(let j=0;j<4;j++){ const p = mesh(SPH, mat(0xffffff,{roughness:1}), j*.9-1.3, rnd(-.15,.25), rnd(-.3,.3), g); const s = rnd(.6,1); p.scale.set(s,s*.7,s); }
   g.position.set(rnd(-20,20), rnd(3,10), rnd(-22,-9)); g.userData.v = rnd(.15,.5); scene.add(g); clouds.push(g);
 }
+const spaceStars = (function(){
+  const pos = []; for(let i=0;i<260;i++) pos.push(rnd(-45,45), rnd(-8,28), rnd(-40,-22));
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  const p = new THREE.Points(g, new THREE.PointsMaterial({color:0xffffff, size:.25})); p.visible = false; scene.add(p); return p;
+})();
 
 /* ---------- robot Bibo ---------- */
 const WHITE = mat(0xffffff,{roughness:.3}), ORANGE = mat(0xff8a1f,{roughness:.4}), DARK = mat(0x18203f,{roughness:.15, metalness:.3});
@@ -252,7 +251,7 @@ const legs = [-1,1].map(s => {
 const blob = mesh(new THREE.CircleGeometry(.6,24), new THREE.MeshBasicMaterial({color:0x103010, transparent:true, opacity:.28, depthWrite:false}), 0,.02,0);
 blob.rotation.x = -Math.PI/2;
 
-/* ---------- zvjezdice, baloni, konfeti ---------- */
+/* ---------- zvjezdice, baloni ---------- */
 function starGeo(){
   const s = new THREE.Shape();
   for(let i=0;i<10;i++){ const r = i%2 ? .23 : .52, a = i/10*Math.PI*2 + Math.PI/2, x = Math.cos(a)*r, y = Math.sin(a)*r; i ? s.lineTo(x,y) : s.moveTo(x,y); }
@@ -263,52 +262,16 @@ function starGeo(){
 const STARGEO = starGeo(), STARMAT = mat(0xffc928,{emissive:0xffa000, emissiveIntensity:.5, roughness:.3});
 const star = mesh(STARGEO, STARMAT, 0,1,0); star.visible = false;
 const starBlob = mesh(new THREE.CircleGeometry(.4,20), blob.material, 0,.02,0); starBlob.rotation.x = -Math.PI/2; starBlob.visible = false;
-const countStars = [0,1,2,3,4].map(() => { const s = mesh(STARGEO, STARMAT, 0,3.9,0); s.visible = false; return s; });
+const countStars = [0,1,2,3,4,5,6,7,8].map(() => { const s = mesh(STARGEO, STARMAT, 0,3.9,0); s.visible = false; s.userData = {y:3.9, sz:1}; return s; });
 
 const BCOL = [0xff4d6d,0xffc928,0x3ecf8e,0x4d9bff,0xb86bff];
+/* n = muski rod (balon je CRVENI), k = korijeni koje priznajemo u govoru */
 const COLORS = [
-  {n:'crveni', f:'crvena', k:'crven', c:0xff3b4e, css:'#ff3b4e'}, {n:'plavi', f:'plava', k:'plav', c:0x2f7dff, css:'#2f7dff'},
-  {n:'žuti', f:'žuta', k:'zut', c:0xffc928, css:'#ffc928'}, {n:'zeleni', f:'zelena', k:'zelen', c:0x2fbf5b, css:'#2fbf5b'}
+  {n:'crveni', k:['crven'], c:0xff3b4e, css:'#ff3b4e'}, {n:'plavi', k:['plav'], c:0x2f7dff, css:'#2f7dff'},
+  {n:'žuti', k:['zut'], c:0xffd21f, css:'#ffd21f'}, {n:'zeleni', k:['zelen'], c:0x2fbf5b, css:'#2fbf5b'},
+  {n:'narančasti', k:['naranc'], c:0xff8a1f, css:'#ff8a1f'}, {n:'ljubičasti', k:['ljubic'], c:0x9b4dff, css:'#9b4dff'},
+  {n:'ružičasti', k:['ruzic','roza','roz'], c:0xff7ac8, css:'#ff7ac8'}
 ];
-/* slicice: e = sličica, n = naziv, acc = akuzativ ("klikni kravu"), k = korijeni koje priznajemo u govoru */
-const ANIMALS = [
-  {e:'🐶', n:'pas', acc:'psa', snd:'vau vau', k:['pas','pes','psa','psic','cuk']}, {e:'🐱', n:'mačka', acc:'mačku', snd:'mijau', k:['mack','maca','mac','mic']},
-  {e:'🐮', n:'krava', acc:'kravu', snd:'muuu', k:['krav']}, {e:'🐷', n:'svinja', acc:'svinju', snd:'rok rok', k:['svinj','pras']},
-  {e:'🐴', n:'konj', acc:'konja', k:['konj']}, {e:'🦆', n:'patka', acc:'patku', snd:'kva kva', k:['patk','pace','paci']},
-  {e:'🐟', n:'riba', acc:'ribu', k:['rib']}, {e:'🐸', n:'žaba', acc:'žabu', snd:'kre kre', k:['zab']},
-  {e:'🐑', n:'ovca', acc:'ovcu', snd:'beee', k:['ovc']}, {e:'🐔', n:'kokoš', acc:'kokoš', snd:'ko ko ko', k:['kokos','koka']},
-  {e:'🐘', n:'slon', acc:'slona', k:['slon']}, {e:'🦁', n:'lav', acc:'lava', k:['lav']},
-  {e:'🐻', n:'medvjed', acc:'medvjeda', k:['medvjed','medo','meda']}
-];
-const THINGS = [
-  {e:'🍎', n:'jabuka', acc:'jabuku', k:['jabuk']}, {e:'🍌', n:'banana', acc:'bananu', k:['banan']},
-  {e:'🚗', n:'auto', acc:'auto', k:['aut']}, {e:'⚽', n:'lopta', acc:'loptu', k:['lopt']},
-  {e:'☀️', n:'sunce', acc:'sunce', k:['sunc']}, {e:'🏠', n:'kuća', acc:'kuću', k:['kuc']}
-];
-const texCache = {};
-function emojiTex(e, plain){
-  const key = e + (plain ? '|p' : '');
-  if(texCache[key]) return texCache[key];
-  const c = document.createElement('canvas'); c.width = c.height = 256;
-  const x = c.getContext('2d');
-  if(!plain){
-    x.fillStyle = '#ffffff'; x.beginPath(); x.arc(128,128,122,0,Math.PI*2); x.fill();
-    x.lineWidth = 10; x.strokeStyle = '#ff8a1f'; x.stroke();
-  }
-  x.font = (plain ? 210 : 150) + 'px "Noto Color Emoji","Segoe UI Emoji","Apple Color Emoji",sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
-  x.fillText(e, 128, 140);
-  return texCache[key] = new THREE.CanvasTexture(c);
-}
-const pics = [0,1,2].map(() => {
-  const sp = new THREE.Sprite(new THREE.SpriteMaterial({transparent:true})); sp.visible = false; scene.add(sp);
-  return {sp, item:null, base:new THREE.Vector3(), ph:rnd(0,6), size:1.7, shake:0};
-});
-function clearPics(){ pics.forEach(p => p.sp.visible = false); hoveredPic = null; }
-function showPic(i, item, x, y, size){
-  const p = pics[i]; p.item = item; p.base.set(x,y,0); p.size = size; p.shake = 0; p.fly = null;
-  p.sp.material.map = emojiTex(item.e, item.plain); p.sp.material.needsUpdate = true;
-  p.sp.position.copy(p.base); p.sp.scale.setScalar(.01); p.sp.visible = true;
-}
 const HIT = new THREE.MeshBasicMaterial({transparent:true, opacity:0, depthWrite:false});
 let balloons = [];
 function clearBalloons(){ balloons.forEach(b => scene.remove(b.g)); balloons = []; hovered = null; }
@@ -329,6 +292,84 @@ function spawnBalloons(){
     makeBalloon(BCOL[i%BCOL.length], new THREE.Vector3(x, Math.abs(x) < 1.2 ? rnd(4,4.2) : rnd(2.6,4.1), rnd(-1,1.2)));
   }
 }
+
+/* ---------- slicice ---------- */
+/* e = sličica, n = naziv, acc = akuzativ ("klikni kravu"), snd = glasanje, k = korijeni koje priznajemo u govoru */
+const ANIMALS = [
+  {e:'🐶', n:'pas', acc:'psa', snd:'vau vau', k:['pas','pes','psa','psic','cuk']}, {e:'🐱', n:'mačka', acc:'mačku', snd:'mijau', k:['mack','maca','mac','mic']},
+  {e:'🐮', n:'krava', acc:'kravu', snd:'muuu', k:['krav']}, {e:'🐷', n:'svinja', acc:'svinju', snd:'rok rok', k:['svinj','pras']},
+  {e:'🐴', n:'konj', acc:'konja', k:['konj']}, {e:'🦆', n:'patka', acc:'patku', snd:'kva kva', k:['patk','pace','paci']},
+  {e:'🐟', n:'riba', acc:'ribu', k:['rib']}, {e:'🐸', n:'žaba', acc:'žabu', snd:'kre kre', k:['zab']},
+  {e:'🐑', n:'ovca', acc:'ovcu', snd:'beee', k:['ovc']}, {e:'🐔', n:'kokoš', acc:'kokoš', snd:'ko ko ko', k:['kokos','koka']},
+  {e:'🐭', n:'miš', acc:'miša', snd:'ciju ciju', k:['mis']}, {e:'🦉', n:'sova', acc:'sovu', snd:'hu hu', k:['sov']},
+  {e:'🐺', n:'vuk', acc:'vuka', snd:'auuu', k:['vuk']}, {e:'🐦', n:'ptica', acc:'pticu', snd:'živ živ', k:['ptic']},
+  {e:'🐘', n:'slon', acc:'slona', k:['slon']}, {e:'🦁', n:'lav', acc:'lava', k:['lav']},
+  {e:'🐻', n:'medvjed', acc:'medvjeda', k:['medvjed','medo','meda']}, {e:'🐰', n:'zec', acc:'zeca', k:['zec','zek']},
+  {e:'🐵', n:'majmun', acc:'majmuna', k:['majmun']}, {e:'🦒', n:'žirafa', acc:'žirafu', k:['ziraf']},
+  {e:'🐢', n:'kornjača', acc:'kornjaču', k:['kornj']}, {e:'🦊', n:'lisica', acc:'lisicu', k:['lisic','lija']}
+];
+const FRUITS = [
+  {e:'🍎', n:'jabuka', acc:'jabuku', k:['jabuk']}, {e:'🍌', n:'banana', acc:'bananu', k:['banan']},
+  {e:'🍓', n:'jagoda', acc:'jagodu', k:['jagod']}, {e:'🍐', n:'kruška', acc:'krušku', k:['krusk']},
+  {e:'🍊', n:'naranča', acc:'naranču', k:['naranc']}, {e:'🍇', n:'grožđe', acc:'grožđe', k:['grozd']},
+  {e:'🍉', n:'lubenica', acc:'lubenicu', k:['lubenic']}
+];
+const VEHICLES = [
+  {e:'🚗', n:'auto', acc:'auto', k:['aut']}, {e:'🚌', n:'autobus', acc:'autobus', k:['autobus','bus']},
+  {e:'🚂', n:'vlak', acc:'vlak', k:['vlak']}, {e:'✈️', n:'avion', acc:'avion', k:['avion']},
+  {e:'🚲', n:'bicikl', acc:'bicikl', k:['bicik']}, {e:'🚢', n:'brod', acc:'brod', k:['brod']},
+  {e:'🚜', n:'traktor', acc:'traktor', k:['traktor']}
+];
+const THINGS = FRUITS.concat(VEHICLES, [
+  {e:'⚽', n:'lopta', acc:'loptu', k:['lopt']}, {e:'☀️', n:'sunce', acc:'sunce', k:['sunc']},
+  {e:'🏠', n:'kuća', acc:'kuću', k:['kuc']}, {e:'🌳', n:'drvo', acc:'drvo', k:['drv','stabl']},
+  {e:'🌙', n:'mjesec', acc:'mjesec', k:['mjesec']}, {e:'🌸', n:'cvijet', acc:'cvijet', k:['cvijet','cvjet','cvijec']},
+  {e:'🎂', n:'torta', acc:'tortu', k:['tort']}, {e:'📚', n:'knjiga', acc:'knjigu', k:['knjig']},
+  {e:'🔑', n:'ključ', acc:'ključ', k:['kljuc']}
+]);
+const CATS = [{list:ANIMALS, w:'životinja'}, {list:FRUITS, w:'voće'}, {list:VEHICLES, w:'vozilo'}];
+const SHAPES = [
+  {shape:'circle', col:'#ff3b4e', n:'krug', acc:'krug'}, {shape:'square', col:'#2f7dff', n:'kvadrat', acc:'kvadrat'},
+  {shape:'triangle', col:'#2fbf5b', n:'trokut', acc:'trokut'}, {shape:'star', col:'#ffc928', n:'zvijezda', acc:'zvijezdu'},
+  {shape:'heart', col:'#ff5fa8', n:'srce', acc:'srce'}, {shape:'rect', col:'#ff8a1f', n:'pravokutnik', acc:'pravokutnik'}
+];
+const texCache = {};
+function disc(x){ x.fillStyle = '#ffffff'; x.beginPath(); x.arc(128,128,122,0,Math.PI*2); x.fill(); x.lineWidth = 10; x.strokeStyle = '#ff8a1f'; x.stroke(); }
+function emojiTex(e, plain){
+  const key = e + (plain ? '|p' : '');
+  if(texCache[key]) return texCache[key];
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const x = c.getContext('2d');
+  if(!plain) disc(x);
+  x.font = (plain ? 210 : 150) + 'px "Noto Color Emoji","Segoe UI Emoji","Apple Color Emoji",sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText(e, 128, 140);
+  return texCache[key] = new THREE.CanvasTexture(c);
+}
+function shapeTex(it){
+  const key = 'shape|'+it.shape;
+  if(texCache[key]) return texCache[key];
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const x = c.getContext('2d'); disc(x);
+  x.fillStyle = it.col; x.strokeStyle = '#1d2a4d'; x.lineWidth = 7; x.lineJoin = 'round'; x.beginPath();
+  if(it.shape === 'circle') x.arc(128,128,70,0,Math.PI*2);
+  else if(it.shape === 'square') x.rect(66,66,124,124);
+  else if(it.shape === 'rect') x.rect(48,86,160,84);
+  else if(it.shape === 'triangle'){ x.moveTo(128,52); x.lineTo(204,188); x.lineTo(52,188); x.closePath(); }
+  else if(it.shape === 'star'){ for(let i=0;i<10;i++){ const r = i%2 ? 36 : 82, a = i/10*Math.PI*2 - Math.PI/2; const px = 128+Math.cos(a)*r, py = 132+Math.sin(a)*r; i ? x.lineTo(px,py) : x.moveTo(px,py); } x.closePath(); }
+  else if(it.shape === 'heart'){ x.moveTo(128,196); x.bezierCurveTo(28,128,58,48,128,96); x.bezierCurveTo(198,48,228,128,128,196); x.closePath(); }
+  x.fill(); x.stroke();
+  return texCache[key] = new THREE.CanvasTexture(c);
+}
+const pics = [0,1,2,3,4].map(() => {
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({transparent:true})); sp.visible = false; scene.add(sp);
+  return {sp, item:null, base:new THREE.Vector3(), ph:rnd(0,6), size:1.6, shake:0, fly:null};
+});
+function clearPics(){ pics.forEach(p => p.sp.visible = false); hoveredPic = null; }
+function showPic(i, item, x, y, size){
+  const p = pics[i]; p.item = item; p.base.set(x,y,0); p.size = size; p.shake = 0; p.fly = null;
+  p.sp.material.map = item.shape ? shapeTex(item) : emojiTex(item.e, item.plain); p.sp.material.needsUpdate = true;
+  p.sp.position.copy(p.base); p.sp.scale.setScalar(.01); p.sp.visible = true;
+}
 const log = mesh(new THREE.CylinderGeometry(.38,.38,1.6,16), mat(0x9a6a44), 8,.38,0); log.rotation.x = Math.PI/2; log.visible = false;
 mesh(new THREE.CylinderGeometry(.26,.26,1.62,16), mat(0xd9a66b), 0,0,0, log);
 const BOX = new THREE.BoxGeometry(.13,.13,.04);
@@ -340,6 +381,39 @@ function burst(pos, col, n, power){
     parts.push({m, v:new THREE.Vector3(Math.cos(a)*p, u*p+2, Math.sin(a)*p*.6), life:rnd(.8,1.5)});
   }
   while(parts.length > 220){ scene.remove(parts.shift().m); }
+}
+
+/* ---------- karta planeta ---------- */
+let done = new Set();
+try{ done = new Set(JSON.parse(localStorage.getItem('bibo-done') || '[]')); }catch(e){}
+function saveDone(){ try{ localStorage.setItem('bibo-done', JSON.stringify(Array.from(done))); }catch(e){} }
+function labelTex(txt, gold){
+  const c = document.createElement('canvas'); c.width = 256; c.height = 96;
+  const x = c.getContext('2d'), r = 44;
+  x.fillStyle = gold ? '#ffc928' : '#ffffff';
+  x.beginPath(); x.moveTo(r+4,4); x.arcTo(252,4,252,92,r); x.arcTo(252,92,4,92,r); x.arcTo(4,92,4,4,r); x.arcTo(4,4,252,4,r); x.closePath(); x.fill();
+  x.fillStyle = '#1d2a4d'; x.font = '800 54px "Baloo 2","Trebuchet MS",sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText(txt, 128, 52);
+  return new THREE.CanvasTexture(c);
+}
+const mapGroup = new THREE.Group(); mapGroup.visible = false; scene.add(mapGroup);
+const planets = WORLDS.map((w,i) => {
+  const g = new THREE.Group(); g.position.set((i-2)*2.5, 3.3 + [0,.6,1,.6,0][i], 1.5); mapGroup.add(g);
+  const ball = new THREE.Group(); g.add(ball);
+  const b = mesh(SPH, mat(w.col,{roughness:.7}), 0,0,0, ball); b.scale.setScalar(.75);
+  [[.35,.4,.5,.3],[-.45,-.2,.5,.24],[.1,-.5,-.45,.3],[-.3,.45,-.4,.26]].forEach(([x,y,z,s]) => { const p = mesh(SPH, mat(w.grass,{roughness:.8}), x,y,z, ball); p.scale.set(s,s*.8,s); });
+  const ring = mesh(new THREE.TorusGeometry(1.05,.05,8,48), mat(0xffffff,{roughness:.4}), 0,0,0, g); ring.rotation.x = 1.25; ring.rotation.y = i%2 ? .35 : -.35;
+  const hit = mesh(SPH, HIT, 0,0,0, g); hit.scale.setScalar(1.15);
+  const icon = new THREE.Sprite(new THREE.SpriteMaterial({map:emojiTex(w.e, true), transparent:true, depthTest:false})); icon.scale.setScalar(.8); icon.position.set(0,0,.8); g.add(icon);
+  const label = new THREE.Sprite(new THREE.SpriteMaterial({transparent:true})); label.scale.set(1.3,.49,1); label.position.set(0,-1.15,0); g.add(label);
+  return {g, ball, hit, label, i, y:g.position.y, s:1};
+});
+function refreshMap(){
+  planets.forEach(p => {
+    const w = WORLDS[p.i], n = w.levels.filter(l => done.has(l)).length;
+    if(p.label.material.map) p.label.material.map.dispose();
+    p.label.material.map = labelTex('★ '+n+'/'+w.levels.length, n === w.levels.length); p.label.material.needsUpdate = true;
+  });
 }
 
 /* ---------- zvuk i govor ---------- */
@@ -361,6 +435,7 @@ const sfx = {
   ding(){ tone(880,.18,'sine',.25); tone(1320,.3,'sine',.25,.1); },
   jump(){ tone(300,.25,'sine',.2,0,820); },
   oops(){ tone(260,.25,'sine',.18,0,170); },
+  whoosh(){ tone(200,.7,'sawtooth',.08,0,1400); },
   fanfare(){ [523,659,784,1047,784,1047].forEach((f,i)=>tone(f,.25,'triangle',.25,i*.14)); },
   giggle(){ [900,1100,900,1200].forEach((f,i)=>tone(f,.08,'square',.08,i*.09)); },
   beeps(n){ for(let i=0;i<n;i++) tone(rnd(500,1100),.07,'square',.06,i*.11); }
@@ -381,22 +456,31 @@ function say(text, onDone){
   const id = ++sayId, ms = 700 + text.length*65;
   const cb = onDone || (voiceRound() ? listen : null);
   let fired = false;
-  const done = () => { if(id !== sayId || fired) return; fired = true; talking = false; if(cb) cb(); };
+  const fin = () => { if(id !== sayId || fired) return; fired = true; talking = false; if(cb) cb(); };
   talking = true;
   if(!muted && voice && synth){
     try{
       synth.cancel();
       const u = new SpeechSynthesisUtterance(text);
       u.voice = voice; u.lang = voice.lang; u.pitch = 1.6; u.rate = .95;
-      u.onend = u.onerror = done;
+      u.onend = u.onerror = fin;
       setTimeout(() => { if(id === sayId) synth.speak(u); }, 70);
     }catch(e){}
-    talkTimer = setTimeout(done, ms + 4000);
+    talkTimer = setTimeout(fin, ms + 4000);
   } else {
     if(!muted) sfx.beeps(Math.min(9, Math.ceil(text.length/7)));
-    talkTimer = setTimeout(done, ms);
+    talkTimer = setTimeout(fin, ms);
   }
 }
+const PRAISE = ['Bravo, '+NAME+'!','Super!','Tako je!','Odlično, '+NAME+'!','Jupi!','Ti si majstor!','Fantastično!','To, '+NAME+'!'];
+let lastPraise = -1;
+function praise(){ let i; do{ i = rndi(PRAISE.length); }while(i === lastPraise); lastPraise = i; say(PRAISE[i]); }
+const NUM = ['jedan','dva','tri','četiri','pet','šest','sedam','osam','devet'];                       // naziv broja
+const NUMF = ['jedna zvjezdica','dvije zvjezdice','tri zvjezdice','četiri zvjezdice','pet zvjezdica','šest zvjezdica','sedam zvjezdica','osam zvjezdica','devet zvjezdica'];
+const NUMSAY = ['jedna','dvije','tri','četiri','pet','šest','sedam','osam','devet'];
+const NUMK = [['jedan','jedna','jedno','1'],['dva','dvije','2'],['tri','3'],['cetiri','4'],['pet','5'],['sest','6'],['sedam','7'],['osam','8'],['devet','9']];
+const numName = ch => ch === '0' ? 'nula' : NUM[+ch-1];
+$('#nums').innerHTML = NUM.map((_, i) => '<button class="key" data-n="'+(i+1)+'">'+(i+1)+'</button>').join('');
 
 /* ---------- slusanje (prepoznavanje govora) ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -438,7 +522,7 @@ function onHeard(e){
   sfx.oops();
   say(vMiss === 1 ? 'Nisam dobro čuo. Reci još jednom, glasno!' : vr.help, listen);
 }
-function startVoice(cfg, question){ vr = cfg; vMiss = 0; roundActive = true; $('#heard').textContent = ''; say(question, listen); }
+function startVoice(cfg, q){ vr = cfg; vMiss = 0; roundActive = true; $('#heard').textContent = ''; say(q, listen); }
 function micFallback(){
   listening = false; setMic();
   if(mode !== 'voice') return;
@@ -446,112 +530,128 @@ function micFallback(){
   say('Mikrofon ne radi. Odgovaraj klikom!');
   later(() => setLevel(state), 2600);
 }
-const PRAISE = ['Bravo, '+NAME+'!','Super!','Tako je!','Odlično, '+NAME+'!','Jupi!','Ti si majstor!','Fantastično!','To, '+NAME+'!'];
-let lastPraise = -1;
-function praise(){ let i; do{ i = Math.floor(Math.random()*PRAISE.length); }while(i === lastPraise); lastPraise = i; say(PRAISE[i]); }
-const NUM = ['jedan','dva','tri','četiri','pet'];
 
 /* ---------- stanje igre ---------- */
-let state = 'start', count = 0, round = 0, T = 0, lastAction = 0, busy = false, gen = 0;
+let state = 'start', count = 0, T = 0, lastAction = 0, busy = false, gen = 0, world = 0, firstMap = true, sel = -1;
 let vy = 0, onGround = true, happy = 0, spin = 0, facing = 0, walk = 0, nextBlink = 2, blink = 0;
-let starActive = false, roundActive = false, nextConfetti = 0, hovered = null;
-let target = -1, countN = 0, misses = 0, letter = '', mode = '', hoveredPic = null, picTarget = null, picPool = ANIMALS, question = '';
-let picKind = 'name', sizeWant = 'najveći', logOn = false, logScored = false, bonks = 0;
-const played = new Set(), NOTES = [523,587,659,784,880];
+let starActive = false, roundActive = false, nextConfetti = 0, hovered = null, hoveredPic = null;
+let target = -1, countN = 0, misses = 0, letter = '', letters = [], mode = '', picTarget = null, picPool = ANIMALS, question = '';
+let picKind = 'name', oddCat = CATS[0], sizeWant = 'najveći', logOn = false, logScored = false, bonks = 0, sayItem = null;
+const played = new Set(), NOTES = [523,587,659,698,784,880,988,1047,1175];
 const keys = {up:false, down:false, left:false, right:false};
 const slotsEl = $('#slots'); const slots = [];
 for(let i=0;i<GOAL;i++){ const s = document.createElement('span'); s.textContent = '★'; slotsEl.appendChild(s); slots.push(s); }
-const LETTERS = (function(){
-  const u = []; for(const c of NAME.toUpperCase()){ if(/[A-Z]/.test(c) && !u.includes(c)) u.push(c); }
-  for(const c of 'ABIMS'){ if(u.length >= GOAL) break; if(!u.includes(c)) u.push(c); }
-  return u.slice(0, GOAL);
-})();
 function later(fn, ms){ const g = gen; setTimeout(() => { if(g === gen) fn(); }, ms); }
 function hint(){
+  if(state === 'map') return 'Klikni na planet!';
   if(mode === 'voice') return question;
   if(mode === 'picclick' && picTarget) return picAsk();
+  if(mode === 'colorclick') return 'Klikni '+COLORS[target].n+' balon!';
   if(mode === 'sizeclick') return 'Klikni '+sizeWant+' balon!';
   if(mode === 'flyclick') return 'Ulovi leptire! Klikni ih dok lete!';
-  if(mode === 'piano') return 'Pritisni tipke s brojevima, od jedan do pet!';
-  if(state === 'hurdles') return 'Pritisni dugu tipku kad balvan dođe blizu!';
-  if(mode === 'colorclick') return 'Klikni '+COLORS[target].n+' balon!';
+  if(mode === 'piano') return 'Pritisni tipke s brojevima!';
   if(mode === 'count') return 'Izbroji zvjezdice i pritisni taj broj!';
   switch(state){
     case 'balloons': return 'Pomakni strelicu na balon i klikni!';
     case 'stars': return 'Pritisni strelice na tipkovnici i dovedi me do zvjezdice!';
     case 'jump': return 'Pritisni veliku dugu tipku da skočim!';
-    case 'colors': return 'Klikni '+COLORS[target].n+' balon!';
     case 'catch': return 'Strelicama lijevo i desno dovedi me ispod zvjezdice!';
-    case 'count': return 'Izbroji zvjezdice i pritisni taj broj!';
+    case 'hurdles': return 'Pritisni dugu tipku kad balvan dođe blizu!';
     case 'letters': return 'Pritisni slovo '+letter+'!';
+    case 'digits': return 'Pritisni broj '+numName(letter)+'!';
   }
   return '';
 }
+function buildBar(){
+  $('#levels').innerHTML = '<button data-l="map" aria-label="Karta planeta">🪐</button>' +
+    WORLDS[world].levels.map(l => '<button data-l="'+l+'" class="'+(done.has(l) ? 'done' : '')+(l === state ? ' on' : '')+'" aria-label="Zadatak">'+ICON[l]+'</button>').join('');
+}
 function setLevel(l){
   gen++; state = l; count = 0; busy = false; roundActive = false; lastAction = T; misses = 0;
+  const isMap = l === 'map';
   slots.forEach(s => s.classList.remove('on'));
-  document.querySelectorAll('#levels button').forEach(s => s.classList.toggle('on', s.dataset.l === l));
-  mode = ({balloons:'pop', colors:'colorclick', animals:'picclick', sounds:'picclick', size:'sizeclick', flies:'flyclick', piano:'piano', count:'count',
+  mode = ({balloons:'pop', colors:'colorclick', size:'sizeclick', flies:'flyclick', piano:'piano', count:'count',
+           animals:'picclick', sounds:'picclick', things:'picclick', odd:'picclick', shapes:'picclick',
            sayit: micOK ? 'voice' : 'picclick', saycolor: micOK ? 'voice' : 'colorclick', saycount: micOK ? 'voice' : 'count'})[l] || '';
-  stopListen(); vr = null; clearPics(); $('#heard').textContent = '';
-  picKind = l === 'sounds' ? 'sound' : 'name';
+  stopListen(); vr = null; clearPics(); clearBalloons(); $('#heard').textContent = '';
+  picKind = l === 'sounds' ? 'sound' : l === 'odd' ? 'odd' : 'name';
   log.visible = logOn = false; $('#spaceBtn').classList.remove('pulse');
   played.clear(); document.querySelectorAll('#nums .key').forEach(b => b.classList.remove('on'));
+  star.visible = starBlob.visible = starActive = false;
+  countStars.forEach(s => s.visible = false);
+  if(happy > 900) happy = 0;
+  /* karta ili planet */
+  mapGroup.visible = spaceStars.visible = isMap; clouds.forEach(c => c.visible = !isMap); sel = -1;
+  $('#levels').hidden = $('#slots').hidden = isMap;
+  if(isMap){ setSky('#0b1440','#43318a'); GRASS.color.setHex(0x6fd35b); SIDE.color.setHex(0x4fae45); refreshMap(); }
+  else { const w = WORLDS[world]; setSky(w.sky[0], w.sky[1]); GRASS.color.setHex(w.grass); SIDE.color.setHex(w.side); buildBar(); }
   $('#mic').hidden = mode !== 'voice';
-  $('#mouseHint').hidden = !(mode === 'pop' || mode === 'picclick' || mode === 'sizeclick' || mode === 'flyclick');
+  $('#mouseHint').hidden = !(mode === 'pop' || mode === 'picclick' || mode === 'sizeclick' || mode === 'flyclick' || isMap);
   $('#colorHint').hidden = mode !== 'colorclick';
   $('#pad').hidden = !(l === 'stars' || l === 'catch');
   $('#pad').classList.toggle('lr', l === 'catch');
   $('#spaceBtn').hidden = !(l === 'jump' || l === 'hurdles');
   $('#nums').hidden = !(mode === 'count' || mode === 'piano');
-  $('#letterKey').hidden = l !== 'letters';
+  $('#letterKey').hidden = !(l === 'letters' || l === 'digits');
   $('#again').hidden = true;
-  clearBalloons();
-  star.visible = starBlob.visible = starActive = false;
-  countStars.forEach(s => s.visible = false);
-  if(happy > 900) happy = 0;
-  if(l === 'balloons'){
-    spawnBalloons();
-    say(round === 0 ? 'Bok, '+NAME+'! Ja sam Bibo, tvoj robot prijatelj. Vidiš li balone? Pomakni strelicu na balon i klikni!' : 'Idemo, '+NAME+'! Klikni na balone!');
+  if(isMap){
+    const all = LEVELS.every(x => done.has(x));
+    say(firstMap ? 'Bok, '+NAME+'! Ja sam Bibo, tvoj robot prijatelj. Na koji planet letimo? Klikni na planet!'
+      : all ? 'Svi planeti su tvoji! Klikni na planet i igraj opet!' : 'Na koji planet letimo sada? Klikni na planet!');
+    firstMap = false;
+  } else if(l === 'balloons'){
+    spawnBalloons(); say('Vidiš li balone? Pomakni strelicu na balon i klikni!');
   } else if(l === 'stars'){
-    placeStar(); say('Sada mi pomozi doći do zvjezdice. Pritisni strelice na tipkovnici!');
+    placeStar(); say('Pomozi mi doći do zvjezdice. Pritisni strelice na tipkovnici!');
   } else if(l === 'jump'){
-    later(skyStar, 900);
-    say('Zvjezdica je visoko. Pritisni veliku dugu tipku da skočim!');
+    later(skyStar, 900); say('Zvjezdica je visoko. Pritisni veliku dugu tipku da skočim!');
   } else if(l === 'colors'){
     colorRound(true);
   } else if(l === 'catch'){
-    later(dropStar, 1200);
-    say('Zvjezdice padaju s neba! Strelicama lijevo i desno dovedi me ispod zvjezdice!');
+    later(dropStar, 1200); say('Zvjezdice padaju s neba! Strelicama lijevo i desno dovedi me ispod zvjezdice!');
   } else if(l === 'count'){
     countRound(true);
   } else if(l === 'letters'){
-    letterRound(true);
+    letters = [NAME.charAt(0).toUpperCase()].concat(shuffle('ABCDEFGHIJKLMNOPRSTUVZ'.split('').filter(c => c !== NAME.charAt(0).toUpperCase())).slice(0, GOAL-1));
+    keyRound(true);
+  } else if(l === 'digits'){
+    keyRound(true);
   } else if(l === 'animals'){
-    picPool = ANIMALS; picsRound(true, 'Sada životinje! ');
+    picPool = ANIMALS; picsRound(true, 'Tražimo životinje! ');
   } else if(l === 'sounds'){
     picPool = ANIMALS.filter(a => a.snd); picsRound(true, 'Poslušaj kako se životinje glasaju! ');
+  } else if(l === 'things'){
+    picPool = THINGS; picsRound(true, 'Pogledaj sličice! ');
+  } else if(l === 'shapes'){
+    picPool = SHAPES; picsRound(true, 'Tražimo oblike! ');
+  } else if(l === 'odd'){
+    picsRound(true, 'Sada pazi! ');
   } else if(l === 'size'){
     sizeRound(true);
   } else if(l === 'flies'){
-    [0,1,2].forEach(spawnFly);
-    say('Leptiri! Ulovi ih! Klikni ih dok lete!');
+    [0,1,2,3].forEach(spawnFly); say('Leptiri! Ulovi ih! Klikni ih dok lete!');
   } else if(l === 'hurdles'){
-    later(rollLog, 2500);
-    say('Trčimo! Preskoči balvan! Pritisni dugu tipku kad dođe blizu!');
+    later(rollLog, 2500); say('Trčimo! Preskoči balvan! Pritisni dugu tipku kad dođe blizu!');
   } else if(l === 'piano'){
-    say('Idemo svirati! Pritisni tipke s brojevima, od jedan do pet!');
+    say('Idemo svirati! Pritisni tipke s brojevima!');
   } else if(l === 'sayit'){
-    if(mode === 'voice') sayItRound(true); else { picPool = THINGS; picsRound(true, 'Pogledaj sličice! '); }
+    if(mode === 'voice') sayItRound(true); else { picPool = THINGS.concat(ANIMALS); picsRound(true, 'Pogledaj sličice! '); }
   } else if(l === 'saycolor'){
     if(mode === 'voice') sayColorRound(true); else colorRound(true);
   } else if(l === 'saycount'){
     if(mode === 'voice') sayCountRound(true); else countRound(true);
   } else if(l === 'finale'){
     sfx.fanfare(); happy = 999;
-    say('Bravo, '+NAME+'! Prošao si sve zadatke! Ti si pravi prvak!');
-    later(() => { $('#again').hidden = false; }, 3500);
+    say(LEVELS.every(x => done.has(x)) ? 'Bravo, '+NAME+'! Osvojio si sve planete! Ti si pravi prvak!' : 'Bravo, '+NAME+'! Osvojio si cijeli planet! Letimo na sljedeći!');
+    later(() => { $('#again').hidden = false; }, 3000);
+    later(() => setLevel('map'), 9000);
   }
+}
+function choosePlanet(i){
+  if(state !== 'map' || busy) return;
+  busy = true; sel = i; world = i; sfx.whoosh(); spin = Math.PI*4; if(onGround){ vy = 12; onGround = false; }
+  say(WORLDS[i].n+'!');
+  later(() => { const w = WORLDS[i].levels; setLevel(w.find(l => !done.has(l)) || w[0]); }, 1600);
 }
 function addStar(pos, text){
   if(busy) return;
@@ -560,11 +660,13 @@ function addStar(pos, text){
   if(count >= GOAL){
     busy = true;
     if(text) say(text);
-    const next = LEVELS[LEVELS.indexOf(state)+1] || 'finale';
-    later(() => setLevel(next), 1500);
+    done.add(state); saveDone(); buildBar();
+    const w = WORLDS[world].levels, idx = w.indexOf(state); let next = 'finale';
+    for(let j = 1; j < w.length; j++){ const c = w[(idx+j) % w.length]; if(!done.has(c)){ next = c; break; } }
+    later(() => setLevel(next), 1600);
   } else if(text) say(text); else praise();
 }
-/* 2: strelice do zvjezdice */
+/* strelice do zvjezdice */
 function placeStar(){
   let x, z, n = 0;
   do{ const a = rnd(0,Math.PI*2), r = rnd(2.4,5.4); x = Math.cos(a)*r; z = Math.sin(a)*r*.8; n++; }
@@ -572,31 +674,37 @@ function placeStar(){
   star.position.set(x,1,z); star.scale.setScalar(.01); star.visible = starBlob.visible = true; starActive = true;
   starBlob.position.set(x,.02,z);
 }
-/* 3: skok */
+/* skok */
 function skyStar(){ star.position.set(0,4.2,0); star.scale.setScalar(.01); star.visible = true; starBlob.visible = false; starActive = true; }
 function jump(){
   if(state === 'start' || !onGround) return;
   vy = 9.8; onGround = false; sfx.jump(); lastAction = T;
 }
-/* 4: boje */
+/* boje: pet balona, sedam mogucih boja */
 function colorRound(first){
   clearBalloons();
-  let t; do{ t = Math.floor(Math.random()*COLORS.length); }while(t === target); target = t;
-  const xs = shuffle([-4.2,-1.6,1.6,4.2]);
-  COLORS.forEach((c,i) => makeBalloon(c.c, new THREE.Vector3(xs[i], rnd(3,4), rnd(-.5,1)), i));
+  let t; do{ t = rndi(COLORS.length); }while(t === target); target = t;
+  const others = shuffle(COLORS.map((_, i) => i).filter(i => i !== t)).slice(0,4);
+  const set = shuffle(others.concat([t])), xs = [-5,-2.5,0,2.5,5];
+  set.forEach((ci,i) => makeBalloon(COLORS[ci].c, new THREE.Vector3(xs[i], xs[i] === 0 ? 4.1 : rnd(2.9,3.9), rnd(-.5,1)), ci));
   $('#colorHint').style.background = COLORS[t].css;
   say((first ? 'Sada tražimo boje! ' : '') + 'Klikni '+COLORS[t].n+' balon!');
 }
-/* 5: hvatanje zvjezdica koje padaju */
+/* hvatanje zvjezdica koje padaju */
 function dropStar(){
-  let x; do{ x = bot.position.x + (Math.random() < .5 ? -1 : 1)*rnd(1.5,4); }while(Math.abs(x) > 5);
+  let x; do{ x = bot.position.x + (Math.random() < .5 ? -1 : 1)*rnd(1.5,4.2); }while(Math.abs(x) > 5);
   star.position.set(x,7.6,0); star.scale.setScalar(.01); star.visible = starBlob.visible = true; starActive = true;
   starBlob.position.set(x,.02,0);
 }
-/* 6: brojevi */
+/* brojevi do devet */
 function pickCount(){
-  let n; do{ n = 1 + Math.floor(Math.random()*5); }while(n === countN); countN = n;
-  countStars.forEach((s,i) => { s.visible = i < n; s.position.set((i-(n-1)/2)*1.3, 3.9, 0); s.scale.setScalar(.01); });
+  let n; do{ n = 1 + rndi(9); }while(n === countN); countN = n;
+  const rows = n <= 5 ? [n] : [Math.ceil(n/2), Math.floor(n/2)]; let k = 0;
+  rows.forEach((m, r) => { for(let j = 0; j < m; j++){
+    const s = countStars[k++]; s.visible = true; s.userData.y = rows.length === 1 ? 3.9 : (r === 0 ? 4.4 : 3.35); s.userData.sz = rows.length === 1 ? 1 : .85;
+    s.position.set((j-(m-1)/2)*1.25, s.userData.y, 0); s.scale.setScalar(.01);
+  } });
+  for(; k < countStars.length; k++) countStars[k].visible = false;
 }
 function countRound(first){
   pickCount(); roundActive = true;
@@ -604,27 +712,35 @@ function countRound(first){
 }
 function countRight(helped){
   const n = countN;
-  countStars.forEach(s => { if(s.visible){ burst(s.position, 0xffc928, 8, 3); s.visible = false; } });
-  addStar(null, helped ? 'Ima ih '+NUM[n-1]+'!' : 'Tako je! '+cap(NUM[n-1])+'!');
-  if(count < GOAL) later(() => { if(mode === 'voice') sayCountRound(false); else countRound(false); }, 1700);
+  countStars.forEach(s => { if(s.visible){ burst(s.position, 0xffc928, 6, 3); s.visible = false; } });
+  addStar(null, (helped ? '' : 'Tako je! ') + cap(NUMF[n-1]) + '!');
+  if(count < GOAL) later(() => { if(mode === 'voice') sayCountRound(false); else countRound(false); }, 1900);
 }
 function answer(n){
   if(!(state === 'count' || state === 'saycount') || !roundActive || busy) return;
   lastAction = T;
   if(n === countN){ stopListen(); roundActive = false; countRight(false); }
-  else { sfx.oops(); say('To je '+NUM[n-1]+'. Izbroji opet!'); }
+  else { sfx.oops(); say('To je broj '+NUM[n-1]+'. Izbroji opet!'); }
 }
-/* 8: zivotinje - poslusaj i klikni slicicu */
+/* slicice: cetiri izbora (naziv, glasanje, oblik ili "sto ne pripada") */
 function picsRound(first, intro){
   clearPics();
-  let three, t;
-  do{ three = shuffle(picPool).slice(0,3); t = three[Math.floor(Math.random()*3)]; }while(t === picTarget);
+  let items, t;
+  if(picKind === 'odd'){
+    let a, b; do{ a = pick(CATS); b = pick(CATS); }while(a === b);
+    do{ t = pick(b.list); }while(t === picTarget);
+    items = shuffle(shuffle(a.list).slice(0,3).concat([t])); oddCat = a;
+  } else { do{ items = shuffle(picPool).slice(0,4); t = pick(items); }while(t === picTarget); }
   picTarget = t;
-  [-3.6,0,3.6].forEach((x,i) => showPic(i, three[i], x, x === 0 ? 4 : 3.3, 1.7));
+  [-4.4,-1.6,1.6,4.4].forEach((x,i) => showPic(i, items[i], x, 3.4, 1.6));
   roundActive = true;
   say((first ? intro : '') + picAsk());
 }
-function picAsk(){ return picKind === 'sound' ? 'Tko kaže '+picTarget.snd+'?' : 'Gdje je '+picTarget.n+'? Klikni '+picTarget.acc+'!'; }
+function picAsk(){
+  if(picKind === 'sound') return 'Tko kaže '+picTarget.snd+'?';
+  if(picKind === 'odd') return 'Što ovdje ne pripada? Što nije '+oddCat.w+'?';
+  return 'Gdje je '+picTarget.n+'? Klikni '+picTarget.acc+'!';
+}
 function clickPic(p){
   if(mode === 'flyclick'){
     if(busy || !p.sp.visible) return;
@@ -636,27 +752,30 @@ function clickPic(p){
   }
   if(busy || !roundActive) return;
   lastAction = T;
-  if(p.item !== picTarget){
+  const it = p.item;
+  if(it !== picTarget){
     p.shake = .5; sfx.oops();
-    say(picKind === 'sound' ? 'To je '+p.item.n+'. '+cap(p.item.n)+' kaže '+p.item.snd+'. Tko kaže '+picTarget.snd+'?' : 'To je '+p.item.n+'. Nađi '+picTarget.acc+'!');
+    say(picKind === 'sound' ? 'To je '+it.n+'. '+cap(it.n)+' kaže '+it.snd+'. Tko kaže '+picTarget.snd+'?'
+      : picKind === 'odd' ? cap(it.n)+' je '+oddCat.w+'. Što nije '+oddCat.w+'?'
+      : 'To je '+it.n+'. Nađi '+picTarget.acc+'!');
     return;
   }
   roundActive = false; sfx.pop(); burst(p.sp.position, null, 18, 5); clearPics();
-  addStar(null, picKind === 'sound' ? 'Tako je! '+cap(p.item.n)+' kaže '+p.item.snd+'!' : 'Tako je! '+cap(p.item.n)+'!');
-  if(count < GOAL) later(() => picsRound(false, ''), picKind === 'sound' ? 2600 : 1700);
+  addStar(null, picKind === 'sound' ? 'Tako je! '+cap(it.n)+' kaže '+it.snd+'!' : picKind === 'odd' ? 'Tako je! '+cap(it.n)+' nije '+oddCat.w+'!' : 'Tako je! '+cap(it.n)+'!');
+  if(count < GOAL) later(() => picsRound(false, ''), picKind === 'name' ? 1700 : 2700);
 }
-/* veliko i malo */
+/* veliko i malo: cetiri balona */
 function sizeRound(first){
   clearBalloons();
   sizeWant = Math.random() < .5 ? 'najveći' : 'najmanji';
-  const xs = shuffle([-4.2,-1.9,1.9,4.2]).slice(0,3), sizes = shuffle([.6,1,1.5]), col = BCOL[Math.floor(Math.random()*BCOL.length)];
+  const xs = shuffle([-4.4,-1.7,1.7,4.4]), sizes = [.5,.8,1.15,1.5], col = pick(BCOL);
   sizes.forEach((s,i) => makeBalloon(col, new THREE.Vector3(xs[i], 3.3, rnd(0,.8)), i, s));
   say((first ? 'Gledaj koliko su veliki! ' : '') + 'Klikni '+sizeWant+' balon!');
 }
 /* leptiri koji lete */
 function spawnFly(i){
-  showPic(i, {e:['🦋','🐝','🐞'][Math.floor(Math.random()*3)], plain:true}, 0, 3.4, 1.3);
-  pics[i].fly = {cx:[-3.6,0,3.6][i] + rnd(-.5,.5), cy:rnd(3.1,3.7), rx:rnd(1.2,2.2), ry:rnd(.3,.7), v:rnd(.7,1.2)*(Math.random() < .5 ? -1 : 1), ph:rnd(0,6)};
+  showPic(i, {e:pick(['🦋','🐝','🐞']), plain:true}, 0, 3.4, 1.25);
+  pics[i].fly = {cx:[-4.2,-1.4,1.4,4.2][i] + rnd(-.4,.4), cy:rnd(3.1,3.7), rx:rnd(1,1.8), ry:rnd(.3,.7), v:rnd(.9,1.5)*(Math.random() < .5 ? -1 : 1), ph:rnd(0,6)};
 }
 /* preskakanje balvana */
 function rollLog(){ log.position.set(8,.38,0); log.visible = true; logOn = true; logScored = false; }
@@ -664,18 +783,36 @@ function rollLog(){ log.position.set(8,.38,0); log.visible = true; logOn = true;
 function playKey(n){
   if(busy) return;
   lastAction = T; tone(NOTES[n-1], .5, 'triangle', .3);
-  burst(new THREE.Vector3(bot.position.x + (n-3)*.8, 3.4, 0), BCOL[n-1], 8, 3);
+  burst(new THREE.Vector3(bot.position.x + (n-5)*.6, 3.4, 0), BCOL[n%5], 8, 3);
   if(onGround){ vy = 5; onGround = false; }
   happy = Math.max(happy, .6);
   document.querySelector('#nums .key[data-n="'+n+'"]').classList.add('on');
-  if(!played.has(n)){ played.add(n); addStar(null, played.size >= GOAL ? 'Bravo! Kakva glazba!' : cap(NUM[n-1])+'!'); }
+  if(!played.has(n)){ played.add(n); addStar(null, played.size >= GOAL ? 'Bravo! Kakva glazba!' : null); }
 }
-/* 9: reci sto je na slicici */
+/* slova i brojevi na tipkovnici */
+function keyName(ch){ return state === 'digits' ? 'broj '+numName(ch) : 'slovo '+ch; }
+function keyRound(first){
+  if(state === 'digits'){ let d; do{ d = String(1 + rndi(9)); }while(d === letter); letter = d; $('#letterKey').innerHTML = '<b>'+letter+'</b>'; }
+  else { letter = letters[count]; $('#letterKey').innerHTML = '<b>'+letter+'</b><small>'+letter.toLowerCase()+'</small>'; }
+  roundActive = true;
+  say((first ? (state === 'digits' ? 'Tražimo brojeve na tipkovnici! ' : 'Tražimo slova na tipkovnici! ') : '') + 'Pritisni '+keyName(letter)+'!');
+}
+function typed(ch){
+  if(!(state === 'letters' || state === 'digits') || !roundActive || busy) return;
+  lastAction = T;
+  if(ch === letter){
+    roundActive = false;
+    const k = $('#letterKey'); k.classList.add('on'); setTimeout(() => k.classList.remove('on'), 300);
+    jump(); burst(new THREE.Vector3(bot.position.x, 3, bot.position.z), null, 16, 4);
+    addStar(null, 'Bravo! '+cap(keyName(letter))+'!');
+    if(count < GOAL) later(() => keyRound(false), 1700);
+  } else { sfx.oops(); say('To je '+keyName(ch)+'. Nađi '+keyName(letter)+'!'); }
+}
+/* reci sto je na slicici */
 const SAYPOOL = ANIMALS.concat(THINGS);
-let sayItem = null;
 function sayItRound(first){
   clearPics();
-  let it; do{ it = SAYPOOL[Math.floor(Math.random()*SAYPOOL.length)]; }while(it === sayItem); sayItem = it;
+  let it; do{ it = pick(SAYPOOL); }while(it === sayItem); sayItem = it;
   showPic(1, it, 0, 4, 2);
   question = 'Što je ovo? Reci glasno!';
   startVoice({
@@ -688,103 +825,82 @@ function sayItRound(first){
     }
   }, first ? 'Sada mi odgovaraj glasom! Što je ovo?' : 'Što je ovo?');
 }
-/* 10: reci boju balona */
+/* reci kakav je balon (crveni, plavi...) */
 function sayColorRound(first){
   clearBalloons();
-  let t; do{ t = Math.floor(Math.random()*COLORS.length); }while(t === target); target = t;
+  let t; do{ t = rndi(COLORS.length); }while(t === target); target = t;
   const c = COLORS[t];
   makeBalloon(c.c, new THREE.Vector3(0,4.1,0), t);
-  question = 'Koje je boje balon? Reci glasno!';
+  question = 'Kakav je ovo balon? Reci glasno!';
   startVoice({
-    match: h => h.includes(c.k),
-    help: 'Balon je '+c.n+'. Reci: '+c.f+'!',
+    match: h => c.k.some(s => h.includes(s)),
+    help: 'Ovo je '+c.n+' balon. Reci: '+c.n+'!',
     right: helped => {
       const b = balloons[0]; if(b){ sfx.pop(); burst(b.g.position, b.col, 18, 5); }
       clearBalloons();
-      addStar(null, helped ? 'Balon je '+c.n+'!' : 'Tako je! '+cap(c.f)+'!');
-      if(count < GOAL) later(() => sayColorRound(false), 1800);
+      addStar(null, helped ? 'Ovo je '+c.n+' balon!' : 'Tako je! '+cap(c.n)+' balon!');
+      if(count < GOAL) later(() => sayColorRound(false), 1900);
     }
-  }, first ? 'Koje je boje balon? Reci glasno!' : 'Koje je boje balon?');
+  }, first ? 'Kakav je ovo balon? Koje je boje? Reci glasno!' : 'Kakav je ovo balon?');
 }
-/* 11: reci koliko je zvjezdica */
-const NUMK = [['jedan','jedna','jedno','1'],['dva','dvije','2'],['tri','3'],['cetiri','4'],['pet','5']];
+/* reci koliko je zvjezdica */
 function sayCountRound(first){
   pickCount(); $('#nums').hidden = true;
   const n = countN;
   question = 'Koliko je zvjezdica? Reci broj!';
   startVoice({
     match: h => { const w = h.split(/[^a-z0-9]+/); return NUMK[n-1].some(x => w.includes(x)); },
-    help: 'Ima ih '+NUM[n-1]+'. Reci: '+NUM[n-1]+'!',
+    help: 'Izbroji sa mnom! '+cap(NUMF[n-1])+'. Reci: '+NUMSAY[n-1]+'!',
     right: helped => countRight(helped)
   }, first ? 'Izbroji zvjezdice i reci mi broj! Koliko ih je?' : 'Koliko je zvjezdica?');
 }
-/* 7: slova */
-function letterRound(first){
-  letter = LETTERS[count];
-  $('#letterKey').innerHTML = '<b>'+letter+'</b><small>'+letter.toLowerCase()+'</small>';
-  roundActive = true;
-  say((first ? 'Sada slova! ' : '') + 'Pritisni slovo '+letter+'!');
-}
-function typed(ch){
-  if(state !== 'letters' || !roundActive || busy) return;
-  lastAction = T;
-  if(ch === letter){
-    roundActive = false;
-    const k = $('#letterKey'); k.classList.add('on'); setTimeout(() => k.classList.remove('on'), 300);
-    jump(); burst(new THREE.Vector3(bot.position.x, 3, bot.position.z), null, 16, 4);
-    addStar(null, 'Bravo! Slovo '+letter+'!');
-    if(count < GOAL) later(() => letterRound(false), 1600);
-  } else { sfx.oops(); say('To je slovo '+ch+'. Nađi slovo '+letter+'!'); }
-}
 function tickle(){ spin = Math.PI*2; happy = Math.max(happy,1.5); sfx.giggle(); say('Hi hi hi! To škaklja!'); lastAction = T; }
+function popIt(b){ balloons = balloons.filter(x => x !== b); scene.remove(b.g); hovered = null; sfx.pop(); burst(b.g.position, b.col, 18, 5); addStar(); }
 function clickBalloon(b){
   lastAction = T;
   if(mode === 'sizeclick'){
     if(busy) return;
-    if(b.size !== (sizeWant === 'najveći' ? 1.5 : .6)){ b.shake = .5; sfx.oops(); say('Taj nije '+sizeWant+'. Nađi '+sizeWant+' balon!'); return; }
-    balloons = balloons.filter(x => x !== b); scene.remove(b.g); hovered = null;
-    sfx.pop(); burst(b.g.position, b.col, 18, 5); addStar();
-    if(count < GOAL) later(() => sizeRound(false), 1500);
+    if(b.size !== (sizeWant === 'najveći' ? 1.5 : .5)){ b.shake = .5; sfx.oops(); say('Taj nije '+sizeWant+'. Nađi '+sizeWant+' balon!'); return; }
+    popIt(b); if(count < GOAL) later(() => sizeRound(false), 1500);
     return;
   }
   if(mode === 'colorclick'){
     if(busy) return;
-    if(b.ci !== target){ b.shake = .5; sfx.oops(); say('To je '+COLORS[b.ci].n+'. Nađi '+COLORS[target].n+'!'); return; }
-    balloons = balloons.filter(x => x !== b); scene.remove(b.g); hovered = null;
-    sfx.pop(); burst(b.g.position, b.col, 18, 5); addStar();
-    if(count < GOAL) later(() => colorRound(false), 1500);
+    if(b.ci !== target){ b.shake = .5; sfx.oops(); say('To je '+COLORS[b.ci].n+' balon. Nađi '+COLORS[target].n+' balon!'); return; }
+    popIt(b); if(count < GOAL) later(() => colorRound(false), 1500);
     return;
   }
-  balloons = balloons.filter(x => x !== b); scene.remove(b.g); hovered = null;
-  sfx.pop(); burst(b.g.position, b.col, 18, 5); addStar();
+  popIt(b);
 }
 
 /* ---------- unos ---------- */
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(0,0);
 function setNdc(e){ const r = canvas.getBoundingClientRect(); ndc.x = (e.clientX-r.left)/r.width*2-1; ndc.y = -(e.clientY-r.top)/r.height*2+1; }
+function cast(list){ scene.updateMatrixWorld(); ray.setFromCamera(ndc, camera); const h = ray.intersectObjects(list, false); return h.length ? h[0].object : null; }
 function pickBalloon(){
   if(!(mode === 'pop' || mode === 'colorclick' || mode === 'sizeclick') || !balloons.length) return null;
-  scene.updateMatrixWorld();
-  ray.setFromCamera(ndc, camera);
-  const h = ray.intersectObjects(balloons.map(b => b.hit), false);
-  return h.length ? balloons.find(b => b.hit === h[0].object) : null;
+  const o = cast(balloons.map(b => b.hit)); return o ? balloons.find(b => b.hit === o) : null;
 }
 function pickPic(){
   if(!(mode === 'picclick' || mode === 'flyclick')) return null;
   const vis = pics.filter(p => p.sp.visible); if(!vis.length) return null;
-  scene.updateMatrixWorld();
-  ray.setFromCamera(ndc, camera);
-  const h = ray.intersectObjects(vis.map(p => p.sp), false);
-  return h.length ? vis.find(p => p.sp === h[0].object) : null;
+  const o = cast(vis.map(p => p.sp)); return o ? vis.find(p => p.sp === o) : null;
 }
-canvas.addEventListener('pointermove', e => { setNdc(e); hovered = pickBalloon(); hoveredPic = pickPic(); });
+function pickPlanet(){
+  if(state !== 'map' || busy) return -1;
+  const o = cast(planets.map(p => p.hit)); return o ? planets.find(p => p.hit === o).i : -1;
+}
+function focusPlanet(i){ if(i !== sel){ sel = i; if(i >= 0){ say(WORLDS[i].n+'!'); lastAction = T; } } }
+canvas.addEventListener('pointermove', e => {
+  setNdc(e); hovered = pickBalloon(); hoveredPic = pickPic();
+  if(state === 'map' && !busy){ const i = pickPlanet(); if(i >= 0) focusPlanet(i); }
+});
 canvas.addEventListener('pointerdown', e => {
   if(state === 'start') return;
   setNdc(e);
-  const b = pickBalloon();
-  if(b){ clickBalloon(b); return; }
-  const p = pickPic();
-  if(p){ clickPic(p); return; }
+  const pl = pickPlanet(); if(pl >= 0){ choosePlanet(pl); return; }
+  const b = pickBalloon(); if(b){ clickBalloon(b); return; }
+  const p = pickPic(); if(p){ clickPic(p); return; }
   ray.setFromCamera(ndc, camera);
   if(ray.intersectObject(bot, true).length) tickle();
 });
@@ -793,12 +909,17 @@ function padBtn(k){ return document.querySelector('#pad .key[data-k="'+k+'"]'); 
 window.addEventListener('keydown', e => {
   if(e.ctrlKey || e.metaKey || e.altKey) return;
   if(state === 'start'){ if(e.code === 'Enter' || e.code === 'Space'){ e.preventDefault(); begin(); } return; }
+  if(state === 'map'){
+    if(e.code === 'ArrowLeft' || e.code === 'ArrowRight'){ e.preventDefault(); if(!busy) focusPlanet(Math.max(0, Math.min(4, (sel < 0 ? 2 : sel + (e.code === 'ArrowLeft' ? -1 : 1))))); return; }
+    if((e.code === 'Enter' || e.code === 'Space') && sel >= 0){ e.preventDefault(); if(!e.repeat) choosePlanet(sel); return; }
+  }
   const k = KEYMAP[e.code];
   if(k){ e.preventDefault(); keys[k] = true; padBtn(k).classList.add('on'); }
   if(e.code === 'Space'){ e.preventDefault(); $('#spaceBtn').classList.add('on'); if(!e.repeat) jump(); }
   if(e.repeat) return;
-  if(mode === 'piano' && /^[1-5]$/.test(e.key)) playKey(+e.key);
+  if(mode === 'piano' && /^[1-9]$/.test(e.key)) playKey(+e.key);
   if((state === 'count' || state === 'saycount') && /^[1-9]$/.test(e.key)) answer(+e.key);
+  if(state === 'digits' && /^[0-9]$/.test(e.key)) typed(e.key);
   if(state === 'letters' && e.key.length === 1 && /[a-zA-ZčćžšđČĆŽŠĐ]/.test(e.key)) typed(e.key.toUpperCase());
 });
 window.addEventListener('keyup', e => {
@@ -812,10 +933,10 @@ document.querySelectorAll('#pad .key').forEach(b => {
   b.addEventListener('pointerdown', e => { e.preventDefault(); keys[k] = true; b.classList.add('on'); });
   ['pointerup','pointerleave','pointercancel'].forEach(ev => b.addEventListener(ev, () => { keys[k] = false; b.classList.remove('on'); }));
 });
-document.querySelectorAll('#nums .key').forEach(b => b.addEventListener('click', () => { if(mode === 'piano') playKey(+b.dataset.n); else answer(+b.dataset.n); b.blur(); }));
+$('#nums').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; if(mode === 'piano') playKey(+b.dataset.n); else answer(+b.dataset.n); b.blur(); });
 $('#letterKey').addEventListener('click', () => { typed(letter); $('#letterKey').blur(); });
 $('#spaceBtn').addEventListener('pointerdown', e => { e.preventDefault(); jump(); });
-document.querySelectorAll('#levels button').forEach(b => b.addEventListener('click', () => { if(state !== 'start'){ setLevel(b.dataset.l); b.blur(); } }));
+$('#levels').addEventListener('click', e => { const b = e.target.closest('button'); if(!b || state === 'start') return; setLevel(b.dataset.l); });
 $('#mute').addEventListener('click', () => { muted = !muted; $('#mute').textContent = muted ? '🔇' : '🔊'; if(muted && synth) synth.cancel(); $('#mute').blur(); });
 $('#full').addEventListener('click', () => {
   try{ if(document.fullscreenElement) document.exitFullscreen(); else { const p = document.documentElement.requestFullscreen(); if(p && p.catch) p.catch(()=>{}); } }catch(e){}
@@ -833,10 +954,10 @@ function begin(){
       p.start();
     }catch(e){}
   }
-  tone(660,.1,'sine',.15); setLevel('balloons');
+  tone(660,.1,'sine',.15); setLevel('map');
 }
 $('#play').addEventListener('click', begin);
-$('#replay').addEventListener('click', () => { round++; happy = 0; setLevel('balloons'); });
+$('#replay').addEventListener('click', () => { happy = 0; setLevel('map'); });
 
 /* ---------- petlja ---------- */
 const lerp = (a,b,t) => a + (b-a)*t;
@@ -874,7 +995,7 @@ function updateBot(dt){
   nextBlink -= dt; if(nextBlink < 0){ blink = .13; nextBlink = rnd(2,4.5); }
   blink = Math.max(0, blink - dt);
   eyes.forEach(e => e.scale.y = blink > 0 ? .012 : .1);
-  const look = mode === 'pop' || mode === 'colorclick' || mode === 'picclick' || mode === 'sizeclick' || mode === 'flyclick' || state === 'start';
+  const look = mode === 'pop' || mode === 'colorclick' || mode === 'picclick' || mode === 'sizeclick' || mode === 'flyclick' || state === 'start' || state === 'map';
   head.rotation.y = lerp(head.rotation.y, look ? ndc.x*.6 : 0, k);
   head.rotation.x = lerp(head.rotation.x, (look ? -ndc.y*.3 : (state === 'catch' || mode === 'count' || mode === 'voice' ? -.35 : 0)) + (talking ? Math.sin(T*11)*.07 : 0), k);
   head.rotation.z = talking ? Math.sin(T*6)*.05 : lerp(head.rotation.z, 0, k);
@@ -886,6 +1007,10 @@ function tick(){
   requestAnimationFrame(tick);
   const dt = Math.min(clock.getDelta(), .05); T += dt;
   clouds.forEach(c => { c.position.x += c.userData.v*dt; if(c.position.x > 24) c.position.x = -24; });
+  if(mapGroup.visible) planets.forEach(p => {
+    p.s = lerp(p.s, p.i === sel ? 1.25 : 1, .15); p.g.scale.setScalar(p.s);
+    p.g.position.y = p.y + Math.sin(T*1.2 + p.i)*.12; p.ball.rotation.y += dt*.5;
+  });
   balloons.forEach(b => {
     b.s = lerp(b.s, b === hovered ? 1.25 : 1, .2);
     b.g.scale.setScalar(lerp(b.g.scale.x, b.s*b.size, .12));
@@ -897,7 +1022,7 @@ function tick(){
     star.rotation.y += dt*2.5;
     star.scale.setScalar(lerp(star.scale.x, starActive ? 1 + Math.sin(T*5)*.08 : .01, .15));
     if(state === 'stars') star.position.y = 1 + Math.sin(T*3)*.15;
-    if(state === 'catch' && starActive) star.position.y -= 1.5*dt;
+    if(state === 'catch' && starActive) star.position.y -= 1.9*dt;
   }
   pics.forEach(p => { if(p.sp.visible){
     p.shake = Math.max(0, p.shake - dt);
@@ -919,7 +1044,7 @@ function tick(){
     }
     if(logOn && log.position.x < -8){ logOn = false; log.visible = false; if(count < GOAL) later(rollLog, 500); }
   }
-  countStars.forEach((s,i) => { if(s.visible){ s.rotation.y += dt*2; s.position.y = 3.9 + Math.sin(T*3+i)*.1; s.scale.setScalar(lerp(s.scale.x, 1, .15)); } });
+  countStars.forEach((s,i) => { if(s.visible){ s.rotation.y += dt*2; s.position.y = s.userData.y + Math.sin(T*3+i)*.08; s.scale.setScalar(lerp(s.scale.x, s.userData.sz, .15)); } });
   updateBot(dt);
   if(starActive && !busy){
     if(state === 'stars' && Math.hypot(bot.position.x-star.position.x, bot.position.z-star.position.z) < 1){
@@ -942,7 +1067,7 @@ function tick(){
     }
   }
   if(state === 'finale' && T > nextConfetti){ burst(new THREE.Vector3(rnd(-5,5), rnd(3,6), rnd(-1,2)), null, 16, 5); nextConfetti = T + .35; }
-  if(LEVELS.includes(state) && !busy && T - lastAction > 12){ say(hint()); lastAction = T; }
+  if((LEVELS.includes(state) || state === 'map') && !busy && T - lastAction > 12){ say(hint()); lastAction = T; }
   for(let i = parts.length-1; i >= 0; i--){
     const p = parts[i]; p.life -= dt; p.v.y -= 9*dt;
     p.m.position.addScaledVector(p.v, dt); p.m.rotation.x += dt*8; p.m.rotation.y += dt*6;
