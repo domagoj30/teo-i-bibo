@@ -103,6 +103,13 @@ button:focus-visible{outline:4px solid var(--gold); outline-offset:3px}
   box-shadow:0 1.3vh 0 var(--shadow); border:.8vh solid var(--accent-ink);
 }
 #start p{margin:0; font-size:clamp(11px,2.2vh,15px); font-weight:500; background:var(--paper); padding:.6vh 2vh; border-radius:2vh; max-width:600px}
+#tools a{pointer-events:auto; width:clamp(30px,5.6vh,44px); height:clamp(30px,5.6vh,44px); border-radius:50%; background:var(--paper); font-size:clamp(14px,2.6vh,20px); box-shadow:0 .5vh 0 var(--shadow); display:flex; align-items:center; justify-content:center; text-decoration:none}
+#ask{position:fixed; inset:0; z-index:50; background:#101838cc; display:flex; align-items:center; justify-content:center}
+#ask .box{background:#fff; border-radius:5vh; padding:4vh 6vh; text-align:center; display:flex; flex-direction:column; gap:2.5vh; align-items:center}
+#ask .q{font-size:11vh; line-height:1}
+#ask p{margin:0; font-size:clamp(13px,3vh,22px); font-weight:700; color:#1b2340}
+#ask button{font-size:8vh; width:16vh; height:14vh; border:0; border-radius:4vh; margin:0 2vh; cursor:pointer; background:#e8eef8; box-shadow:0 .8vh 0 #b9cbe6}
+#ask #askYes{background:#bff0d6; box-shadow:0 .8vh 0 #5cc493}
 #again{justify-content:flex-end; padding-bottom:calc(5vh + env(safe-area-inset-bottom,0px))}
 #replay{background:var(--accent)}
 @media (prefers-reduced-motion: reduce){ .pulse,#mouseHint,#colorHint,#slots span.on{animation:none} }
@@ -115,6 +122,8 @@ button:focus-visible{outline:4px solid var(--gold); outline-offset:3px}
     <div id="levels" class="pill" hidden></div>
     <div id="slots" class="pill" hidden></div>
     <div id="tools">
+      <a id="mem" href="memori.html" aria-label="Igra pamćenja">🃏</a>
+      <button id="reset" aria-label="Igraj ispočetka">🔄</button>
       <button id="mute" aria-label="Zvuk uključen ili isključen">🔊</button>
       <button id="full" aria-label="Cijeli zaslon">⛶</button>
     </div>
@@ -146,6 +155,7 @@ button:focus-visible{outline:4px solid var(--gold); outline-offset:3px}
   </div>
 </div>
 
+<div id="ask" hidden><div class="box"><div class="q">🔄 🪐 ❓</div><p>Obrisati sve osvojene planete i krenuti ispočetka?</p><div><button id="askYes" aria-label="Da, ispočetka">✔️</button><button id="askNo" aria-label="Ne">✖️</button></div></div></div>
 <div id="again" hidden><button id="replay" class="pulse" aria-label="Natrag na kartu planeta">🪐</button></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -446,6 +456,7 @@ function burst(pos, col, n, power){
 
 /* ---------- karta planeta ---------- */
 let done = new Set();
+try{ if(localStorage.getItem('bibo-reset') !== '1'){ localStorage.removeItem('bibo-done'); localStorage.setItem('bibo-reset','1'); } }catch(e){}
 try{ done = new Set(JSON.parse(localStorage.getItem('bibo-done') || '[]')); }catch(e){}
 function saveDone(){ try{ localStorage.setItem('bibo-done', JSON.stringify(Array.from(done))); }catch(e){} }
 function labelTex(txt, gold){
@@ -1391,6 +1402,9 @@ $('#full').addEventListener('click', () => {
   try{ if(document.fullscreenElement) document.exitFullscreen(); else { const p = document.documentElement.requestFullscreen(); if(p && p.catch) p.catch(()=>{}); } }catch(e){}
   $('#full').blur();
 });
+$('#reset').addEventListener('click', () => { $('#ask').hidden = false; $('#reset').blur(); });
+$('#askNo').addEventListener('click', () => { $('#ask').hidden = true; });
+$('#askYes').addEventListener('click', () => { done.clear(); saveDone(); location.reload(); });
 if(!document.fullscreenEnabled) $('#full').hidden = true;
 function begin(){
   if(state !== 'start') return;
