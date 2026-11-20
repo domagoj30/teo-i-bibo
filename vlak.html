@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Bibin vlak</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+/* Mjerna jedinica --u: stoti dio visine, a na uskim zaslonima dvjestoti dio sirine, da vlak uvijek stane. */
+:root{--u:min(1vh,.5vw); --ink:#1b2340; --orange:#ff8a1f}
+html,body{margin:0; height:100%; overflow:hidden; font-family:"Baloo 2",system-ui,"Segoe UI",Roboto,sans-serif; color:var(--ink); user-select:none; -webkit-user-select:none}
+[hidden]{display:none!important}
+button{font:inherit; color:inherit; border:0; padding:0; cursor:pointer; background:none}
+
+/* ---------- krajolik ---------- */
+#scene{position:fixed; inset:0; overflow:hidden; background:linear-gradient(var(--sky1),var(--sky2) 62%,var(--sky3)); transition:background 1s}
+body.t0{--sky1:#6fc3ff; --sky2:#cfeeff; --sky3:#eafbe0; --ground:#62c15c; --ground2:#4ea84c; --sun:#ffd84a}
+body.t1{--sky1:#35b6f2; --sky2:#b9efff; --sky3:#e6fbff; --ground:#f4d27e; --ground2:#e0b95f; --sun:#fff06a}
+body.t2{--sky1:#6a5acd; --sky2:#ff9e7a; --sky3:#ffd9a8; --ground:#6fae78; --ground2:#588f63; --sun:#ffb347}
+#sun{position:absolute; right:calc(var(--u)*14); top:calc(var(--u)*9); width:calc(var(--u)*15); height:calc(var(--u)*15); border-radius:50%; background:var(--sun);
+  box-shadow:0 0 0 calc(var(--u)*2.5) #ffffff40, 0 0 0 calc(var(--u)*5.5) #ffffff22; animation:sun 6s ease-in-out infinite}
+@keyframes sun{50%{transform:scale(1.06)}}
+.cloud{position:absolute; left:100%; width:calc(var(--u)*22); height:calc(var(--u)*7); border-radius:calc(var(--u)*4); background:#fff; opacity:.92; animation:drift linear infinite}
+.cloud:before,.cloud:after{content:""; position:absolute; background:#fff; border-radius:50%}
+.cloud:before{width:calc(var(--u)*10); height:calc(var(--u)*10); left:calc(var(--u)*3); top:calc(var(--u)*-5)}
+.cloud:after{width:calc(var(--u)*8); height:calc(var(--u)*8); left:calc(var(--u)*11); top:calc(var(--u)*-3.4)}
+.cloud.a{top:calc(var(--u)*20); animation-duration:70s; animation-delay:-20s}
+.cloud.b{top:calc(var(--u)*31); animation-duration:95s; animation-delay:-60s; transform:scale(.7)}
+.cloud.c{top:calc(var(--u)*14); animation-duration:120s; animation-delay:-95s; transform:scale(.55)}
+@keyframes drift{to{left:calc(var(--u)*-30)}}
+.layer{position:absolute; left:0; right:0; background-repeat:repeat-x; background-position:0 0; animation:sc linear infinite; animation-play-state:paused}
+#far{bottom:calc(var(--u)*20); height:calc(var(--u)*42); --tw:calc(var(--u)*112); background-size:var(--tw) 100%; animation-duration:11s}
+#near{bottom:calc(var(--u)*12); height:calc(var(--u)*30); --tw:calc(var(--u)*80); background-size:var(--tw) 100%; animation-duration:3.4s}
+@keyframes sc{to{background-position-x:calc(var(--tw)*-1)}}
+#ground{position:absolute; left:0; right:0; bottom:0; height:calc(var(--u)*14); background:linear-gradient(var(--ground),var(--ground2)); transition:background 1s}
+#ties{position:absolute; left:0; right:0; bottom:calc(var(--u)*8.2); height:calc(var(--u)*2.6); --tw:calc(var(--u)*7);
+  background:repeating-linear-gradient(90deg,#7a5a3c 0,#7a5a3c calc(var(--u)*2.4),transparent calc(var(--u)*2.4),transparent calc(var(--u)*7)); animation:sc .32s linear infinite; animation-play-state:paused}
+#rail{position:absolute; left:0; right:0; bottom:calc(var(--u)*10.2); height:calc(var(--u)*1.1); background:#55607a; box-shadow:0 calc(var(--u)*.4) 0 #2c3450}
+body.moving .layer, body.moving #ties, body.moving .spin{animation-play-state:running}
+
+/* ---------- vlak ---------- */
+#train{position:absolute; left:0; right:0; bottom:calc(var(--u)*10.6); display:flex; align-items:flex-end; justify-content:center; transform:translateX(-140vw); will-change:transform}
+#loco{width:calc(var(--u)*38); height:calc(var(--u)*33); flex:none; margin-left:calc(var(--u)*-.6); overflow:visible}
+.spin{animation:rot .7s linear infinite; animation-play-state:paused; transform-box:fill-box; transform-origin:center}
+@keyframes rot{to{transform:rotate(360deg)}}
+#wagons{display:flex; align-items:flex-end}
+.wagon{position:relative; width:calc(var(--u)*var(--w)); margin-right:calc(var(--u)*2.6); padding-bottom:calc(var(--u)*3.2); display:flex; flex-direction:column; flex:none; border-radius:calc(var(--u)*2.4)}
+.wagon .cargo{box-sizing:border-box; display:flex; flex-wrap:wrap-reverse; justify-content:center; align-content:flex-start; align-items:center; min-height:calc(var(--u)*var(--h));
+  border:calc(var(--u)*.9) solid var(--c2); border-bottom:0; border-radius:calc(var(--u)*2.4) calc(var(--u)*2.4) 0 0; background:#ffffff66; margin:0 calc(var(--u)*1.2)}
+.wagon .body{height:calc(var(--u)*9); border-radius:calc(var(--u)*2.2); background:linear-gradient(var(--c),var(--c) 62%,var(--c2) 62%); box-shadow:inset 0 calc(var(--u)*.7) 0 #ffffff55;
+  display:flex; align-items:center; justify-content:center}
+.wagon .plate{background:#fff; border-radius:calc(var(--u)*1.4); padding:0 calc(var(--u)*1.8); font-weight:800; font-size:calc(var(--u)*5.4); line-height:calc(var(--u)*6.6); min-width:calc(var(--u)*3); text-align:center; letter-spacing:calc(var(--u)*.4)}
+.wagon .plate:empty{display:none}
+.wagon .wh{position:absolute; bottom:0; width:calc(var(--u)*7.4); height:calc(var(--u)*7.4); box-sizing:border-box; border-radius:50%; background:#fff; border:calc(var(--u)*1.5) solid var(--ink)}
+.wagon .wh:before{content:""; position:absolute; left:50%; top:8%; width:calc(var(--u)*.9); height:84%; margin-left:calc(var(--u)*-.45); background:var(--ink); border-radius:calc(var(--u))}
+.wagon .wh.a{left:12%} .wagon .wh.b{right:12%}
+.wagon:after{content:""; position:absolute; right:calc(var(--u)*-2.8); bottom:calc(var(--u)*5.6); width:calc(var(--u)*3); height:calc(var(--u)*1.3); background:var(--ink); border-radius:calc(var(--u))}
+.it{width:calc(var(--u)*var(--s)); height:calc(var(--u)*var(--s)); font-size:calc(var(--u)*var(--s)*.74); line-height:calc(var(--u)*var(--s)); text-align:center; display:block; font-family:system-ui,"Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.it.pop{animation:pop .3s}
+@keyframes pop{0%{transform:scale(.2)}70%{transform:scale(1.2)}}
+.sil{filter:brightness(0) opacity(.8); transition:filter .5s}
+.qm{font-weight:800; color:var(--orange); font-family:inherit}
+.it svg,.opt svg{width:78%; height:78%; display:block; margin:11% auto 0} .opt svg{width:66%; height:66%; margin:0}
+.sign{position:absolute; top:34%; left:calc(var(--u)*-5.2); transform:translate(-50%,-50%); line-height:1; font-size:calc(var(--u)*12); font-weight:800; color:#fff; text-shadow:0 calc(var(--u)*.5) 0 #00000030}
+.wagon.pick{cursor:pointer; transition:transform .15s}
+.wagon.pick:hover,.wagon.pick.cur{transform:translateY(calc(var(--u)*-1.4))}
+.wagon.pick:hover .cargo,.wagon.pick.cur .cargo{background:#fff}
+.puff{position:absolute; width:calc(var(--u)*5); height:calc(var(--u)*5); border-radius:50%; background:#fff; opacity:.9; pointer-events:none; animation:puff 1.5s ease-out forwards}
+@keyframes puff{to{transform:translate(calc(var(--u)*-16),calc(var(--u)*-22)) scale(2.6); opacity:0}}
+
+/* ---------- peron s ponudom ---------- */
+#stage{position:absolute; left:0; right:0; top:calc(var(--u)*17); height:calc(var(--u)*31); display:flex; align-items:center; justify-content:center; gap:calc(var(--u)*3); padding:0 calc(var(--u)*6)}
+#loose{display:flex; flex-wrap:wrap; justify-content:center; align-content:center; gap:calc(var(--u)*.8); max-width:calc(var(--u)*100)}
+.opt{width:calc(var(--u)*21); height:calc(var(--u)*21); border-radius:calc(var(--u)*5); background:#fff; box-shadow:0 calc(var(--u)*1.1) 0 #00000026; font-size:calc(var(--u)*13); font-weight:800; line-height:1;
+  display:flex; align-items:center; justify-content:center; transition:transform .12s; animation:drop .45s backwards}
+.opt:nth-child(2){animation-delay:.07s}.opt:nth-child(3){animation-delay:.14s}.opt:nth-child(4){animation-delay:.21s}
+@keyframes drop{0%{transform:translateY(calc(var(--u)*-30)); opacity:0}70%{transform:translateY(calc(var(--u)*1.5))}}
+.opt:hover,.opt.cur{transform:translateY(calc(var(--u)*-1.2)) scale(1.05); outline:calc(var(--u)*.9) solid var(--orange)}
+.opt.num{color:#8a4dff}.opt.ltr{color:#2f7dff}
+.opt.em,.loose{font-family:system-ui,"Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.loose{width:calc(var(--u)*13); height:calc(var(--u)*13); font-size:calc(var(--u)*9.6); line-height:calc(var(--u)*13); border-radius:calc(var(--u)*3); background:#ffffffb0; box-shadow:0 calc(var(--u)*.7) 0 #00000020; transition:transform .12s}
+.loose:hover,.loose.cur{transform:scale(1.12); background:#fff; outline:calc(var(--u)*.7) solid var(--orange)}
+.loose.gone{visibility:hidden}
+#go{width:calc(var(--u)*19); height:calc(var(--u)*19); flex:none; border-radius:50%; background:#34c66b; color:#fff; font-size:calc(var(--u)*11); box-shadow:0 calc(var(--u)*1.2) 0 #1f9a4d; display:flex; align-items:center; justify-content:center}
+#go:hover,#go.cur{transform:scale(1.08); outline:calc(var(--u)*.9) solid #fff}
+#go.ready{animation:pulse 1s infinite}
+@keyframes pulse{50%{transform:scale(1.1)}}
+.no{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(calc(var(--u)*-1.6))}40%,80%{transform:translateX(calc(var(--u)*1.6))}}
+.hint{outline:calc(var(--u)*1) dashed #34c66b!important; animation:pulse 1s infinite}
+.right{outline:calc(var(--u)*1) solid #34c66b!important; background:#dcffe9!important}
+.cur{z-index:2}
+
+/* ---------- gornja traka ---------- */
+.round{position:fixed; top:calc(var(--u)*2); width:calc(var(--u)*8.5); height:calc(var(--u)*8.5); min-width:38px; min-height:38px; border-radius:50%; background:#fff; font-size:calc(var(--u)*4.2);
+  box-shadow:0 calc(var(--u)*.6) 0 #00000026; display:flex; align-items:center; justify-content:center; text-decoration:none; z-index:20; font-family:system-ui,sans-serif}
+#home,#back{left:calc(var(--u)*2)} #lnk1{left:calc(var(--u)*12.5)} #lnk2{left:calc(var(--u)*23)} #mute{right:calc(var(--u)*2)}
+#bubble{position:fixed; top:calc(var(--u)*2); left:50%; transform:translateX(-50%); max-width:calc(var(--u)*120); background:#fff; border-radius:calc(var(--u)*4.5); padding:calc(var(--u)*1.2) calc(var(--u)*3.4);
+  font-size:calc(var(--u)*3.6); font-weight:700; line-height:1.25; box-shadow:0 calc(var(--u)*.6) 0 #00000022; text-align:center; z-index:15}
+#bubble:empty{display:none}
+#prog{position:fixed; top:calc(var(--u)*12); left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:calc(var(--u)*1.4); z-index:14; font-size:calc(var(--u)*3.4); font-family:system-ui,sans-serif}
+#prog i{width:calc(var(--u)*2.6); height:calc(var(--u)*2.6); border-radius:50%; background:#ffffff8c; box-shadow:inset 0 0 0 calc(var(--u)*.4) #ffffff}
+#prog i.on{background:#ffcf3a; box-shadow:0 0 0 calc(var(--u)*.5) #fff}
+#prog i.now{background:var(--orange); transform:scale(1.4)}
+
+/* ---------- izbornik i dolazak ---------- */
+.screen{position:fixed; inset:0; z-index:10; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:calc(var(--u)*4); text-align:center}
+h1{margin:0; font-size:calc(var(--u)*15); font-weight:800; line-height:1; color:#fff; text-shadow:0 calc(var(--u)*.8) 0 var(--ink), 0 0 calc(var(--u)*4) #00000030}
+h1 b{color:#ffd84a}
+#dests{display:flex; gap:calc(var(--u)*4)}
+.dest{width:calc(var(--u)*40); height:calc(var(--u)*44); border-radius:calc(var(--u)*6); color:#fff; box-shadow:0 calc(var(--u)*1.4) 0 #00000033; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:calc(var(--u)*.6); transition:transform .15s; position:relative; overflow:hidden}
+.dest:nth-child(1){background:linear-gradient(#7fd4ff,#62c15c 70%)} .dest:nth-child(2){background:linear-gradient(#35b6f2,#f4d27e 78%)} .dest:nth-child(3){background:linear-gradient(#6a5acd,#ff9e7a 80%)}
+.dest:hover,.dest.sel{transform:translateY(calc(var(--u)*-1.6)) scale(1.03); outline:calc(var(--u)*1.1) solid #fff}
+.dest .ic{font-size:calc(var(--u)*18); line-height:1.1; font-family:system-ui,sans-serif; filter:drop-shadow(0 calc(var(--u)*.6) 0 #00000030)}
+.dest .nm{font-size:calc(var(--u)*5.4); font-weight:800; line-height:1; text-shadow:0 calc(var(--u)*.4) 0 #00000040}
+.dest .lv{font-size:calc(var(--u)*2.6); font-weight:700; opacity:.95}
+.dest .st, #wstars{font-family:system-ui,sans-serif}
+.dest .st{font-size:calc(var(--u)*4.4); letter-spacing:calc(var(--u)*.4); background:#ffffffd9; border-radius:calc(var(--u)*3); padding:0 calc(var(--u)*2)}
+.st i,#wstars i{font-style:normal; opacity:.25; filter:grayscale(1)} .st i.on,#wstars i.on{opacity:1; filter:none}
+#loading{font-size:calc(var(--u)*2.6); font-weight:700; color:#fff; min-height:calc(var(--u)*3.4); text-shadow:0 1px 2px #0006}
+#win{background:#1b2340b8; color:#fff; z-index:18; gap:calc(var(--u)*2.5)}
+#wicon{font-size:calc(var(--u)*22); line-height:1; font-family:system-ui,sans-serif; animation:pop .6s}
+#wstars{font-size:calc(var(--u)*13); letter-spacing:calc(var(--u)*1.2)}
+#wstars i.on{animation:pop .5s backwards} #wstars i:nth-child(2){animation-delay:.25s} #wstars i:nth-child(3){animation-delay:.5s}
+#win .btns button{font-size:calc(var(--u)*7); width:calc(var(--u)*18); height:calc(var(--u)*14); border-radius:calc(var(--u)*4.5); margin:0 calc(var(--u)*1.2); background:#fff; box-shadow:0 calc(var(--u)*.9) 0 #b9cbe6; font-family:system-ui,sans-serif}
+#win .btns button.go{background:var(--orange); box-shadow:0 calc(var(--u)*.9) 0 #b85a00}
+.conf{position:fixed; top:-6vh; font-size:calc(var(--u)*5); z-index:19; pointer-events:none; animation:fall linear forwards; font-family:system-ui,sans-serif}
+@keyframes fall{to{transform:translateY(112vh) rotate(540deg)}}
+</style>
+</head>
+<body class="t0">
+<div id="scene">
+  <div id="sun"></div>
+  <div class="cloud a"></div><div class="cloud b"></div><div class="cloud c"></div>
+  <div id="far" class="layer"></div>
+  <div id="near" class="layer"></div>
+  <div id="ground"></div><div id="ties"></div><div id="rail"></div>
+  <div id="train">
+    <div id="wagons"></div>
+    <svg id="loco" viewBox="0 0 224 194" aria-hidden="true">
+      <rect x="6" y="140" width="190" height="18" rx="7" fill="#1b2340"/>
+      <path d="M190 138 L222 172 L190 172 Z" fill="#1b2340"/>
+      <rect x="88" y="66" width="104" height="78" rx="34" fill="#fff" stroke="#c9d6ea" stroke-width="3"/>
+      <rect x="112" y="67" width="9" height="76" fill="#ff8a1f"/><rect x="160" y="67" width="9" height="76" fill="#ff8a1f"/>
+      <circle cx="194" cy="104" r="10" fill="#ffe36a" stroke="#1b2340" stroke-width="3"/>
+      <rect x="150" y="30" width="22" height="40" rx="4" fill="#1b2340"/><rect x="143" y="24" width="36" height="12" rx="6" fill="#ff8a1f"/>
+      <circle cx="131" cy="66" r="12" fill="#ffcf3a" stroke="#1b2340" stroke-width="3"/>
+      <rect x="10" y="30" width="84" height="116" rx="14" fill="#ff8a1f"/>
+      <rect x="2" y="16" width="100" height="20" rx="10" fill="#1b2340"/>
+      <rect x="20" y="46" width="64" height="56" rx="12" fill="#bfeaff" stroke="#1b2340" stroke-width="3"/>
+      <line x1="52" y1="52" x2="52" y2="62" stroke="#8891aa" stroke-width="3"/><circle cx="52" cy="52" r="4" fill="#ff8a1f"/>
+      <rect x="24" y="72" width="7" height="14" rx="3.5" fill="#ff8a1f"/><rect x="73" y="72" width="7" height="14" rx="3.5" fill="#ff8a1f"/>
+      <ellipse cx="52" cy="80" rx="24" ry="20" fill="#fff" stroke="#c9d6ea" stroke-width="2"/>
+      <ellipse cx="52" cy="81" rx="18" ry="13" fill="#18203f"/>
+      <g id="eyes"><rect x="42" y="75" width="6" height="11" rx="3" fill="#4de8ff"/><rect x="56" y="75" width="6" height="11" rx="3" fill="#4de8ff"/></g>
+      <g id="smile" style="display:none" fill="none" stroke="#4de8ff" stroke-width="3.5" stroke-linecap="round"><path d="M41 84 q4.5 -8 9 0"/><path d="M54 84 q4.5 -8 9 0"/></g>
+      <rect x="22" y="112" width="60" height="22" rx="6" fill="#fff"/><text x="52" y="130" text-anchor="middle" font-size="19" font-weight="800" fill="#ff8a1f" font-family="Baloo 2,system-ui,sans-serif">BIBO</text>
+      <g class="spin"><circle cx="48" cy="164" r="27" fill="#fff" stroke="#1b2340" stroke-width="7"/><path d="M48 140 V188 M24 164 H72" stroke="#1b2340" stroke-width="5"/><circle cx="48" cy="164" r="7" fill="#ff8a1f"/></g>
+      <g class="spin"><circle cx="122" cy="173" r="18" fill="#fff" stroke="#1b2340" stroke-width="6"/><path d="M122 157 V189 M106 173 H138" stroke="#1b2340" stroke-width="4"/><circle cx="122" cy="173" r="5" fill="#ff8a1f"/></g>
+      <g class="spin"><circle cx="168" cy="173" r="18" fill="#fff" stroke="#1b2340" stroke-width="6"/><path d="M168 157 V189 M152 173 H184" stroke="#1b2340" stroke-width="4"/><circle cx="168" cy="173" r="5" fill="#ff8a1f"/></g>
+    </svg>
+  </div>
+  <div id="stage" hidden></div>
+</div>
+
+<div id="bubble"></div>
+<div id="prog" hidden></div>
+<a id="home" class="round" href="index.html" aria-label="Sve igre">🏠</a>
+<a id="lnk1" class="round" href="planeti.html" aria-label="Bibini planeti">🪐</a>
+<a id="lnk2" class="round" href="memori.html" aria-label="Bibino pamćenje">🃏</a>
+<button id="back" class="round" aria-label="Natrag na izbor putovanja" hidden>⬅️</button>
+<button id="mute" class="round" aria-label="Zvuk">🔊</button>
+
+<div id="menu" class="screen">
+  <h1>Bibin <b>vlak</b></h1>
+  <div id="dests"></div>
+  <div id="loading">Učitavam Bibin glas…</div>
+</div>
+<div id="win" class="screen" hidden>
+  <div id="wicon"></div>
+  <div id="wstars"></div>
+  <div class="btns"><button id="wagain" aria-label="Ponovi putovanje">🔁</button><button id="wnext" class="go" aria-label="Sljedeće putovanje">▶️</button><button id="wmenu" aria-label="Izbor putovanja">🚉</button></div>
+</div>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const NAME = 'Teo';
+
+/* ---------- Bibine rečenice (sve se snimaju: alat\glas.py vlak) ---------- */
+/*@LINES*/
+const NUMS = ['Jedan','Dva','Tri','Četiri','Pet','Šest','Sedam','Osam','Devet','Deset'];
+const NUMACC = ['jednu','dvije','tri','četiri','pet','šest','sedam','osam','devet','deset'];
+const LOADS = [['🍎',['jabuku','jabuke','jabuka']], ['🍌',['bananu','banane','banana']], ['⚽',['loptu','lopte','lopti']], ['🐟',['ribu','ribe','riba']],
+  ['⭐',['zvijezdu','zvijezde','zvijezda']], ['🍐',['krušku','kruške','krušaka']], ['🥕',['mrkvu','mrkve','mrkava']]];
+const ANIMALS = [['🐘','Slon'],['🦒','Žirafa'],['🐢','Kornjača'],['🐇','Zec'],['🦆','Patka'],['🦋','Leptir'],['🐟','Riba'],['🐍','Zmija'],['🦀','Rak'],['🐊','Krokodil'],['🦉','Sova'],['🐓','Pijetao'],
+  ['🐕','Pas'],['🐈','Mačka'],['🐎','Konj'],['🐄','Krava'],['🐖','Svinja'],['🦌','Jelen'],['🐪','Deva']];
+const QUAD = 7; // zadnjih sedam životinja ima slične sjene (četiri noge) — za najtežu razinu
+const WORDS = [['🚗','Auto','A'],['🍌','Banana','B'],['🎈','Balon','B'],['🌳','Drvo','D'],['🍇','Grožđe','G'],['🍎','Jabuka','J'],['🏠','Kuća','K'],['🐴','Konj','K'],['⚽','Lopta','L'],['🍉','Lubenica','L'],
+  ['🐱','Mačka','M'],['🐭','Miš','M'],['👃','Nos','N'],['☁️','Oblak','O'],['🐶','Pas','P'],['🐝','Pčela','P'],['🐟','Riba','R'],['🐘','Slon','S'],['🧀','Sir','S'],['🐯','Tigar','T'],['👂','Uho','U'],['🚂','Vlak','V'],['🦓','Zebra','Z'],['🦷','Zub','Z']];
+const T = {
+  hi:'Bok, ' + NAME + '! Ja sam strojovođa Bibo. Kamo putujemo danas?',
+  menu:'Kamo putujemo sada?',
+  goBtn:'Kad završiš, pritisni zelenu tipku.',
+  recount:'Hm, prebroji još jednom!',
+  full:'Vagon je pun!',
+  count:'Koliko ih ima?',
+  more:'U kojem vagonu ima više?',
+  less:'U kojem vagonu ima manje?',
+  add:'Koliko ih je zajedno?',
+  pat:'Što dolazi sljedeće?',
+  patMid:'Što nedostaje u nizu?',
+  shadow:'Čija je ovo sjena?'
+};
+const GO = ['Ukrcaj se! Krećemo u park!', 'Ukrcaj se! Krećemo na more!', 'Ukrcaj se! Krećemo u planine!'];
+const ARR = ['Stigli smo u park! Bravo, ' + NAME + '!', 'Stigli smo na more! Bravo, ' + NAME + '!', 'Stigli smo u planine! Bravo, ' + NAME + '! Ti si pravi strojovođa!'];
+const PRAISE = ['Bravo!', 'Tako je!', 'Odlično!', 'Super!', 'Točno!', 'Svaka čast!'];
+const NOPE = ['Probaj opet!', 'Nije to. Pogledaj još jednom!', 'Skoro! Probaj opet.'];
+const loadLine = (n, it) => 'Utovari ' + NUMACC[n-1] + ' ' + it[1][n === 1 ? 0 : n < 5 ? 1 : 2] + '.';
+const sumLine = (a, b) => NUMS[a-1] + ' i ' + NUMS[b-1].toLowerCase() + ' su ' + NUMS[a+b-1].toLowerCase() + '.';
+const askLetter = w => 'Kojim slovom počinje riječ ' + w[1] + '?';
+const ansLetter = w => w[1] + ' počinje slovom ' + w[2] + '.';
+function allLines(){
+  const out = Object.values(T).concat(GO, ARR, PRAISE, NOPE);
+  NUMS.forEach(n => out.push(n + '!'));
+  LOADS.forEach(it => { for(let n = 1; n <= 10; n++) out.push(loadLine(n, it)); });
+  for(let a = 1; a <= 9; a++) for(let b = 1; a + b <= 10; b++) out.push(sumLine(a, b));
+  ANIMALS.forEach(a => out.push(a[1] + '!'));
+  WORDS.forEach(w => { out.push(askLetter(w)); out.push(ansLetter(w)); });
+  return out;
+}
+/*@END*/
+const DEST = [{id:'park', icon:'🌳', name:'Park', lv:'lako'}, {id:'more', icon:'🏖️', name:'More', lv:'srednje'}, {id:'plan', icon:'🏔️', name:'Planine', lv:'teško'}];
+const STOPS = 8;
+const shp = (c, b) => '<svg viewBox="0 0 100 100" fill="' + c + '" stroke="#1b2340" stroke-width="4" stroke-linejoin="round">' + b + '</svg>';
+const SYMS = [shp('#ff3b4e','<circle cx="50" cy="50" r="40"/>'), shp('#2f7dff','<rect x="12" y="12" width="76" height="76" rx="8"/>'), shp('#2fbf5b','<path d="M50 10 L92 88 L8 88 Z"/>'),
+  shp('#ffd21f','<path d="M50 6 L62 36 L96 38 L70 60 L79 94 L50 75 L21 94 L30 60 L4 38 L38 36 Z"/>'), shp('#a14dff','<path d="M50 90 C10 60 2 38 14 22 C26 8 44 12 50 28 C56 12 74 8 86 22 C98 38 90 60 50 90 Z"/>'),
+  shp('#ff8a1f','<path d="M50 6 L90 50 L50 94 L10 50 Z"/>')];
+const WCOL = [['#ff5d6c','#d93a4c'],['#2f9bff','#1f74d1'],['#ffb92e','#e08f00'],['#34c66b','#1f9a4d'],['#a56bff','#7d43db'],['#ff8a1f','#d96a00'],['#21c5c0','#12978f']];
+
+/* ---------- krajolik: brda u dva sloja po odredištu ---------- */
+const uri = s => 'url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" preserveAspectRatio="none">' + s + '</svg>') + '")';
+const tree = (x, y, r) => '<rect x="' + (x-5) + '" y="' + y + '" width="10" height="70" fill="#8a5a33"/><circle cx="' + x + '" cy="' + (y-r*.3) + '" r="' + r + '" fill="#3f9e4a"/><circle cx="' + (x-r*.5) + '" cy="' + (y+r*.25) + '" r="' + r*.7 + '" fill="#4fb158"/><circle cx="' + (x+r*.55) + '" cy="' + (y+r*.2) + '" r="' + r*.65 + '" fill="#4fb158"/>';
+const pine = (x, y, h) => '<rect x="' + (x-4) + '" y="' + (y+h*.7) + '" width="8" height="60" fill="#6b4a2c"/><path d="M' + x + ' ' + y + ' l' + h*.34 + ' ' + h*.45 + ' h' + (-h*.16) + ' l' + h*.26 + ' ' + h*.4 + ' h' + (-h*.88) + ' l' + h*.26 + ' ' + (-h*.4) + ' h' + (-h*.16) + ' Z" fill="#2f7d55"/>';
+const palm = (x, y) => '<path d="M' + x + ' ' + (y+120) + ' q-14 -60 6 -118" stroke="#9a6a3c" stroke-width="11" fill="none" stroke-linecap="round"/>' +
+  [-70,-35,0,35,70].map((a,i) => '<ellipse cx="' + (x+6) + '" cy="' + y + '" rx="44" ry="11" fill="' + (i % 2 ? '#3fae5a' : '#2f964a') + '" transform="rotate(' + (a-90+ (a<0?-20:20)) + ' ' + (x+6) + ' ' + y + ') translate(40 0)"/>').join('');
+const cap = (x, y) => '<path d="M' + x + ' ' + y + ' l34 43 l-17 -8 l-14 13 l-16 -15 l-19 9 Z" fill="#fff"/>';
+const SCEN = [
+  { far: uri('<path d="M0 190 C120 110 220 110 330 180 S520 250 620 170 S760 130 800 190 L800 300 L0 300Z" fill="#b9e8aa"/>'),
+    near: uri(tree(90,150,34) + tree(300,172,28) + tree(520,160,36) + tree(700,150,30) + '<path d="M0 205 C150 150 250 160 400 205 S650 250 800 205 L800 300 L0 300Z" fill="#84d277"/>') },
+  { far: uri('<rect y="150" width="800" height="150" fill="#2aa3e2"/><rect y="150" width="800" height="12" fill="#7fd6ff"/>' +
+      [[60,190],[260,215],[430,180],[610,225],[720,195]].map(p => '<path d="M' + p[0] + ' ' + p[1] + ' q12 -9 24 0 t24 0" stroke="#fff" stroke-width="4" fill="none" opacity=".7" stroke-linecap="round"/>').join('') +
+      '<path d="M520 150 l0 -62 l40 56 Z" fill="#fff"/><path d="M514 150 l0 -44 l-26 40 Z" fill="#ffd84a"/><path d="M476 150 h96 l-14 16 h-68 Z" fill="#ff5d6c"/>'),
+    near: uri(palm(140,95) + palm(560,110) + '<path d="M0 215 C140 170 260 180 400 215 S660 250 800 215 L800 300 L0 300Z" fill="#f8dc93"/><circle cx="330" cy="232" r="9" fill="#ff8a9a"/><circle cx="690" cy="246" r="7" fill="#fff"/>') },
+  { far: uri('<path d="M0 300 L0 225 L125 70 L245 220 L335 125 L465 250 L600 58 L745 232 L800 225 L800 300Z" fill="#8f86cb"/><path d="M335 125 L465 250 L245 220Z" fill="#7d74ba"/>' + cap(125,70) + cap(600,58) + '<path d="M335 125 l24 31 l-13 -6 l-11 10 l-12 -11 l-13 6 Z" fill="#fff"/>'),
+    near: uri(pine(70,95,110) + pine(170,125,90) + pine(390,110,100) + pine(600,100,115) + pine(700,130,85) + '<path d="M0 210 C150 160 250 170 400 210 S650 250 800 210 L800 300 L0 300Z" fill="#5fa775"/>') }
+];
+function setTheme(t){ document.body.className = document.body.className.replace(/t\d/, 't' + t); $('#far').style.backgroundImage = SCEN[t].far; $('#near').style.backgroundImage = SCEN[t].near; }
+
+/* ---------- zvuk i glas ---------- */
+let ac = null, muted = false;
+function ensureAc(){ try{ ac = ac || new (window.AudioContext||window.webkitAudioContext)(); if(ac.state === 'suspended') ac.resume(); }catch(e){} return ac; }
+function tone(f, d, type, v, when, f2){
+  if(muted) return;
+  try{
+    ensureAc();
+    const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + (when||0);
+    o.type = type||'sine'; o.frequency.setValueAtTime(f,t);
+    if(f2) o.frequency.exponentialRampToValueAtTime(f2, t+d);
+    g.gain.setValueAtTime(v||.2, t); g.gain.exponentialRampToValueAtTime(.001, t+d);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+d+.03);
+  }catch(e){}
+}
+const sfx = {
+  pop(){ tone(520,.08,'triangle',.12,0,820); },
+  ok(){ tone(880,.16,'sine',.2); tone(1320,.3,'sine',.2,.1); },
+  nope(){ tone(240,.22,'sine',.12,0,170); },
+  whistle(){ tone(880,.32,'triangle',.1); tone(1108,.32,'triangle',.08); tone(880,.5,'triangle',.1,.4); tone(1108,.5,'triangle',.08,.4); },
+  chug(n){ for(let i = 0; i < n; i++) tone(i % 2 ? 110 : 90, .11, 'sawtooth', .05, i*.2, 60); },
+  fanfare(){ [523,659,784,1047,784,1047].forEach((f,i)=>tone(f,.25,'triangle',.2,i*.14)); }
+};
+const synth = window.speechSynthesis; let voice = null;
+function pickVoice(){
+  if(!synth) return;
+  const vs = synth.getVoices(); let best = null, bs = -1;
+  for(const v of vs){
+    const l = (v.lang||'').toLowerCase().replace('_','-'), li = ['hr','bs','sr','sl'].findIndex(p => l.startsWith(p));
+    if(li < 0) continue;
+    const n = (v.name||'').toLowerCase(); let s = (4-li)*100;
+    if(/natural|neural|online|premium|enhanced|wavenet/.test(n)) s += 50;
+    if(n.includes('google')) s += 30;
+    if(s > bs){ bs = s; best = v; }
+  }
+  voice = best;
+}
+if(synth){ pickVoice(); try{ synth.addEventListener('voiceschanged', pickVoice); }catch(e){} }
+const SPLIT = /(?<=[.!?])\s+/, bubble = $('#bubble');
+let pack = null, packBin = null, curSrc = null, packUrl = '', packSize = 0, probe = null, sayId = 0;
+const bufCache = new Map(); window.__miss = [];
+async function loadPack(){
+  try{
+    const idx = await (await fetch('glas4.json', {cache:'no-cache'})).json();
+    packUrl = 'glas4.mp3?v=' + idx.v; packSize = idx.size; pack = idx.clips;
+  }catch(e){ pack = null; }
+}
+async function clipBytes(s){
+  const off = pack[s][0], len = pack[s][1];
+  if(probe) await probe;
+  if(packBin) return packBin.slice(off, off+len);
+  const job = (async () => {
+    const r = await fetch(packUrl, {headers:{Range:'bytes='+off+'-'+(off+len-1)}});
+    const ab = await r.arrayBuffer();
+    if(r.status === 206 && ab.byteLength === len) return ab;
+    if(ab.byteLength >= packSize){ packBin = ab; return ab.slice(off, off+len); }
+    throw new Error('range');
+  })();
+  if(!probe) probe = job.then(() => {}, () => {});
+  return job;
+}
+function clipBuf(s){
+  if(bufCache.has(s)) return bufCache.get(s);
+  const p = clipBytes(s).then(ab => new Promise((res, rej) => ac.decodeAudioData(ab, res, rej)));
+  bufCache.set(s, p); p.catch(() => bufCache.delete(s));
+  return p;
+}
+function trimOf(b){
+  if(b._t) return b._t;
+  const d = b.getChannelData(0), n = d.length, sr = b.sampleRate; let a = 0, e = n-1;
+  while(a < n && Math.abs(d[a]) < .012) a++;
+  while(e > a && Math.abs(d[e]) < .012) e--;
+  const s = Math.max(0, a/sr - .03);
+  return b._t = [s, Math.min(b.duration - s, (e-a)/sr + .25)];
+}
+function playBuf(b){
+  return new Promise(res => { const src = ac.createBufferSource(), t = trimOf(b); src.buffer = b; src.connect(ac.destination); src.onended = res; curSrc = src; src.start(0, t[0], t[1]); });
+}
+function stopVoice(){
+  if(curSrc){ try{ curSrc.onended = null; curSrc.stop(); }catch(e){} curSrc = null; }
+  if(synth){ try{ synth.cancel(); }catch(e){} }
+}
+function speakTTS(s){
+  return new Promise(res => {
+    const ms = 700 + s.length*65;
+    if(voice && synth){
+      try{ const u = new SpeechSynthesisUtterance(s); u.voice = voice; u.lang = voice.lang; u.pitch = 1.08; u.rate = .9; u.onend = u.onerror = res; synth.speak(u); }catch(e){}
+      setTimeout(res, ms + 4000);
+    } else setTimeout(res, ms);
+  });
+}
+/* say vraća obećanje koje se ispuni kad Bibo završi (ili kad ga prekine nova rečenica) */
+function say(text){
+  bubble.textContent = text;
+  stopVoice();
+  const id = ++sayId;
+  if(muted) return Promise.resolve();
+  return (async () => {
+    const parts = text.split(SPLIT);
+    if(pack && ensureAc()) parts.forEach(s => { if(pack[s]) clipBuf(s).catch(() => {}); });
+    for(const s of parts){
+      if(id !== sayId) return;
+      if(pack && pack[s] && ensureAc()){
+        try{ const b = await clipBuf(s); if(id !== sayId) return; await playBuf(b); continue; }catch(e){}
+      } else if(pack) window.__miss.push(s);
+      if(id !== sayId) return;
+      await speakTTS(s);
+    }
+  })();
+}
+
+/* ---------- pomoćno ---------- */
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const rnd = (a, b) => a + Math.floor(Math.random()*(b-a+1));
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; }
+const el = (tag, cls, html) => { const e = document.createElement(tag); if(cls) e.className = cls; if(html != null) e.innerHTML = html; return e; };
+const wait = ms => new Promise(r => setTimeout(r, ms));
+let save = {};
+try{ save = JSON.parse(localStorage.getItem('bibo-vlak')) || {}; }catch(e){}
+function store(){ try{ localStorage.setItem('bibo-vlak', JSON.stringify(save)); }catch(e){} }
+const starHtml = n => [0,1,2].map(j => '<i' + (j < n ? ' class="on"' : '') + '>⭐</i>').join('');
+
+let screen = 'menu', dest = 0, step = 0, errors = 0, tErr = 0, busy = true, run = 0, plan = [], cur = -1, sel = 0, toldGo = false, greeted = false, task = null;
+const train = $('#train'), wagons = $('#wagons'), stage = $('#stage');
+let happyT = 0;
+function happy(on){ $('#eyes').style.display = on ? 'none' : ''; $('#smile').style.display = on ? '' : 'none'; clearTimeout(happyT); if(on) happyT = setTimeout(() => happy(false), 1800); }
+
+/* ---------- vagoni ---------- */
+function wagon(w, rows, size, plate, ci){
+  const c = WCOL[ci % WCOL.length], d = el('div', 'wagon');
+  d.style.cssText = '--w:' + w + ';--h:' + (rows*size + 1.6) + ';--s:' + size + ';--c:' + c[0] + ';--c2:' + c[1];
+  d.innerHTML = '<div class="cargo"></div><div class="body"><span class="plate">' + (plate == null ? '' : plate) + '</span></div><i class="wh a spin"></i><i class="wh b spin"></i>';
+  d.cargo = d.firstChild; d.plate = d.querySelector('.plate');
+  return d;
+}
+const item = (ch, cls) => el('span', 'it ' + (cls||''), ch);
+function fill(w, ch, n){ for(let i = 0; i < n; i++) w.cargo.appendChild(item(ch)); }
+function options(list, cls, isRight, onRight){
+  stage.innerHTML = '';
+  list.forEach(v => { const b = el('button', 'opt pick ' + cls, v); b.setAttribute('aria-label', 'Odgovor'); b.onclick = () => choose(b, isRight(v), onRight); if(isRight(v)) b.dataset.ok = 1; stage.appendChild(b); });
+}
+function choose(b, right, onRight){
+  if(busy || screen !== 'game') return;
+  ensureAc();
+  if(right){ b.classList.add('right'); onRight(b); }
+  else wrong(b);
+}
+function wrong(b, line){
+  errors++; tErr++; sfx.nope(); say(line || pick(NOPE));
+  b.classList.remove('no'); void b.offsetWidth; b.classList.add('no');
+  if(tErr >= 2){ const h = document.querySelector('[data-ok]'); if(h) h.classList.add('hint'); }
+}
+function numOpts(c, max){
+  const s = new Set([c]); let guard = 0;
+  while(s.size < 3 && guard++ < 50){ const v = c + pick([-2,-1,1,2]); if(v >= 1 && v <= max) s.add(v); }
+  return shuffle([...s]);
+}
+
+/* ---------- zadaci ---------- */
+const TASKS = {
+  load(L){
+    const n = L === 0 ? rnd(1,5) : L === 1 ? rnd(3,8) : rnd(5,10), it = pick(LOADS), total = Math.min(14, n + rnd(2,4));
+    const w = wagon(72, 2, 12, n, rnd(0,6)); wagons.appendChild(w);
+    stage.innerHTML = '<div id="loose"></div><button id="go" class="pick" aria-label="Gotovo, kreni">✔</button>';
+    const loose = $('#loose'), go = $('#go'); let inW = 0;
+    const upd = () => { go.classList.toggle('ready', inW > 0); };
+    for(let i = 0; i < total; i++){
+      const b = el('button', 'loose pick', it[0]); b.setAttribute('aria-label', 'Utovari');
+      b.onclick = () => {
+        if(busy || b.classList.contains('gone')) return;
+        ensureAc();
+        if(inW >= 10){ say(T.full); return; }
+        b.classList.add('gone'); inW++; sfx.pop(); say(NUMS[inW-1] + '!');
+        const s = item(it[0], 'pop'); s.style.cursor = 'pointer';
+        s.onclick = () => { if(busy) return; s.remove(); b.classList.remove('gone'); inW--; sfx.pop(); if(inW > 0) say(NUMS[inW-1] + '!'); upd(); };
+        w.cargo.appendChild(s); upd();
+      };
+      loose.appendChild(b);
+    }
+    go.onclick = () => {
+      if(busy) return; ensureAc();
+      if(inW === n){ go.classList.remove('ready'); w.plate.classList.add('right'); solved(); }
+      else { wrong(go, T.recount); w.plate.classList.remove('no'); void w.plate.offsetWidth; w.plate.classList.add('no'); }
+    };
+    const line = loadLine(n, it) + (toldGo ? '' : ' ' + T.goBtn); toldGo = true;
+    return line;
+  },
+  count(L){
+    const n = L === 0 ? rnd(1,5) : rnd(4,9), it = pick(LOADS), w = wagon(66, 2, 12, '', rnd(0,6));
+    fill(w, it[0], n); wagons.appendChild(w);
+    options(numOpts(n, 10), 'num', v => v === n, () => solved(NUMS[n-1] + '!'));
+    return T.count;
+  },
+  more(L){
+    let a, b;
+    do{ a = L === 0 ? rnd(1,5) : L === 1 ? rnd(1,8) : rnd(4,10); b = L === 0 ? rnd(1,5) : L === 1 ? rnd(1,8) : rnd(4,10); }
+    while(a === b || (L === 0 && Math.abs(a-b) < 2) || (L === 2 && Math.abs(a-b) > 2));
+    const less = L > 0 && Math.random() < .5, it = pick(LOADS), ci = rnd(0,6), want = less ? Math.min(a,b) : Math.max(a,b);
+    [a, b].forEach((n, i) => {
+      const w = wagon(58, 2, 11, '', ci + i*2); fill(w, it[0], n); w.classList.add('pick'); w.setAttribute('role', 'button'); if(n === want) w.dataset.ok = 1;
+      w.onclick = () => { if(busy) return; ensureAc(); if(n === want){ w.cargo.classList.add('right'); solved(); } else wrong(w); };
+      wagons.appendChild(w);
+    });
+    stage.innerHTML = '';
+    return less ? T.less : T.more;
+  },
+  add(L){
+    const max = L === 1 ? 6 : 10, a = rnd(1, max-1), b = rnd(1, max-a), it = pick(LOADS), ci = rnd(0,6);
+    [a, b].forEach((n, i) => { const w = wagon(58, 2, 11, n, ci + i*3); fill(w, it[0], n); if(i) w.appendChild(el('span', 'sign', '+')); else w.style.marginRight = 'calc(var(--u)*10.4)'; wagons.appendChild(w); });
+    options(numOpts(a+b, 10), 'num', v => v === a+b, () => solved(sumLine(a, b)));
+    return T.add;
+  },
+  pattern(L){
+    const s = shuffle(SYMS.slice()), A = s[0], B = s[1], C = s[2];
+    const p = pick(L === 0 ? [[A,B]] : L === 1 ? [[A,B,B],[A,A,B],[A,B,C]] : [[A,B,C],[A,A,B,B],[A,B,B],[A,A,B]]), len = L === 0 ? 6 : 7;
+    const seq = Array.from({length:len}, (_, i) => p[i % p.length]), miss = L === 2 ? rnd(2, len-2) : len-1, ci = rnd(0,6);
+    let hole = null;
+    seq.forEach((ch, i) => { const w = wagon(18.4, 1, 14, '', ci + i); w.style.marginRight = 'calc(var(--u)*2.2)';
+      if(i === miss){ hole = item('?', 'qm'); w.cargo.appendChild(hole); } else fill(w, ch, 1); wagons.appendChild(w); });
+    const opts = [...new Set(p)]; for(const x of s){ if(opts.length >= 3) break; if(!opts.includes(x)) opts.push(x); }
+    options(shuffle(opts), 'em', v => v === seq[miss], () => { hole.innerHTML = seq[miss]; hole.className = 'it pop'; solved(); });
+    return miss === len-1 ? T.pat : T.patMid;
+  },
+  shadow(L){
+    const pool = L === 2 ? ANIMALS.slice(-QUAD) : ANIMALS.slice(), a = pick(pool), n = L === 0 ? 3 : 4;
+    const opts = shuffle([a].concat(shuffle(pool.filter(x => x !== a)).slice(0, n-1)));
+    const w = wagon(46, 1, 25, '', rnd(0,6)), s = item(a[0], 'sil'); w.cargo.appendChild(s); wagons.appendChild(w);
+    options(opts.map(x => x[0]), 'em', v => v === a[0], () => { s.classList.remove('sil'); solved(a[1] + '!'); });
+    return T.shadow;
+  },
+  letter(L){
+    const w0 = pick(WORDS), all = [...new Set(WORDS.map(x => x[2]))], n = L === 2 ? 4 : 3;
+    const opts = shuffle([w0[2]].concat(shuffle(all.filter(x => x !== w0[2])).slice(0, n-1)));
+    const w = wagon(54, 1, 23, '_' + w0[1].slice(1).toUpperCase(), rnd(0,6)); fill(w, w0[0], 1); wagons.appendChild(w);
+    options(opts, 'ltr', v => v === w0[2], () => { w.plate.textContent = w0[1].toUpperCase(); solved(ansLetter(w0)); });
+    return askLetter(w0);
+  }
+};
+function makePlan(L){
+  const base = L === 0 ? ['load','count','pattern','more','shadow'] : ['load','pattern','more','add','shadow','letter'];
+  const extra = L === 0 ? ['load','count','shadow'] : L === 1 ? ['add','letter'] : ['add','pattern'];
+  let p, guard = 0;
+  do{ p = shuffle(base.concat(extra)); }while(guard++ < 40 && p.some((t, i) => i && t === p[i-1]));
+  if(p[0] !== 'load'){ const i = p.indexOf('load'); [p[0], p[i]] = [p[i], p[0]]; }
+  return p.slice(0, STOPS);
+}
+
+/* ---------- vožnja ---------- */
+function drawProg(){
+  $('#prog').innerHTML = '🚂' + Array.from({length:STOPS}, (_, i) => '<i class="' + (i < step ? 'on' : i === step ? 'now' : '') + '"></i>').join('') + DEST[dest].icon;
+}
+let puffT = 0;
+function moving(on){
+  document.body.classList.toggle('moving', on);
+  clearInterval(puffT);
+  if(on) puffT = setInterval(() => {
+    const p = el('i', 'puff'), r = $('#loco').getBoundingClientRect(), tr = train.getBoundingClientRect();
+    p.style.left = (r.left - tr.left + r.width*.68) + 'px'; p.style.top = (r.top - tr.top - r.height*.02) + 'px';
+    train.appendChild(p); setTimeout(() => p.remove(), 1500);
+  }, 170);
+}
+function slide(x, ms, ease){
+  train.style.transition = ms ? 'transform ' + ms + 'ms ' + ease : 'none';
+  train.style.transform = 'translateX(' + x + ')';
+  if(!ms) void train.offsetWidth;
+  return wait(ms);
+}
+async function nextTask(spoken){
+  const my = run; busy = true; cur = -1;
+  moving(true); sfx.chug(8);
+  if(step > 0 || wagons.children.length) await slide('140vw', 900, 'cubic-bezier(.5,0,.9,.4)');
+  if(my !== run) return;
+  if(step >= STOPS) return arrive();
+  await slide('-140vw', 0);
+  wagons.innerHTML = ''; stage.innerHTML = ''; stage.hidden = false; tErr = 0;
+  const line = TASKS[plan[step]](dest);
+  drawProg();
+  await slide('0', 1100, 'cubic-bezier(.1,.6,.3,1)');
+  if(my !== run) return;
+  moving(false);
+  if(spoken) await Promise.race([spoken, wait(4500)]);
+  if(my !== run) return;
+  busy = false; say(line);
+}
+async function solved(extra){
+  const my = run; busy = true; step++; sfx.ok(); happy(true); drawProg();
+  document.querySelectorAll('.hint').forEach(e => e.classList.remove('hint'));
+  const p = say((extra ? extra + ' ' : '') + pick(PRAISE));
+  await Promise.all([wait(1500), Promise.race([p, wait(6000)])]);
+  if(my !== run) return;
+  if(step >= STOPS) sfx.whistle();
+  nextTask();
+}
+function arrive(){
+  moving(false); stage.hidden = true; wagons.innerHTML = '';
+  const st = errors <= 1 ? 3 : errors <= 4 ? 2 : 1, id = DEST[dest].id;
+  save[id] = Math.max(save[id]||0, st); store();
+  $('#wicon').textContent = DEST[dest].icon; $('#wstars').innerHTML = starHtml(st); $('#wnext').hidden = dest >= DEST.length-1;
+  screen = 'win'; $('#win').hidden = false; $('#prog').hidden = true; $('#back').hidden = true; sfx.fanfare(); happy(true);
+  for(let i = 0; i < 26; i++){ const c = el('i', 'conf', pick(['🎉','⭐','🎈','✨','🎊'])); c.style.left = rnd(2,96) + 'vw'; c.style.animationDuration = (2.2 + Math.random()*2.2) + 's'; c.style.animationDelay = Math.random()*1.2 + 's';
+    document.body.appendChild(c); setTimeout(() => c.remove(), 6000); }
+  const my = run; setTimeout(() => { if(my === run && screen === 'win') say(ARR[dest]); }, 700);
+}
+function startTrip(d){
+  ensureAc(); run++; dest = d; step = 0; errors = 0; plan = makePlan(d); screen = 'game'; greeted = true;
+  setTheme(d); $('#menu').hidden = true; $('#win').hidden = true; $('#prog').hidden = false; $('#back').hidden = false;
+  ['#home','#lnk1','#lnk2'].forEach(s => $(s).hidden = true);
+  wagons.innerHTML = ''; slide('-140vw', 0); drawProg(); sfx.whistle();
+  nextTask(say(GO[d]));
+}
+function showMenu(quiet){
+  run++; screen = 'menu'; busy = true; moving(false); stopVoice();
+  $('#menu').hidden = false; $('#win').hidden = true; $('#prog').hidden = true; $('#back').hidden = true; stage.hidden = true;
+  ['#home','#lnk1','#lnk2'].forEach(s => $(s).hidden = false);
+  slide('-140vw', 0); wagons.innerHTML = ''; bubble.textContent = '';
+  const box = $('#dests'); box.innerHTML = '';
+  DEST.forEach((d, i) => { const b = el('button', 'dest' + (i === sel ? ' sel' : ''), '<span class="ic">' + d.icon + '</span><span class="nm">' + d.name + '</span><span class="lv">' + d.lv + '</span><span class="st">' + starHtml(save[d.id]||0) + '</span>');
+    b.setAttribute('aria-label', d.name); b.onclick = () => startTrip(i); box.appendChild(b); });
+  if(!quiet) say(T.menu);
+}
+$('#wagain').onclick = () => startTrip(dest);
+$('#wnext').onclick = () => startTrip(Math.min(DEST.length-1, dest+1));
+$('#wmenu').onclick = () => { sel = dest; showMenu(); };
+$('#back').onclick = () => { sel = dest; showMenu(true); };
+$('#mute').onclick = () => { muted = !muted; $('#mute').textContent = muted ? '🔇' : '🔊'; if(muted) stopVoice(); $('#mute').blur(); };
+addEventListener('pointerdown', e => { if(!greeted && screen === 'menu' && !e.target.closest('.dest,a,button')){ greeted = true; ensureAc(); say(T.hi); } });
+
+const picks = () => [...document.querySelectorAll('#scene .pick')].filter(e => !e.classList.contains('gone'));
+function setCur(i){ const p = picks(); if(!p.length) return; cur = (i + p.length) % p.length; document.querySelectorAll('.cur').forEach(e => e.classList.remove('cur')); p[cur].classList.add('cur'); }
+addEventListener('keydown', e => {
+  const k = e.code;
+  if(k === 'Space' || k.startsWith('Arrow')) e.preventDefault();
+  if(e.repeat && (k === 'Space' || k === 'Enter')) return;
+  if(screen === 'menu'){
+    const n = DEST.length;
+    if(k === 'ArrowRight' || k === 'ArrowDown') sel = Math.min(n-1, sel+1); else if(k === 'ArrowLeft' || k === 'ArrowUp') sel = Math.max(0, sel-1);
+    else if(k === 'Space' || k === 'Enter'){ e.preventDefault(); startTrip(sel); return; } else return;
+    [...$('#dests').children].forEach((b, i) => b.classList.toggle('sel', i === sel));
+    if(!greeted){ greeted = true; ensureAc(); say(T.hi); }
+  } else if(screen === 'game'){
+    if(k === 'Escape'){ sel = dest; showMenu(true); return; }
+    if(busy) return;
+    if(k === 'ArrowRight' || k === 'ArrowDown') setCur(cur + 1); else if(k === 'ArrowLeft' || k === 'ArrowUp') setCur(cur < 0 ? picks().length-1 : cur - 1);
+    else if(k === 'Space' || k === 'Enter'){ e.preventDefault(); const p = picks(); if(cur < 0) setCur(0); else if(p[cur]){ const t = p[cur]; t.click(); if(t.classList.contains('gone')) setCur(Math.min(cur, picks().length-1)); } }
+  } else if(screen === 'win'){
+    if(k === 'Space' || k === 'Enter'){ e.preventDefault(); dest < DEST.length-1 ? startTrip(dest+1) : showMenu(); }
+    else if(k === 'Escape') showMenu(true);
+  }
+});
+setTheme(0);
+loadPack().then(() => { $('#loading').textContent = ''; });
+setTimeout(() => { $('#loading').textContent = ''; }, 8000);
+showMenu(true);
+</script>
+</body>
+</html>
