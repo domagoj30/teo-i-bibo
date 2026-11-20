@@ -319,7 +319,7 @@ function spawnBalloons(){
 }
 
 /* ---------- slicice ---------- */
-/* e = sličica, n = naziv, acc = akuzativ ("klikni kravu"), snd = glasanje, k = korijeni koje priznajemo u govoru */
+/* e = sličica, n = naziv, acc = akuzativ ("klikni na kravu"), snd = glasanje, k = korijeni koje priznajemo u govoru */
 const ANIMALS = [
   {e:'🐶', n:'pas', acc:'psa', snd:'vau vau', k:['pas','pes','psa','psic','cuk']}, {e:'🐱', n:'mačka', acc:'mačku', snd:'mijau', k:['mack','maca','mac','mic']},
   {e:'🐮', n:'krava', acc:'kravu', snd:'muuu', k:['krav']}, {e:'🐷', n:'svinja', acc:'svinju', snd:'rok rok', k:['svinj','pras']},
@@ -634,7 +634,7 @@ function say(text, onDone){
   })();
   talkTimer = setTimeout(fin, ms + 15000);
 }
-const PRAISE = ['Bravo, '+NAME+'!','Super!','Tako je!','Odlično, '+NAME+'!','Jupi!','Ti si majstor!','Fantastično!','To, '+NAME+'!'];
+const PRAISE = ['Bravo, '+NAME+'!','Izvrsno!','Tako je!','Odlično, '+NAME+'!','Jupi!','Ti si majstor!','Fantastično!','Sjajno, '+NAME+'!'];
 let lastPraise = -1;
 function praise(){ let i; do{ i = rndi(PRAISE.length); }while(i === lastPraise); lastPraise = i; say(PRAISE[i]); }
 const NUM = ['jedan','dva','tri','četiri','pet','šest','sedam','osam','devet'];                       // naziv broja
@@ -650,29 +650,29 @@ $('#nums').innerHTML = NUM.map((_, i) => '<button class="key" data-n="'+(i+1)+'"
 function allLines(){
   const L = [], add = (...a) => a.forEach(t => L.push(t));
   add('Bok, '+NAME+'! Ja sam Bibo, tvoj robot prijatelj. Ovo je naš svemirski brod! Strelicama doleti do planeta!',
-      'Svi planeti su tvoji! Doleti do planeta i igraj opet!', 'Na koji planet letimo sada? Strelicama doleti do planeta!',
+      'Svi su planeti tvoji! Doleti do planeta i igraj opet!', 'Na koji planet letimo sada? Strelicama doleti do planeta!',
       'Strelicama doleti do planeta ili klikni na planet!',
       'Vidiš li balone? Pomakni strelicu na balon i klikni!',
       'Pomozi mi doći do zvjezdice. Pritisni strelice na tipkovnici!',
       'Zvjezdica je visoko. Pritisni veliku dugu tipku da skočim!',
       'Zvjezdice padaju s neba! Strelicama lijevo i desno dovedi me ispod zvjezdice!',
-      'Leptiri! Ulovi ih! Klikni ih dok lete!', 'Ulovi leptire! Klikni ih dok lete!',
-      'Trčimo! Preskoči balvan! Pritisni dugu tipku kad dođe blizu!', 'Ups! Pritisni dugu tipku kad balvan dođe blizu!',
+      'Leptiri! Ulovi ih! Klikni na njih dok lete!', 'Ulovi leptire! Klikni na njih dok lete!',
+      'Trčimo! Preskoči balvan! Pritisni dugu tipku kad dođe blizu!', 'Joj! Pritisni dugu tipku kad balvan dođe blizu!',
       'Idemo svirati! Pritisni tipke s brojevima!', 'Bravo! Kakva glazba!',
       'Voće pada s neba! Strelicama lijevo i desno dovedi me ispod voća!', 'Njam njam!', 'Njam njam! Hvala!',
       'Pronađi dvije iste sličice! Klikni na karticu!', 'Bravo! Dvije iste sličice!', 'Nisu iste. Probaj opet!',
       'Skupi sve zvjezdice! Pritisni strelice na tipkovnici!',
-      'Svemirci se skrivaju! Brzo, klikni svemirca!',
+      'Svemirci se skrivaju! Brzo, klikni na svemirca!',
       'Bravo, '+NAME+'! Osvojio si sve planete! Ti si pravi prvak!', 'Bravo, '+NAME+'! Osvojio si cijeli planet! Letimo na sljedeći!',
       'Idemo brojati! Koliko je zvjezdica? Pritisni taj broj!', 'Izbroji zvjezdice i pritisni taj broj!', 'Izbroji opet!',
       'Tražimo životinje!', 'Poslušaj kako se životinje glasaju!', 'Pogledaj sličice!', 'Tražimo oblike!', 'Sada pazi!',
-      'Pogledaj lica!', 'Tražimo odjeću!', 'Pogledaj nebo!', 'Što ovdje ne pripada?', 'Gladan sam!', 'Klikni ga!', 'Tako je!',
+      'Pogledaj lica!', 'Tražimo odjeću!', 'Pogledaj nebo!', 'Što ovdje ne pripada?', 'Gladan sam!', 'Klikni na njega!', 'Tako je!',
       'Tražimo brojeve na tipkovnici!', 'Lansiramo raketu! Odbrojavaj sa mnom!', 'Tražimo slova na tipkovnici!',
       'Jedan! Kreni! Raketa leti!', 'Bravo!',
       'Nisam dobro čuo. Reci još jednom, glasno!', 'Sada mi odgovaraj glasom! Što je ovo?', 'Što je ovo? Reci glasno!',
       'Kakav je ovo balon? Koje je boje? Reci glasno!', 'Izbroji zvjezdice i reci mi broj! Koliko ih je?',
       'Koliko je zvjezdica? Reci broj!', 'Izbroji sa mnom!', 'Mikrofon ne radi. Odgovaraj klikom!',
-      'Hi hi hi! To škaklja!', 'Ups! Probaj opet!', 'Sada tražimo boje!', 'Gledaj koliko su veliki!', 'Pogledaj dvije hrpe zvjezdica!',
+      'Hi hi hi! To škaklja!', 'Joj! Probaj opet!', 'Sada tražimo boje!', 'Gledaj koliko su veliki!', 'Pogledaj dvije hrpe zvjezdica!',
       'Pomakni strelicu na balon i klikni!', 'Pritisni strelice na tipkovnici i dovedi me do zvjezdice!',
       'Pritisni veliku dugu tipku da skočim!', 'Strelicama lijevo i desno dovedi me ispod zvjezdice!',
       'Pritisni dugu tipku kad balvan dođe blizu!', 'Strelicama lijevo i desno dovedi me ispod voća!');
@@ -680,14 +680,14 @@ function allLines(){
       'Tražimo vozila!', 'Vozimo se! Slušaj kamo skrećemo!',
       'Skreni lijevo!', 'Skreni desno!', 'Idi gore!', 'Idi dolje!', 'To je lijevo.', 'To je desno.', 'To je gore.', 'To je dolje.',
       'Ovo je semafor! Kad je zeleno, pritisni dugu tipku! Kad je crveno, čekaj!', 'Zeleno! Kreni!', 'Crveno je! Čekaj zeleno!',
-      'Baloni lete u nebo! Pukni ih prije nego pobjegnu!', 'Pazi gdje se tko skriva!', 'Tu nije. Probaj opet!',
-      'Pazi, padaju kometi! Bježi strelicama lijevo ili desno!', 'Ups! Makni se!');
+      'Baloni lete u nebo! Probuši ih prije nego što pobjegnu!', 'Pazi gdje se tko skriva!', 'Tu nije. Probaj opet!',
+      'Pazi, padaju kometi! Bježi strelicama lijevo ili desno!', 'Joj! Makni se!');
   PRAISE.forEach(p => add(p));
   WORLDS.forEach(w => add(w.n+'!'));
   const seen = new Set();
   ANIMALS.concat(THINGS, SHAPES, CLOTHES, WEATHER, VEHX).forEach(it => {
     if(seen.has(it.n)) return; seen.add(it.n);
-    add('Gdje '+(it.pl ? 'su' : 'je')+' '+it.n+'? Klikni '+it.acc+'!', toJe(it)+'. Nađi '+it.acc+'!', 'Tako je! '+cap(it.n)+'!',
+    add('Gdje '+(it.pl ? 'su' : 'je')+' '+it.n+'? Klikni na '+it.acc+'!', toJe(it)+'. Nađi '+it.acc+'!', 'Tako je! '+cap(it.n)+'!',
         toJe(it)+'. Reci: '+it.n+'!', toJe(it)+'!', 'Gladan sam! Daj mi '+it.acc+'!');
   });
   ANIMALS.filter(a => a.snd).forEach(a => add('Tko kaže '+a.snd+'?', 'To je '+a.n+'. '+cap(a.n)+' kaže '+a.snd+'.', 'Tako je! '+cap(a.n)+' kaže '+a.snd+'!'));
@@ -697,13 +697,13 @@ function allLines(){
     CATS.forEach(b => { if(b !== a) b.list.forEach(it => add(cap(it.n)+' nije '+a.w+'!')); });
   });
   FACES.forEach(f => add('Tko je '+f.adj+'?', 'On je '+f.adj+'.', 'On je '+f.adj+'!'));
-  COLORS.forEach(c => add('Klikni '+c.n+' balon!', 'To je '+c.n+' balon.', 'Nađi '+c.n+' balon!', 'Ovo je '+c.n+' balon. Reci: '+c.n+'!', 'Ovo je '+c.n+' balon!', cap(c.n)+' balon!'));
+  COLORS.forEach(c => add('Klikni na '+c.n+' balon!', 'To je '+c.n+' balon.', 'Nađi '+c.n+' balon!', 'Ovo je '+c.n+' balon. Reci: '+c.n+'!', 'Ovo je '+c.n+' balon!', cap(c.n)+' balon!'));
   NUM.forEach((n, i) => add(cap(NUMF[i])+'!', cap(NUMF[i])+'.', 'Reci: '+NUMSAY[i]+'!', 'To je broj '+n+'.', 'Pritisni broj '+n+'!', 'Broj '+n+'!', 'Nađi broj '+n+'!', cap(n)+'!'));
   add('To je broj nula.');
   'ABCDEFGHIJKLMNOPQRSTUVWXYZČĆŽŠĐ'.split('').forEach(l => add('Pritisni slovo '+l+'!', 'Slovo '+l+'!', 'To je slovo '+l+'.', 'Nađi slovo '+l+'!'));
-  ['najveći','najmanji'].forEach(w => add('Klikni '+w+' balon!', 'Taj nije '+w+'.', 'Nađi '+w+' balon!'));
-  ['više','manje'].forEach(w => add('Gdje ima '+w+' zvjezdica?', 'Klikni tu hrpu!', 'Tu ima '+w+'!', 'Tu ima '+w+'.', 'Klikni tu hrpu ili pritisni strelicu!'));
-  add('Koliko je zvjezdica?', 'Što je ovo?', 'Kakav je ovo balon?', 'Kakav je ovo balon? Reci glasno!', 'Klikni na planet!', 'Brzo, klikni svemirca!', 'Pritisni tipke s brojevima!');
+  ['najveći','najmanji'].forEach(w => add('Klikni na '+w+' balon!', 'Taj nije '+w+'.', 'Nađi '+w+' balon!'));
+  ['više','manje'].forEach(w => add('Gdje ima '+w+' zvjezdica?', 'Klikni na tu hrpu!', 'Tu ima '+w+'!', 'Tu ima '+w+'.', 'Klikni na tu hrpu ili pritisni strelicu!'));
+  add('Koliko je zvjezdica?', 'Što je ovo?', 'Kakav je ovo balon?', 'Kakav je ovo balon? Reci glasno!', 'Klikni na planet!', 'Brzo, klikni na svemirca!', 'Pritisni tipke s brojevima!');
   return L;
 }
 /*@END*/
@@ -779,20 +779,20 @@ function hint(){
   if(state === 'map') return 'Strelicama doleti do planeta ili klikni na planet!';
   if(mode === 'voice') return question;
   if(mode === 'picclick' && picTarget) return picAsk();
-  if(mode === 'colorclick') return 'Klikni '+COLORS[target].n+' balon!';
-  if(mode === 'sizeclick') return 'Klikni '+sizeWant+' balon!';
+  if(mode === 'colorclick') return 'Klikni na '+COLORS[target].n+' balon!';
+  if(mode === 'sizeclick') return 'Klikni na '+sizeWant+' balon!';
   if(state === 'turn') return DIRS[turnDir].say;
   if(state === 'light') return 'Kad je zeleno, pritisni dugu tipku!';
-  if(state === 'rise') return 'Pukni ih prije nego pobjegnu!';
+  if(state === 'rise') return 'Probuši ih prije nego što pobjegnu!';
   if(state === 'dodge') return 'Bježi strelicama lijevo ili desno!';
   if(mode === 'hide') return roundActive && picTarget ? 'Gdje je '+picTarget.n+'?' : 'Pazi gdje se tko skriva!';
-  if(state === 'aliens') return 'Brzo, klikni svemirca!';
+  if(state === 'aliens') return 'Brzo, klikni na svemirca!';
   if(mode === 'memory') return 'Pronađi dvije iste sličice! Klikni na karticu!';
   if(state === 'apples') return 'Strelicama lijevo i desno dovedi me ispod voća!';
   if(state === 'gather') return 'Skupi sve zvjezdice! Pritisni strelice na tipkovnici!';
-  if(state === 'more') return 'Gdje ima '+moreWant+' zvjezdica? Klikni tu hrpu ili pritisni strelicu!';
+  if(state === 'more') return 'Gdje ima '+moreWant+' zvjezdica? Klikni na tu hrpu ili pritisni strelicu!';
   if(state === 'countdown') return 'Pritisni broj '+numName(letter)+'!';
-  if(mode === 'flyclick') return 'Ulovi leptire! Klikni ih dok lete!';
+  if(mode === 'flyclick') return 'Ulovi leptire! Klikni na njih dok lete!';
   if(mode === 'piano') return 'Pritisni tipke s brojevima!';
   if(mode === 'count') return 'Izbroji zvjezdice i pritisni taj broj!';
   switch(state){
@@ -854,7 +854,7 @@ function setLevel(l){
   if(isMap){
     const all = LEVELS.every(x => done.has(x));
     say(firstMap ? 'Bok, '+NAME+'! Ja sam Bibo, tvoj robot prijatelj. Ovo je naš svemirski brod! Strelicama doleti do planeta!'
-      : all ? 'Svi planeti su tvoji! Doleti do planeta i igraj opet!' : 'Na koji planet letimo sada? Strelicama doleti do planeta!');
+      : all ? 'Svi su planeti tvoji! Doleti do planeta i igraj opet!' : 'Na koji planet letimo sada? Strelicama doleti do planeta!');
     firstMap = false;
   } else if(l === 'balloons'){
     spawnBalloons(); say('Vidiš li balone? Pomakni strelicu na balon i klikni!');
@@ -886,7 +886,7 @@ function setLevel(l){
   } else if(l === 'size'){
     sizeRound(true);
   } else if(l === 'flies'){
-    [0,1,2,3].forEach(spawnFly); say('Leptiri! Ulovi ih! Klikni ih dok lete!');
+    [0,1,2,3].forEach(spawnFly); say('Leptiri! Ulovi ih! Klikni na njih dok lete!');
   } else if(l === 'hurdles'){
     later(rollLog, 2500); say('Trčimo! Preskoči balvan! Pritisni dugu tipku kad dođe blizu!');
   } else if(l === 'piano'){
@@ -912,7 +912,7 @@ function setLevel(l){
   } else if(l === 'more'){
     moreRound(true);
   } else if(l === 'aliens'){
-    later(spawnAlien, 1500); say('Svemirci se skrivaju! Brzo, klikni svemirca!');
+    later(spawnAlien, 1500); say('Svemirci se skrivaju! Brzo, klikni na svemirca!');
   } else if(l === 'vehicles'){
     picPool = VEHICLES.concat(VEHX); picsRound(true, 'Tražimo vozila! ');
   } else if(l === 'turn'){
@@ -922,7 +922,7 @@ function setLevel(l){
     say('Ovo je semafor! Kad je zeleno, pritisni dugu tipku! Kad je crveno, čekaj!');
   } else if(l === 'rise'){
     for(let i = 0; i < 4; i++) spawnRiser(rnd(.5,3.2));
-    say('Baloni lete u nebo! Pukni ih prije nego pobjegnu!');
+    say('Baloni lete u nebo! Probuši ih prije nego što pobjegnu!');
   } else if(l === 'hide'){
     hideRound(true);
   } else if(l === 'dodge'){
@@ -1008,7 +1008,7 @@ function colorRound(first){
   const set = shuffle(others.concat([t])), xs = [-5,-2.5,0,2.5,5];
   set.forEach((ci,i) => makeBalloon(COLORS[ci].c, new THREE.Vector3(xs[i], xs[i] === 0 ? 4.1 : rnd(2.9,3.9), rnd(-.5,1)), ci));
   $('#colorHint').style.background = COLORS[t].css;
-  say((first ? 'Sada tražimo boje! ' : '') + 'Klikni '+COLORS[t].n+' balon!');
+  say((first ? 'Sada tražimo boje! ' : '') + 'Klikni na '+COLORS[t].n+' balon!');
 }
 /* hvatanje zvjezdica koje padaju */
 function dropStar(){
@@ -1080,7 +1080,7 @@ function moreRound(first){
   } });
   for(; k < countStars.length; k++) countStars[k].visible = false;
   roundActive = true;
-  say((first ? 'Pogledaj dvije hrpe zvjezdica! ' : '') + 'Gdje ima '+moreWant+' zvjezdica? Klikni tu hrpu!');
+  say((first ? 'Pogledaj dvije hrpe zvjezdica! ' : '') + 'Gdje ima '+moreWant+' zvjezdica? Klikni na tu hrpu!');
 }
 function moreAnswer(side){
   if(state !== 'more' || !roundActive || busy) return;
@@ -1176,8 +1176,8 @@ function picAsk(){
   if(picKind === 'sound') return 'Tko kaže '+picTarget.snd+'?';
   if(picKind === 'odd') return 'Što ovdje ne pripada? Što nije '+oddCat.w+'?';
   if(picKind === 'feed') return 'Gladan sam! Daj mi '+picTarget.acc+'!';
-  if(picKind === 'face') return 'Tko je '+picTarget.adj+'? Klikni ga!';
-  return 'Gdje '+(picTarget.pl ? 'su' : 'je')+' '+picTarget.n+'? Klikni '+picTarget.acc+'!';
+  if(picKind === 'face') return 'Tko je '+picTarget.adj+'? Klikni na njega!';
+  return 'Gdje '+(picTarget.pl ? 'su' : 'je')+' '+picTarget.n+'? Klikni na '+picTarget.acc+'!';
 }
 const toJe = it => 'To '+(it.pl ? 'su' : 'je')+' '+it.n;
 function clickPic(p){
@@ -1214,7 +1214,7 @@ function sizeRound(first){
   sizeWant = Math.random() < .5 ? 'najveći' : 'najmanji';
   const xs = shuffle([-4.4,-1.7,1.7,4.4]), sizes = [.5,.8,1.15,1.5], col = pick(BCOL);
   sizes.forEach((s,i) => makeBalloon(col, new THREE.Vector3(xs[i], 3.3, rnd(0,.8)), i, s));
-  say((first ? 'Gledaj koliko su veliki! ' : '') + 'Klikni '+sizeWant+' balon!');
+  say((first ? 'Gledaj koliko su veliki! ' : '') + 'Klikni na '+sizeWant+' balon!');
 }
 /* leptiri koji lete */
 function spawnFly(i){
@@ -1521,7 +1521,7 @@ function tick(){
     if(!logScored && Math.abs(dx) < .6 && bot.position.y < .45){
       logScored = true; logOn = false; log.visible = false; burst(log.position, 0x9a6a44, 10, 3);
       spin = Math.PI*2; sfx.oops();
-      if(bonks++ % 2 === 0) say('Ups! Pritisni dugu tipku kad balvan dođe blizu!');
+      if(bonks++ % 2 === 0) say('Joj! Pritisni dugu tipku kad balvan dođe blizu!');
       later(rollLog, 1300);
     } else if(!logScored && dx < -.8){
       logScored = true; addStar(new THREE.Vector3(bot.position.x, 2.6, 0));
@@ -1542,7 +1542,7 @@ function tick(){
     if(state === 'dodge'){   // komet: zvjezdica za svaki koji promasi Bibu
       if(star.position.y < 2.6 && star.position.y > .9 && Math.abs(bot.position.x - star.position.x) < 1){
         starActive = false; starBlob.visible = false; pics[7].sp.visible = false; sfx.oops(); spin = Math.PI*2; burst(star.position, 0xff8a1f, 10, 3);
-        if(misses++ % 2 === 0) say('Ups! Makni se!');
+        if(misses++ % 2 === 0) say('Joj! Makni se!');
         later(dropStar, 1000);
       } else if(star.position.y < .5){
         starActive = false; starBlob.visible = false; pics[7].sp.visible = false; burst(star.position, 0xffffff, 8, 2);
@@ -1557,7 +1557,7 @@ function tick(){
         if(count < GOAL) later(dropStar, 900);
       } else if(star.position.y < .5){
         starActive = false; starBlob.visible = false; pics[7].sp.visible = false; sfx.oops(); burst(star.position, 0xffffff, 8, 2);
-        if(misses++ % 2 === 0) say('Ups! Probaj opet!');
+        if(misses++ % 2 === 0) say('Joj! Probaj opet!');
         later(dropStar, 900);
       }
     }

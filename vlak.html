@@ -204,7 +204,7 @@ const T = {
   hi:'Bok, ' + NAME + '! Ja sam strojovođa Bibo. Kamo putujemo danas?',
   menu:'Kamo putujemo sada?',
   goBtn:'Kad završiš, pritisni zelenu tipku.',
-  recount:'Hm, prebroji još jednom!',
+  recount:'Prebroji još jednom!',
   full:'Vagon je pun!',
   count:'Koliko ih ima?',
   more:'U kojem vagonu ima više?',
@@ -216,8 +216,8 @@ const T = {
 };
 const GO = ['Ukrcaj se! Krećemo u park!', 'Ukrcaj se! Krećemo na more!', 'Ukrcaj se! Krećemo u planine!'];
 const ARR = ['Stigli smo u park! Bravo, ' + NAME + '!', 'Stigli smo na more! Bravo, ' + NAME + '!', 'Stigli smo u planine! Bravo, ' + NAME + '! Ti si pravi strojovođa!'];
-const PRAISE = ['Bravo!', 'Tako je!', 'Odlično!', 'Super!', 'Točno!', 'Svaka čast!'];
-const NOPE = ['Probaj opet!', 'Nije to. Pogledaj još jednom!', 'Skoro! Probaj opet.'];
+const PRAISE = ['Bravo!', 'Tako je!', 'Odlično!', 'Izvrsno!', 'Točno!', 'Svaka čast!'];
+const NOPE = ['Probaj opet!', 'Nije to. Pogledaj još jednom!', 'Zamalo! Probaj opet.'];
 const loadLine = (n, it) => 'Utovari ' + NUMACC[n-1] + ' ' + it[1][n === 1 ? 0 : n < 5 ? 1 : 2] + '.';
 const sumLine = (a, b) => NUMS[a-1] + ' i ' + NUMS[b-1].toLowerCase() + ' su ' + NUMS[a+b-1].toLowerCase() + '.';
 const askLetter = w => 'Kojim slovom počinje riječ ' + w[1] + '?';
