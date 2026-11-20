@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Bibino pamćenje</title>
+<style>
+html,body{margin:0; height:100%; overflow:hidden; font-family:system-ui,"Segoe UI",Roboto,sans-serif; color:#1b2340; user-select:none;
+  background:linear-gradient(#7cc8ff,#c9ecff 60%,#ffe9b8)}
+[hidden]{display:none!important}
+.screen{position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3vh; text-align:center}
+h1{margin:0; font-size:clamp(28px,11vh,90px); font-weight:800; line-height:1; text-shadow:0 .5vh 0 #fff}
+h1 b{color:#ff8a1f}
+.tiles{display:flex; gap:2.6vh; flex-wrap:wrap; justify-content:center; max-width:120vh}
+.tile{width:26vh; height:25vh; min-width:100px; min-height:96px; border:0; border-radius:4vh; background:#fff; cursor:pointer; font:inherit; color:inherit;
+  box-shadow:0 1vh 0 #b9cbe6; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.6vh}
+.tile .ic{font-size:10vh; line-height:1.1}
+.tile .nm{font-size:clamp(12px,2.8vh,20px); font-weight:800}
+.tile .st{font-size:2.8vh; letter-spacing:.2vh; min-height:3.4vh}
+.tile .st i{font-style:normal; opacity:.2; filter:grayscale(1)} .tile .st i.on{opacity:1; filter:none}
+.tile.sel,.tile:hover{outline:.9vh solid #ff8a1f; transform:translateY(-.6vh)}
+.tile .mini{display:grid; gap:.5vh}
+.tile .mini span{width:2.4vh; height:2.4vh; border-radius:.6vh; background:#ff8a1f}
+.round{position:fixed; top:2vh; width:8vh; height:8vh; min-width:40px; min-height:40px; border-radius:50%; border:0; background:#fff; font-size:4vh; cursor:pointer;
+  box-shadow:0 .6vh 0 #b9cbe6; display:flex; align-items:center; justify-content:center; text-decoration:none; z-index:5; padding:0}
+#home,#back{left:2vh} #mute{right:2vh}
+#loading{font-size:2.2vh; font-weight:600; min-height:3vh}
+/* igra */
+#game{justify-content:flex-start; gap:0}
+#bar{height:13vh; width:100%; display:flex; align-items:center; justify-content:center; gap:2vh; box-sizing:border-box; padding:0 12vh}
+#bibo{height:11vh; width:11vh; flex:none}
+#bubble{background:#fff; padding:1.2vh 2.6vh; border-radius:3vh; font-size:clamp(13px,3.4vh,24px); font-weight:700; box-shadow:0 .6vh 0 #00000018; max-width:60vw; min-height:4vh}
+#tries{background:#ffffffd9; padding:1vh 2.2vh; border-radius:3vh; font-size:3.4vh; font-weight:800; white-space:nowrap}
+#grid{display:grid; margin:auto}
+.card{position:relative; perspective:800px; cursor:pointer; border:0; background:none; padding:0; font:inherit}
+.card .in{position:absolute; inset:0; transition:transform .35s; transform-style:preserve-3d}
+.card.open .in,.card.done .in{transform:rotateY(180deg)}
+.card .f{position:absolute; inset:0; border-radius:14%; backface-visibility:hidden; -webkit-backface-visibility:hidden; display:flex; align-items:center; justify-content:center; box-sizing:border-box}
+.card .bk{background:linear-gradient(135deg,#ffa23f,#ff7a1f); border:.6vh solid #fff; color:#fff; font-weight:800; box-shadow:0 .7vh 0 #c85f10}
+.card .fr{background:#fff; border:.6vh solid #fff; transform:rotateY(180deg); box-shadow:0 .7vh 0 #b9cbe6; overflow:hidden}
+.card.done .fr{border-color:#3ecf8e; box-shadow:0 0 0 .5vh #3ecf8e66; opacity:.75}
+.card.cur .bk,.card.cur .fr{outline:.8vh solid #1b2340}
+.card.no .in{animation:shake .35s .35s}
+@keyframes shake{25%{transform:rotateY(180deg) translateX(-6%)}75%{transform:rotateY(180deg) translateX(6%)}}
+.card.done .in{animation:pop .4s}
+@keyframes pop{50%{transform:rotateY(180deg) scale(1.12)}}
+.dots{display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:6%; width:80%; height:80%; align-content:center}
+.dots i{width:20%; aspect-ratio:1; border-radius:50%; background:#ff8a1f}
+.fr svg{width:74%; height:74%}
+.ltr{font-weight:800; color:#2f7dff; font-family:"Comic Sans MS","Segoe Print",system-ui,sans-serif}
+.num{font-weight:800; color:#9b4dff}
+#win{background:#1b2340cc; color:#fff; z-index:8}
+#win h2{margin:0; font-size:10vh}
+#win .row{font-size:12vh; letter-spacing:1vh}
+#win .row i{font-style:normal; opacity:.25; filter:grayscale(1)} #win .row i.on{opacity:1; filter:none}
+#win p{margin:0; font-size:4vh; font-weight:700}
+#win button{font:inherit; font-size:6vh; border:0; border-radius:4vh; padding:1.6vh 5vh; margin:0 1vh; cursor:pointer; background:#fff; box-shadow:0 .8vh 0 #b9cbe6}
+#win button.go{background:#ff8a1f; box-shadow:0 .8vh 0 #b85a00}
+</style>
+</head>
+<body>
+<div id="themes" class="screen">
+  <a id="home" class="round" href="index.html" aria-label="Sve igre">🏠</a>
+  <h1>Bibino <b>pamćenje</b></h1>
+  <div class="tiles" id="tlist"></div>
+  <div id="loading">Učitavam Bibin glas…</div>
+</div>
+<div id="levels" class="screen" hidden>
+  <h1 id="ltitle"></h1>
+  <div class="tiles" id="llist"></div>
+</div>
+<div id="game" class="screen" hidden>
+  <div id="bar">
+    <svg id="bibo" viewBox="0 0 100 100" aria-hidden="true">
+      <line x1="50" y1="6" x2="50" y2="22" stroke="#8891aa" stroke-width="3"/><circle cx="50" cy="6" r="5" fill="#ff8a1f"/>
+      <rect x="4" y="42" width="12" height="22" rx="5" fill="#ff8a1f"/><rect x="84" y="42" width="12" height="22" rx="5" fill="#ff8a1f"/>
+      <ellipse cx="50" cy="54" rx="40" ry="34" fill="#fff" stroke="#c9d6ea" stroke-width="2"/>
+      <ellipse cx="50" cy="56" rx="31" ry="22" fill="#18203f"/>
+      <g id="eyes"><rect x="34" y="46" width="9" height="16" rx="4.5" fill="#4de8ff"/><rect x="57" y="46" width="9" height="16" rx="4.5" fill="#4de8ff"/></g>
+      <g id="smile" style="display:none" fill="none" stroke="#4de8ff" stroke-width="5" stroke-linecap="round"><path d="M32 58 q7 -12 14 0"/><path d="M54 58 q7 -12 14 0"/></g>
+    </svg>
+    <div id="bubble"></div>
+    <div id="tries">👆 0</div>
+  </div>
+  <div id="grid"></div>
+</div>
+<button id="back" class="round" aria-label="Natrag" hidden>⬅️</button>
+<button id="mute" class="round" aria-label="Zvuk">🔊</button>
+<div id="win" class="screen" hidden>
+  <h2>Bravo!</h2>
+  <div class="row" id="wstars"></div>
+  <p id="wtries"></p>
+  <div><button id="wnext" class="go" aria-label="Teže">▶</button><button id="wagain" aria-label="Ponovno">🔁</button><button id="wmenu" aria-label="Izbornik">🏠</button></div>
+</div>
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const NAME = 'Teo';
+
+/* ---------- sličice i Bibine rečenice (sve se snimaju: alat\glas.py memori) ---------- */
+/*@LINES*/
+const NUMW = ['jedan','dva','tri','četiri','pet','šest','sedam','osam','devet','deset','jedanaest','dvanaest'];
+const DOTW = ['Jedna točkica','Dvije točkice','Tri točkice','Četiri točkice','Pet točkica','Šest točkica','Sedam točkica','Osam točkica','Devet točkica','Deset točkica','Jedanaest točkica','Dvanaest točkica'];
+const LETTERS = 'ABDEGHIKLMNORSTU'.split('');
+const SETS = [
+  {id:'ziv', name:'Životinje', icon:'🐶', items:[['🐶','Pas'],['🐱','Mačka'],['🐮','Krava'],['🐷','Svinja'],['🐴','Konj'],['🐑','Ovca'],['🐔','Kokoš'],['🦆','Patka'],
+    ['🐰','Zec'],['🐻','Medvjed'],['🦁','Lav'],['🐘','Slon'],['🐵','Majmun'],['🐸','Žaba'],['🐟','Riba'],['🦋','Leptir']]},
+  {id:'hra', name:'Hrana', icon:'🍎', items:[['🍎','Jabuka'],['🍌','Banana'],['🍓','Jagoda'],['🍇','Grožđe'],['🍊','Naranča'],['🍐','Kruška'],['🍉','Lubenica'],['🥕','Mrkva'],
+    ['🍅','Rajčica'],['🍞','Kruh'],['🧀','Sir'],['🥛','Mlijeko'],['🥚','Jaje'],['🍕','Pizza'],['🍦','Sladoled'],['🍪','Keks']]},
+  {id:'voz', name:'Vozila', icon:'🚗', items:[['🚗','Auto'],['🚌','Autobus'],['🚂','Vlak'],['✈️','Avion'],['🚁','Helikopter'],['🚲','Bicikl'],['🚜','Traktor'],['🚒','Vatrogasno vozilo'],
+    ['🚑','Hitna pomoć'],['🚓','Policijski auto'],['🚢','Brod'],['🚀','Raketa'],['🏍️','Motor'],['🚚','Kamion'],['⛵','Jedrilica'],['🛴','Romobil']]},
+  {id:'obl', name:'Oblici i boje', icon:'🔷', shapes:true, items:[['krug','#ff3b4e','Crveni krug'],['krug','#2f7dff','Plavi krug'],['krug','#ffd21f','Žuti krug'],
+    ['kvadrat','#2fbf5b','Zeleni kvadrat'],['kvadrat','#2f7dff','Plavi kvadrat'],['kvadrat','#ff8a1f','Narančasti kvadrat'],
+    ['trokut','#ff3b4e','Crveni trokut'],['trokut','#2fbf5b','Zeleni trokut'],['trokut','#9b4dff','Ljubičasti trokut'],
+    ['zvijezda','#ffd21f','Žuta zvijezda'],['zvijezda','#2f7dff','Plava zvijezda'],['zvijezda','#ff3b4e','Crvena zvijezda'],
+    ['srce','#ff3b4e','Crveno srce'],['srce','#9b4dff','Ljubičasto srce'],['srce','#2fbf5b','Zeleno srce'],['romb','#ff8a1f','Narančasti romb']]},
+  {id:'bro', name:'Brojevi i točkice', icon:'🔢', numbers:true, max:12},
+  {id:'slo', name:'Velika i mala slova', icon:'🔤', letters:true, max:16}
+];
+const T = {
+  hi:'Bok, ' + NAME + '! Odaberi sličice.',
+  lvl:'Koliko kartica želiš?',
+  go:'Pronađi dvije iste sličice!',
+  goNum:'Spoji broj s točkicama!',
+  goLet:'Spoji veliko i malo slovo!',
+  hint:'Zapamti gdje je koja sličica!'
+};
+const PRAISE = ['Bravo! Par!', 'Tako je! Dvije iste!', 'Super pamtiš!', 'Odlično!', 'To je par!', 'Svaka čast!'];
+const NOPE = ['Nisu iste.', 'Probaj opet!', 'Nije par.'];
+const WIN = ['Bravo, ' + NAME + '! Pronašao si sve parove!', NAME + ', ti si majstor pamćenja!', 'Sve si pronašao! Idemo na težu razinu?'];
+function allLines(){
+  const out = Object.values(T).concat(PRAISE, NOPE, WIN);
+  SETS.forEach(s => (s.items||[]).forEach(it => out.push(it[it.length-1] + '.')));
+  NUMW.forEach((w,i) => { out.push('Broj ' + w + '.'); out.push(DOTW[i] + '.'); });
+  LETTERS.forEach(l => { out.push('Veliko slovo ' + l + '.'); out.push('Malo slovo ' + l.toLowerCase() + '.'); });
+  return out;
+}
+/*@END*/
+const LEVELS = [6, 8, 12, 16, 20, 24];
+
+/* ---------- zvuk i glas ---------- */
+let ac = null, muted = false;
+function ensureAc(){ try{ ac = ac || new (window.AudioContext||window.webkitAudioContext)(); if(ac.state === 'suspended') ac.resume(); }catch(e){} return ac; }
+function tone(f, d, type, v, when, f2){
+  if(muted) return;
+  try{
+    ensureAc();
+    const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + (when||0);
+    o.type = type||'sine'; o.frequency.setValueAtTime(f,t);
+    if(f2) o.frequency.exponentialRampToValueAtTime(f2, t+d);
+    g.gain.setValueAtTime(v||.2, t); g.gain.exponentialRampToValueAtTime(.001, t+d);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+d+.03);
+  }catch(e){}
+}
+const sfx = {
+  flip(){ tone(520,.08,'triangle',.12,0,760); },
+  match(){ tone(880,.16,'sine',.22); tone(1320,.28,'sine',.22,.1); },
+  nope(){ tone(240,.2,'sine',.12,0,180); },
+  fanfare(){ [523,659,784,1047,784,1047].forEach((f,i)=>tone(f,.25,'triangle',.22,i*.14)); }
+};
+const synth = window.speechSynthesis; let voice = null;
+function pickVoice(){
+  if(!synth) return;
+  const vs = synth.getVoices(); let best = null, bs = -1;
+  for(const v of vs){
+    const l = (v.lang||'').toLowerCase().replace('_','-'), li = ['hr','bs','sr','sl'].findIndex(p => l.startsWith(p));
+    if(li < 0) continue;
+    const n = (v.name||'').toLowerCase(); let s = (4-li)*100;
+    if(/natural|neural|online|premium|enhanced|wavenet/.test(n)) s += 50;
+    if(n.includes('google')) s += 30;
+    if(s > bs){ bs = s; best = v; }
+  }
+  voice = best;
+}
+if(synth){ pickVoice(); try{ synth.addEventListener('voiceschanged', pickVoice); }catch(e){} }
+const SPLIT = /(?<=[.!?])\s+/, bubble = $('#bubble');
+let pack = null, packBin = null, curSrc = null, packUrl = '', packSize = 0, probe = null, sayId = 0;
+const bufCache = new Map(); window.__miss = [];
+async function loadPack(){
+  try{
+    const idx = await (await fetch('glas3.json', {cache:'no-cache'})).json();
+    packUrl = 'glas3.mp3?v=' + idx.v; packSize = idx.size; pack = idx.clips;
+  }catch(e){ pack = null; }
+}
+async function clipBytes(s){
+  const off = pack[s][0], len = pack[s][1];
+  if(probe) await probe;
+  if(packBin) return packBin.slice(off, off+len);
+  const job = (async () => {
+    const r = await fetch(packUrl, {headers:{Range:'bytes='+off+'-'+(off+len-1)}});
+    const ab = await r.arrayBuffer();
+    if(r.status === 206 && ab.byteLength === len) return ab;
+    if(ab.byteLength >= packSize){ packBin = ab; return ab.slice(off, off+len); }
+    throw new Error('range');
+  })();
+  if(!probe) probe = job.then(() => {}, () => {});
+  return job;
+}
+function clipBuf(s){
+  if(bufCache.has(s)) return bufCache.get(s);
+  const p = clipBytes(s).then(ab => new Promise((res, rej) => ac.decodeAudioData(ab, res, rej)));
+  bufCache.set(s, p); p.catch(() => bufCache.delete(s));
+  return p;
+}
+function trimOf(b){
+  if(b._t) return b._t;
+  const d = b.getChannelData(0), n = d.length, sr = b.sampleRate; let a = 0, e = n-1;
+  while(a < n && Math.abs(d[a]) < .012) a++;
+  while(e > a && Math.abs(d[e]) < .012) e--;
+  const s = Math.max(0, a/sr - .03);
+  return b._t = [s, Math.min(b.duration - s, (e-a)/sr + .25)];
+}
+function playBuf(b){
+  return new Promise(res => { const src = ac.createBufferSource(), t = trimOf(b); src.buffer = b; src.connect(ac.destination); src.onended = res; curSrc = src; src.start(0, t[0], t[1]); });
+}
+function stopVoice(){
+  if(curSrc){ try{ curSrc.onended = null; curSrc.stop(); }catch(e){} curSrc = null; }
+  if(synth){ try{ synth.cancel(); }catch(e){} }
+}
+function speakTTS(s){
+  return new Promise(res => {
+    const ms = 700 + s.length*65;
+    if(voice && synth){
+      try{ const u = new SpeechSynthesisUtterance(s); u.voice = voice; u.lang = voice.lang; u.pitch = 1.08; u.rate = .9; u.onend = u.onerror = res; synth.speak(u); }catch(e){}
+      setTimeout(res, ms + 4000);
+    } else setTimeout(res, ms);
+  });
+}
+function say(text){
+  bubble.textContent = text;
+  stopVoice();
+  const id = ++sayId;
+  if(muted) return;
+  (async () => {
+    const parts = text.split(SPLIT);
+    if(pack && ensureAc()) parts.forEach(s => { if(pack[s]) clipBuf(s).catch(() => {}); });
+    for(const s of parts){
+      if(id !== sayId) return;
+      if(pack && pack[s] && ensureAc()){
+        try{ const b = await clipBuf(s); if(id !== sayId) return; await playBuf(b); continue; }catch(e){}
+      } else if(pack) window.__miss.push(s);
+      if(id !== sayId) return;
+      await speakTTS(s);
+    }
+  })();
+}
+
+/* ---------- lica kartica ---------- */
+const pick = a => a[Math.floor(Math.random()*a.length)];
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; }
+function shapeSvg(kind, c){
+  const b = {krug:'<circle cx="50" cy="50" r="44"/>', kvadrat:'<rect x="8" y="8" width="84" height="84" rx="8"/>', trokut:'<path d="M50 6 L96 92 L4 92 Z"/>',
+    romb:'<path d="M50 4 L92 50 L50 96 L8 50 Z"/>', srce:'<path d="M50 90 C10 60 2 38 14 22 C26 8 44 12 50 28 C56 12 74 8 86 22 C98 38 90 60 50 90 Z"/>',
+    zvijezda:'<path d="M50 4 L62 36 L96 38 L70 60 L79 94 L50 75 L21 94 L30 60 L4 38 L38 36 Z"/>'}[kind];
+  return '<svg viewBox="0 0 100 100" fill="' + c + '" stroke="#1b2340" stroke-width="3" stroke-linejoin="round">' + b + '</svg>';
+}
+function deckFor(set, pairs){
+  const cards = [];
+  if(set.numbers){
+    shuffle([...Array(set.max).keys()]).slice(0,pairs).forEach(i => {
+      cards.push({key:'n'+i, html:'<span class="num big">' + (i+1) + '</span>', say:'Broj ' + NUMW[i] + '.'});
+      cards.push({key:'n'+i, html:'<span class="dots">' + '<i></i>'.repeat(i+1) + '</span>', say:DOTW[i] + '.'});
+    });
+  } else if(set.letters){
+    shuffle(LETTERS.slice()).slice(0,pairs).forEach(l => {
+      cards.push({key:l, html:'<span class="ltr big">' + l + '</span>', say:'Veliko slovo ' + l + '.'});
+      cards.push({key:l, html:'<span class="ltr big">' + l.toLowerCase() + '</span>', say:'Malo slovo ' + l.toLowerCase() + '.'});
+    });
+  } else {
+    shuffle(set.items.slice()).slice(0,pairs).forEach((it,i) => {
+      const html = set.shapes ? shapeSvg(it[0], it[1]) : '<span class="big">' + it[0] + '</span>', nm = it[it.length-1] + '.';
+      cards.push({key:'k'+i, html, say:nm}); cards.push({key:'k'+i, html, say:nm});
+    });
+  }
+  return shuffle(cards);
+}
+
+/* ---------- tijek ---------- */
+let save = {};
+try{ save = JSON.parse(localStorage.getItem('bibo-mem')) || {}; }catch(e){}
+function store(){ try{ localStorage.setItem('bibo-mem', JSON.stringify(save)); }catch(e){} }
+const starsOf = (si, li) => (save[SETS[si].id]||{})[li] || 0;
+const starHtml = n => [0,1,2].map(j => '<i' + (j < n ? ' class="on"' : '') + '>⭐</i>').join('');
+let screen = 'themes', sel = 0, curSet = 0, curLvl = 0, cards = [], els = [], first = null, lock = false, left = 0, tries = 0, cols = 1, cur = 0, hintT = 0;
+const show = id => { ['themes','levels','game','win'].forEach(s => { $('#'+s).hidden = s !== id && !(id === 'win' && s === 'game'); }); screen = id; $('#back').hidden = id === 'themes' || id === 'win'; };
+function tiles(box, n, make, go){
+  box.innerHTML = '';
+  for(let i=0;i<n;i++){ const b = document.createElement('button'); b.className = 'tile' + (i === sel ? ' sel' : ''); b.innerHTML = make(i); b.onclick = () => { ensureAc(); go(i); }; box.appendChild(b); }
+}
+function markSel(box){ box.querySelectorAll('.tile').forEach((e,i) => e.classList.toggle('sel', i === sel)); }
+function showThemes(quiet){
+  show('themes'); sel = curSet;
+  tiles($('#tlist'), SETS.length, i => { const got = LEVELS.reduce((a,_,li) => a + starsOf(i,li), 0);
+    return '<span class="ic">' + SETS[i].icon + '</span><span class="nm">' + SETS[i].name + '</span><span class="st">⭐ ' + got + ' / ' + LEVELS.length*3 + '</span>'; }, showLevels);
+  if(!quiet) say(T.hi);
+}
+function showLevels(si){
+  curSet = si; show('levels'); sel = Math.min(LEVELS.length-1, LEVELS.findIndex((_,li) => !starsOf(si,li)) < 0 ? LEVELS.length-1 : LEVELS.findIndex((_,li) => !starsOf(si,li)));
+  $('#ltitle').innerHTML = SETS[si].icon + ' ' + SETS[si].name;
+  tiles($('#llist'), LEVELS.length, li => { const n = LEVELS[li], c = n <= 8 ? n/2 : n <= 12 ? 4 : n <= 20 ? n/4 : 6;
+    return '<span class="mini" style="grid-template-columns:repeat(' + c + ',auto)">' + '<span></span>'.repeat(n) + '</span><span class="nm">' + n + (n === 24 ? ' kartice' : ' kartica') + '</span><span class="st">' + starHtml(starsOf(si,li)) + '</span>'; }, li => startGame(si, li));
+  say(T.lvl);
+}
+function layout(){
+  const n = cards.length, W = innerWidth*.96, H = innerHeight*.84, gap = Math.max(6, innerHeight*.016);
+  let best = 0, bc = n;
+  for(let c=2;c<=n;c++){ const r = Math.ceil(n/c); if(r > c) continue; const s = Math.min((W - gap*(c-1))/c, (H - gap*(r-1))/r); if(s > best + .5){ best = s; bc = c; } }
+  cols = bc; const g = $('#grid');
+  g.style.gridTemplateColumns = 'repeat(' + bc + ',' + best + 'px)'; g.style.gap = gap + 'px';
+  els.forEach(e => { e.style.width = e.style.height = best + 'px'; e.querySelectorAll('.big').forEach(b => b.style.fontSize = best*.58 + 'px'); e.querySelector('.bk').style.fontSize = best*.5 + 'px'; });
+}
+addEventListener('resize', () => { if(screen === 'game') layout(); });
+function setCur(i){ cur = i; els.forEach((e,k) => e.classList.toggle('cur', k === i)); }
+function startGame(si, li){
+  curSet = si; curLvl = li; const set = SETS[si];
+  cards = deckFor(set, LEVELS[li]/2); first = null; lock = false; left = cards.length/2; tries = 0; hintT = 0;
+  const g = $('#grid'); g.innerHTML = '';
+  els = cards.map((c,i) => { const b = document.createElement('button'); b.className = 'card'; b.setAttribute('aria-label', 'Kartica ' + (i+1));
+    b.innerHTML = '<span class="in"><span class="f bk">?</span><span class="f fr">' + c.html + '</span></span>'; b.onclick = () => { setCur(i); flip(i); }; g.appendChild(b); c.open = c.done = false; return b; });
+  show('game'); layout(); setCur(0); $('#tries').textContent = '👆 0'; happy(false);
+  say(set.numbers ? T.goNum : set.letters ? T.goLet : T.go);
+}
+let happyT = 0;
+function happy(on){ $('#eyes').style.display = on ? 'none' : ''; $('#smile').style.display = on ? '' : 'none'; clearTimeout(happyT); if(on) happyT = setTimeout(() => happy(false), 1500); }
+function flip(i){
+  const c = cards[i]; if(lock || c.open || c.done || screen !== 'game') return;
+  ensureAc(); c.open = true; els[i].classList.add('open'); sfx.flip();
+  if(first === null){ first = i; say(c.say); return; }
+  const a = first; first = null; tries++; $('#tries').textContent = '👆 ' + tries;
+  if(cards[a].key === c.key){
+    c.done = cards[a].done = true; left--;
+    setTimeout(() => { els[i].classList.add('done'); els[a].classList.add('done'); sfx.match(); happy(true); }, 350);
+    if(left === 0){ say(c.say); lock = true; setTimeout(win, 1500); } else say(c.say + ' ' + pick(PRAISE));
+  } else {
+    lock = true; hintT++;
+    say(c.say + (hintT % 4 === 0 ? ' ' + T.hint : hintT % 2 === 0 ? ' ' + pick(NOPE) : ''));
+    els[i].classList.add('no'); els[a].classList.add('no');
+    setTimeout(() => { sfx.nope(); }, 500);
+    setTimeout(() => { [i,a].forEach(k => { cards[k].open = false; els[k].classList.remove('open','no'); }); lock = false; }, 1500);
+  }
+}
+function win(){
+  const pairs = cards.length/2, st = tries <= Math.ceil(pairs*1.6) ? 3 : tries <= Math.ceil(pairs*2.5) ? 2 : 1;
+  const id = SETS[curSet].id; save[id] = save[id] || {}; save[id][curLvl] = Math.max(save[id][curLvl]||0, st); store();
+  $('#wstars').innerHTML = starHtml(st); $('#wtries').textContent = '👆 ' + tries;
+  $('#wnext').hidden = curLvl >= LEVELS.length-1;
+  show('win'); sfx.fanfare(); happy(true);
+  setTimeout(() => { if(screen === 'win') say(curLvl >= LEVELS.length-1 ? WIN[1] : pick(WIN)); }, 900);
+}
+$('#wnext').onclick = () => startGame(curSet, curLvl+1);
+$('#wagain').onclick = () => startGame(curSet, curLvl);
+$('#wmenu').onclick = () => showThemes(true);
+$('#back').onclick = () => { stopVoice(); screen === 'game' ? showLevels(curSet) : showThemes(true); };
+$('#mute').onclick = () => { muted = !muted; $('#mute').textContent = muted ? '🔇' : '🔊'; if(muted) stopVoice(); $('#mute').blur(); };
+
+addEventListener('keydown', e => {
+  const k = e.code;
+  if(k === 'Space' || k.startsWith('Arrow')) e.preventDefault();
+  if(e.repeat && (k === 'Space' || k === 'Enter')) return;
+  if(screen === 'themes' || screen === 'levels'){
+    const box = screen === 'themes' ? $('#tlist') : $('#llist'), n = box.children.length;
+    if(k === 'ArrowRight') sel = Math.min(n-1, sel+1); else if(k === 'ArrowLeft') sel = Math.max(0, sel-1);
+    else if(k === 'ArrowDown') sel = Math.min(n-1, sel+3); else if(k === 'ArrowUp') sel = Math.max(0, sel-3);
+    else if(k === 'Space' || k === 'Enter'){ e.preventDefault(); box.children[sel].click(); return; }
+    else if(k === 'Escape' && screen === 'levels'){ showThemes(true); return; }
+    markSel(box);
+  } else if(screen === 'game'){
+    const n = cards.length;
+    if(k === 'ArrowRight') setCur(Math.min(n-1, cur+1)); else if(k === 'ArrowLeft') setCur(Math.max(0, cur-1));
+    else if(k === 'ArrowDown') setCur(Math.min(n-1, cur+cols)); else if(k === 'ArrowUp') setCur(Math.max(0, cur-cols));
+    else if(k === 'Space' || k === 'Enter'){ e.preventDefault(); flip(cur); }
+    else if(k === 'Escape') showLevels(curSet);
+  } else if(screen === 'win'){
+    if(k === 'Space' || k === 'Enter'){ e.preventDefault(); curLvl < LEVELS.length-1 ? startGame(curSet, curLvl+1) : showThemes(true); }
+    else if(k === 'Escape') showThemes(true);
+  }
+});
+loadPack().then(() => { $('#loading').textContent = ''; });
+setTimeout(() => { $('#loading').textContent = ''; }, 8000);
+showThemes(true);
+</script>
+</body>
+</html>
