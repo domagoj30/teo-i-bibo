@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Morska pustolovina</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap">
+<style>
+/* --u: stoti dio visine, a na uskim zaslonima dvjestoti dio sirine. Sve velicine idu preko njega. */
+:root{--u:min(1vh,.5vw); --ink:#0b2545; --gold:#ffd447; --a:#5fe0e6; --b:#1fa6d6; --c:#0f6fb0}
+*{box-sizing:border-box}
+html,body{margin:0; height:100%; overflow:hidden; font-family:"Fredoka",system-ui,"Segoe UI",Roboto,sans-serif; color:#fff; user-select:none; -webkit-user-select:none; background:#0b2545}
+[hidden]{display:none!important}
+button{font:inherit; color:inherit; border:0; padding:0; cursor:pointer; background:none}
+.emo{font-family:system-ui,"Segoe UI Emoji","Noto Color Emoji",sans-serif}
+
+/* ---------- more ---------- */
+body.z0{--a:#7beaea; --b:#25aede; --c:#1173b8}
+body.z1{--a:#52d9cf; --b:#178fc0; --c:#0c5296}
+body.z2{--a:#35c0a0; --b:#10808c; --c:#0a4668}
+body.z3{--a:#4486de; --b:#293f95; --c:#151d55}
+body.z4{--a:#46318c; --b:#1c164d; --c:#060618}
+body.zm{--a:#7beaea; --b:#1778b8; --c:#0a1440}
+#sea{position:fixed; inset:0; overflow:hidden; background:linear-gradient(var(--a),var(--b) 46%,var(--c)); transition:--a 1s}
+.ray{position:absolute; top:-10%; width:calc(var(--u)*16); height:120%; background:linear-gradient(#ffffff38,#ffffff00 75%); transform-origin:top center; filter:blur(calc(var(--u)*1.2)); animation:ray 7s ease-in-out infinite alternate}
+.ray:nth-child(1){left:12%; transform:rotate(14deg)} .ray:nth-child(2){left:34%; transform:rotate(8deg); width:calc(var(--u)*9); animation-delay:-3s}
+.ray:nth-child(3){left:58%; transform:rotate(-6deg); width:calc(var(--u)*22); animation-delay:-5s} .ray:nth-child(4){left:80%; transform:rotate(-14deg); width:calc(var(--u)*11); animation-delay:-1s}
+@keyframes ray{from{opacity:.35}to{opacity:1}}
+body.z4 .ray{opacity:.25; animation:none}
+.bb{position:absolute; bottom:-6%; border-radius:50%; border:calc(var(--u)*.3) solid #ffffff90; background:radial-gradient(circle at 30% 30%,#ffffffb0,#ffffff10 60%); animation:rise linear infinite}
+@keyframes rise{to{transform:translate(calc(var(--u)*4),-118vh)}}
+#floor{position:absolute; left:0; right:0; bottom:0; height:calc(var(--u)*20); pointer-events:none}
+#floor svg{position:absolute; left:0; bottom:0; width:100%; height:100%}
+.weed{transform-box:fill-box; transform-origin:bottom center; animation:sway 5s ease-in-out infinite alternate}
+.weed:nth-of-type(2n){animation-duration:6.5s; animation-delay:-2s} .weed:nth-of-type(3n){animation-duration:4.2s; animation-delay:-1s}
+@keyframes sway{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
+
+/* ---------- zajednicko sucelje ---------- */
+.glass{background:#ffffff24; border:calc(var(--u)*.25) solid #ffffff66; box-shadow:0 calc(var(--u)*1.2) calc(var(--u)*4) #0007, inset 0 calc(var(--u)*.4) 0 #ffffff40; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px)}
+.round{position:fixed; top:calc(var(--u)*2); width:calc(var(--u)*8.5); height:calc(var(--u)*8.5); min-width:38px; min-height:38px; border-radius:50%; font-size:calc(var(--u)*4.2); display:flex; align-items:center; justify-content:center;
+  text-decoration:none; z-index:30; background:#ffffffe8; box-shadow:0 calc(var(--u)*.7) 0 #0003; transition:transform .12s}
+.round:hover{transform:scale(1.1)}
+#home,#back{left:calc(var(--u)*2)} #l1{left:calc(var(--u)*12.5)} #l2{left:calc(var(--u)*23)} #l3{left:calc(var(--u)*33.5)} #mute{right:calc(var(--u)*2)}
+#prompt{position:fixed; top:calc(var(--u)*2); left:50%; transform:translateX(-50%); width:max-content; max-width:calc(var(--u)*150); min-height:calc(var(--u)*8.5); border-radius:calc(var(--u)*5); padding:calc(var(--u)*.8) calc(var(--u)*3.4) calc(var(--u)*.8) calc(var(--u)*1.2);
+  display:flex; align-items:center; gap:calc(var(--u)*1.8); font-size:calc(var(--u)*3.7); font-weight:600; line-height:1.2; z-index:25; text-shadow:0 1px 3px #0006}
+#how{flex:none; width:calc(var(--u)*6.6); height:calc(var(--u)*6.6); border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:calc(var(--u)*3.6); text-shadow:none; animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(calc(var(--u)*-.6)) scale(1.06)}}
+#pips{position:fixed; top:calc(var(--u)*14.6); left:50%; transform:translateX(-50%); display:flex; gap:calc(var(--u)*1.4); z-index:24; align-items:center}
+#pips i{width:calc(var(--u)*5); height:calc(var(--u)*1.5); border-radius:calc(var(--u)); background:#ffffff40}
+#pips i.on{background:var(--gold); box-shadow:0 0 calc(var(--u)*2) var(--gold)} #pips i.now{background:#fff}
+#lvl{position:fixed; top:calc(var(--u)*3.2); left:calc(var(--u)*13); z-index:24; font-size:calc(var(--u)*3.4); font-weight:700; padding:calc(var(--u)*.8) calc(var(--u)*2.4); border-radius:calc(var(--u)*4)}
+
+/* ---------- polje igre ---------- */
+#field{position:fixed; inset:0; z-index:5}
+#board{position:absolute; left:0; right:0; top:calc(var(--u)*17); bottom:calc(var(--u)*3); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:calc(var(--u)*3.5)}
+#sub{position:absolute; left:0; top:0; width:calc(var(--u)*19); height:calc(var(--u)*13.5); will-change:transform; pointer-events:none; filter:drop-shadow(0 calc(var(--u)*1.2) calc(var(--u)*1.6) #0006)}
+#sub .prop{transform-box:fill-box; transform-origin:center; animation:spin .35s linear infinite}
+@keyframes spin{to{transform:scaleY(-1)}}
+.bub{position:absolute; left:0; top:0; width:calc(var(--u)*14); height:calc(var(--u)*14); margin:calc(var(--u)*-7) 0 0 calc(var(--u)*-7); border-radius:50%; display:flex; align-items:center; justify-content:center; will-change:transform;
+  background:radial-gradient(circle at 32% 28%,#ffffffd8 0,#ffffff55 22%,#ffffff1c 60%,#ffffff40 100%); border:calc(var(--u)*.35) solid #ffffffb0; box-shadow:inset 0 0 calc(var(--u)*2.5) #ffffff70, 0 calc(var(--u)*.8) calc(var(--u)*2.5) #0004;
+  font-size:calc(var(--u)*7.4); font-weight:700; color:#fff; text-shadow:0 calc(var(--u)*.4) 0 #0b254580}
+.bub svg{width:62%; height:62%} .bub .in{display:flex; align-items:center; justify-content:center; width:100%; height:100%}
+.bub.pop .in{animation:popout .35s forwards} .bub.pop{animation:ring .35s forwards}
+@keyframes popout{to{transform:scale(1.7); opacity:0}} @keyframes ring{to{box-shadow:0 0 0 calc(var(--u)*5) #ffffff00; border-color:#fff0; background:none}}
+.bub.bad .in{animation:shake .4s}
+.bub.col{font-size:0}
+@keyframes shake{20%,60%{transform:translateX(calc(var(--u)*-1.4))}40%,80%{transform:translateX(calc(var(--u)*1.4))}}
+.spark{position:absolute; left:0; top:0; font-size:calc(var(--u)*5); pointer-events:none; animation:spark .7s ease-out forwards}
+@keyframes spark{to{transform:translate(var(--dx),var(--dy)) scale(.3); opacity:0}}
+#pad{position:fixed; right:calc(var(--u)*3); bottom:calc(var(--u)*3); z-index:20; display:grid; grid-template-columns:repeat(3,calc(var(--u)*7.4)); grid-template-rows:repeat(2,calc(var(--u)*7.4)); gap:calc(var(--u)*.8)}
+#pad button{border-radius:calc(var(--u)*1.8); background:#ffffffd0; color:var(--ink); font-size:calc(var(--u)*3.6); font-weight:700; box-shadow:0 calc(var(--u)*.7) 0 #0004; transition:transform .08s, background .08s}
+#pad button.on{transform:translateY(calc(var(--u)*.5)); background:var(--gold)}
+#pad [data-k=u]{grid-column:2} #pad [data-k=l]{grid-column:1; grid-row:2} #pad [data-k=d]{grid-column:2; grid-row:2} #pad [data-k=r]{grid-column:3; grid-row:2}
+
+/* ---------- zadaci misem ---------- */
+.tank{position:relative; border-radius:calc(var(--u)*5); display:flex; flex-wrap:wrap; align-items:center; justify-content:center; align-content:center; gap:calc(var(--u)*.6) calc(var(--u)*1.6); padding:calc(var(--u)*2) calc(var(--u)*3)}
+.tank.pick{cursor:pointer; transition:transform .15s} .tank.pick:hover{transform:scale(1.04); background:#ffffff40}
+.cr{font-size:calc(var(--u)*var(--s,9)); line-height:1.15; display:inline-block; animation:float 3s ease-in-out infinite; filter:drop-shadow(0 calc(var(--u)*.6) calc(var(--u)*.6) #0005)}
+@keyframes float{50%{transform:translateY(calc(var(--u)*-1.2)) rotate(4deg)}}
+.cr.pick{cursor:pointer} .cr.pick:hover{filter:drop-shadow(0 0 calc(var(--u)*1.6) #fff)}
+.mv{position:absolute; left:0; top:0; margin:calc(var(--u)*-6) 0 0 calc(var(--u)*-6); width:calc(var(--u)*12); height:calc(var(--u)*12); font-size:calc(var(--u)*9); line-height:calc(var(--u)*12); text-align:center; cursor:pointer; will-change:transform;
+  filter:drop-shadow(0 calc(var(--u)*.6) calc(var(--u)*.6) #0005)}
+.mv:hover{filter:drop-shadow(0 0 calc(var(--u)*1.6) #fff)} .mv.gone{animation:popout .35s forwards; pointer-events:none}
+.opts{display:flex; gap:calc(var(--u)*3.5); justify-content:center; align-items:center}
+.opt{width:calc(var(--u)*20); height:calc(var(--u)*20); border-radius:50%; background:radial-gradient(circle at 32% 26%,#fff,#eaf7ff 55%,#c9e9fb); color:var(--ink); font-size:calc(var(--u)*11.5); font-weight:700; line-height:1;
+  display:flex; align-items:center; justify-content:center; box-shadow:0 calc(var(--u)*1.2) 0 #0b254555, 0 0 0 calc(var(--u)*.7) #ffffff70; transition:transform .12s, box-shadow .12s; animation:drop .5s backwards}
+.opt:nth-child(2){animation-delay:.08s}.opt:nth-child(3){animation-delay:.16s}.opt:nth-child(4){animation-delay:.24s}
+@keyframes drop{0%{transform:translateY(calc(var(--u)*14)) scale(.4); opacity:0}70%{transform:translateY(calc(var(--u)*-1.5)) scale(1.04)}}
+.opt:hover{transform:translateY(calc(var(--u)*-1.2)) scale(1.07); box-shadow:0 calc(var(--u)*1.2) 0 #0b254555, 0 0 0 calc(var(--u)*1.1) var(--gold)}
+.opt svg{width:62%; height:62%}
+.opt.card{border-radius:calc(var(--u)*5); width:calc(var(--u)*24); height:calc(var(--u)*24); font-size:calc(var(--u)*14)}
+.opt.sw{font-size:0}
+.no{animation:shake .4s}
+.right{box-shadow:0 0 0 calc(var(--u)*1.2) #49e08a, 0 0 calc(var(--u)*5) #49e08a!important}
+.hint{animation:pulse 1s infinite; box-shadow:0 0 0 calc(var(--u)*1.1) #49e08a!important}
+@keyframes pulse{50%{transform:scale(1.1)}}
+.row{display:flex; align-items:center; justify-content:center; gap:calc(var(--u)*2)}
+.tile{width:calc(var(--u)*13.5); height:calc(var(--u)*13.5); border-radius:calc(var(--u)*3.2); display:flex; align-items:center; justify-content:center; font-size:calc(var(--u)*8); font-weight:700}
+.tile svg{width:70%; height:70%} .tile.q{border-style:dashed; color:var(--gold)}
+.plus{font-size:calc(var(--u)*13); font-weight:700; text-shadow:0 calc(var(--u)*.5) 0 #0004}
+.badge{position:absolute; left:50%; bottom:calc(var(--u)*-3.4); transform:translateX(-50%); background:#fff; color:var(--ink); font-weight:700; font-size:calc(var(--u)*5); line-height:1; padding:calc(var(--u)*.7) calc(var(--u)*2.2); border-radius:calc(var(--u)*3); box-shadow:0 calc(var(--u)*.6) 0 #0004}
+.pic{width:calc(var(--u)*30); height:calc(var(--u)*30); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; align-content:center; gap:calc(var(--u)*1); font-size:calc(var(--u)*17); position:relative; padding:calc(var(--u)*3)}
+.pic svg{width:74%; height:74%}
+.pic.sq{border-radius:calc(var(--u)*6); width:calc(var(--u)*34); height:calc(var(--u)*28); flex-direction:column; flex-wrap:nowrap; gap:0}
+.word{font-size:calc(var(--u)*6); font-weight:700; letter-spacing:calc(var(--u)*.8); background:#fff; color:var(--ink); border-radius:calc(var(--u)*2); padding:0 calc(var(--u)*2.4); line-height:1.4}
+.pearl{width:calc(var(--u)*6); height:calc(var(--u)*6); border-radius:50%; background:radial-gradient(circle at 32% 28%,#fff,#f3ecff 45%,#b9a8e6); box-shadow:0 calc(var(--u)*.5) calc(var(--u)*1) #0005, 0 0 calc(var(--u)*1.5) #ffffff80}
+#mic{display:flex; align-items:center; gap:calc(var(--u)*2.5); min-height:calc(var(--u)*13)}
+#micDot{position:relative; width:calc(var(--u)*12); height:calc(var(--u)*12); border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:calc(var(--u)*6.4); opacity:.55; transition:opacity .2s}
+#mic.on #micDot{opacity:1; background:var(--gold)}
+#mic.on #micDot:before,#mic.on #micDot:after{content:""; position:absolute; inset:0; border-radius:50%; border:calc(var(--u)*.6) solid var(--gold); animation:wave 1.4s ease-out infinite}
+#mic.on #micDot:after{animation-delay:.7s}
+@keyframes wave{to{transform:scale(2.1); opacity:0}}
+#heard{font-size:calc(var(--u)*4); font-weight:600; min-width:calc(var(--u)*30); opacity:.9; text-shadow:0 1px 3px #0006}
+#skip{font-size:calc(var(--u)*4.2); width:calc(var(--u)*9); height:calc(var(--u)*9); border-radius:50%; background:#ffffffd8}
+
+/* ---------- karta zarona ---------- */
+.screen{position:fixed; inset:0; z-index:12; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center}
+#map{gap:calc(var(--u)*1.6); padding-top:calc(var(--u)*3)}
+h1{margin:0; font-size:calc(var(--u)*9.5); font-weight:700; line-height:1; letter-spacing:calc(var(--u)*.2); text-shadow:0 calc(var(--u)*.7) 0 #0b254590, 0 0 calc(var(--u)*5) #ffffff60}
+h1 b{color:var(--gold)}
+.zone{display:flex; align-items:center; gap:calc(var(--u)*2.2); padding:calc(var(--u)*1) calc(var(--u)*3); border-radius:calc(var(--u)*7)}
+.zone .zn{width:calc(var(--u)*34); display:flex; align-items:center; gap:calc(var(--u)*1.6); font-size:calc(var(--u)*3.3); font-weight:600; text-align:left; line-height:1.05}
+.zone .zn span{font-size:calc(var(--u)*6.4)}
+.node{position:relative; width:calc(var(--u)*11); height:calc(var(--u)*11); border-radius:50%; font-size:calc(var(--u)*5.2); font-weight:700; color:var(--ink); background:radial-gradient(circle at 32% 26%,#fff,#e2f5ff 55%,#bfe3f8);
+  box-shadow:0 calc(var(--u)*.8) 0 #0b254566; display:flex; align-items:center; justify-content:center; transition:transform .12s}
+.node:hover,.node.sel{transform:scale(1.14); box-shadow:0 calc(var(--u)*.8) 0 #0b254566, 0 0 0 calc(var(--u)*.9) var(--gold)}
+.node.lock{background:#ffffff30; color:#ffffffb0; box-shadow:none; font-size:calc(var(--u)*4)}
+.node.next{animation:pulse 1.4s infinite}
+.node .st{position:absolute; bottom:calc(var(--u)*-1.6); left:50%; transform:translateX(-50%); font-size:calc(var(--u)*2.5); white-space:nowrap; letter-spacing:calc(var(--u)*-.3)}
+.st i,#wstars i{font-style:normal; opacity:.28; filter:grayscale(1)} .st i.on,#wstars i.on{opacity:1; filter:none}
+#loading{font-size:calc(var(--u)*2.6); font-weight:600; min-height:calc(var(--u)*3.4); opacity:.9}
+#mapsub{position:absolute; right:calc(var(--u)*10); top:calc(var(--u)*14); width:calc(var(--u)*24); animation:float 4s ease-in-out infinite; filter:drop-shadow(0 calc(var(--u)*1.2) calc(var(--u)*1.6) #0006)}
+
+/* ---------- kraj zarona ---------- */
+#win{background:#06122ecc; z-index:28; gap:calc(var(--u)*2.5)}
+#shell{position:relative; width:calc(var(--u)*30); height:calc(var(--u)*26)}
+#shell .big{position:absolute; left:50%; top:46%; width:calc(var(--u)*13); height:calc(var(--u)*13); margin:calc(var(--u)*-6.5); border-radius:50%; background:radial-gradient(circle at 32% 28%,#fff,#f6efff 45%,#b9a8e6);
+  box-shadow:0 0 calc(var(--u)*6) #fff, 0 0 calc(var(--u)*14) #c9b8ff; animation:pearl 1s cubic-bezier(.2,1.6,.4,1) backwards}
+@keyframes pearl{from{transform:scale(0) translateY(calc(var(--u)*10))}}
+#shell svg{position:absolute; inset:0; width:100%; height:100%}
+#wstars{font-size:calc(var(--u)*12); letter-spacing:calc(var(--u)*1.2)}
+#wstars i.on{display:inline-block; animation:pearl .5s backwards} #wstars i:nth-child(2){animation-delay:.25s} #wstars i:nth-child(3){animation-delay:.5s}
+#win .btns button{font-size:calc(var(--u)*7); width:calc(var(--u)*18); height:calc(var(--u)*14); border-radius:calc(var(--u)*5); margin:0 calc(var(--u)*1.2); background:#fff; box-shadow:0 calc(var(--u)*.9) 0 #9db8d6; transition:transform .12s}
+#win .btns button:hover{transform:scale(1.07)}
+#win .btns button.go{background:var(--gold); box-shadow:0 calc(var(--u)*.9) 0 #c79a00}
+</style>
+</head>
+<body class="zm">
+<div id="sea">
+  <div class="ray"></div><div class="ray"></div><div class="ray"></div><div class="ray"></div>
+  <div id="bbs"></div>
+  <div id="floor"></div>
+</div>
+<div id="field" hidden></div>
+
+<div id="prompt" class="glass" hidden><span id="how" class="emo"></span><span id="ptext"></span></div>
+<div id="pips" hidden></div>
+<a id="home" class="round emo" href="index.html" aria-label="Sve igre">🏠</a>
+<a id="l1" class="round emo" href="planeti.html" aria-label="Bibini planeti">🪐</a>
+<a id="l2" class="round emo" href="memori.html" aria-label="Bibino pamćenje">🃏</a>
+<a id="l3" class="round emo" href="vlak.html" aria-label="Bibin vlak">🚂</a>
+<button id="back" class="round emo" aria-label="Natrag na kartu" hidden>⬅️</button>
+<button id="mute" class="round emo" aria-label="Zvuk">🔊</button>
+<div id="pad" hidden><button data-k="u" aria-label="Gore">▲</button><button data-k="l" aria-label="Lijevo">◀</button><button data-k="d" aria-label="Dolje">▼</button><button data-k="r" aria-label="Desno">▶</button></div>
+
+<div id="map" class="screen">
+  <h1>Morska <b>pustolovina</b></h1>
+  <div id="zones"></div>
+  <div id="loading">Učitavam glas…</div>
+</div>
+<div id="win" class="screen" hidden>
+  <div id="shell"><svg viewBox="0 0 300 260" aria-hidden="true">
+    <path d="M30 150 Q150 290 270 150 Q250 235 150 245 Q50 235 30 150Z" fill="#ff9ec7" stroke="#fff" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M60 180 Q150 250 240 180" fill="none" stroke="#ffffff90" stroke-width="5"/></svg><div class="big"></div></div>
+  <div id="wstars" class="emo"></div>
+  <div class="btns emo"><button id="wagain" aria-label="Ponovi zaron">🔁</button><button id="wnext" class="go" aria-label="Sljedeći zaron">▶️</button><button id="wmap" aria-label="Karta zarona">🗺️</button></div>
+</div>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const NAME = 'Teo';
+
+/* ---------- riječi i rečenice (sve se snimaju: alat\glas.py more) ---------- */
+/*@LINES*/
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const NUM = ['jedan','dva','tri','četiri','pet','šest','sedam','osam','devet','deset'];
+/* boje: pl = "sve ... mjehuriće", m = "... mjehurić", f = "riba je ...", af = "na ... boju", k = korijeni koje priznajemo u govoru */
+const COLORS = [
+  {hex:'#ff4d5e', pl:'crvene', m:'crveni', f:'crvena', af:'crvenu', k:['crven']},
+  {hex:'#2f8bff', pl:'plave', m:'plavi', f:'plava', af:'plavu', k:['plav']},
+  {hex:'#ffd43b', pl:'žute', m:'žuti', f:'žuta', af:'žutu', k:['zut']},
+  {hex:'#34c66b', pl:'zelene', m:'zeleni', f:'zelena', af:'zelenu', k:['zelen']},
+  {hex:'#ff8a1f', pl:'narančaste', m:'narančasti', f:'narančasta', af:'narančastu', k:['naranc']},
+  {hex:'#a05bff', pl:'ljubičaste', m:'ljubičasti', f:'ljubičasta', af:'ljubičastu', k:['ljubic']},
+  {hex:'#ff7ac3', pl:'ružičaste', m:'ružičasti', f:'ružičasta', af:'ružičastu', k:['ruzic','roza','roze','roz ']}
+];
+const SHAPES = [{id:'krug', n:'krug', all:'sve krugove'}, {id:'kvadrat', n:'kvadrat', all:'sve kvadrate'}, {id:'trokut', n:'trokut', all:'sve trokute'}, {id:'zvijezda', n:'zvijezda', all:'sve zvijezde'}, {id:'srce', n:'srce', all:'sva srca'}];
+/* morska bića: n = nominativ, acc = akuzativ jednine, apl = akuzativ množine, gpl = genitiv množine, f = ženski rod */
+const SEA = [
+  {e:'🐟', n:'riba', acc:'ribu', apl:'ribe', gpl:'riba', f:1, k:['rib']},
+  {e:'🦀', n:'rak', acc:'raka', apl:'rakove', gpl:'rakova', f:0, k:['rak','rac']},
+  {e:'🐙', n:'hobotnica', acc:'hobotnicu', apl:'hobotnice', gpl:'hobotnica', f:1, k:['hobotnic','oktopod']},
+  {e:'🐢', n:'kornjača', acc:'kornjaču', apl:'kornjače', gpl:'kornjača', f:1, k:['kornjac']},
+  {e:'🐬', n:'dupin', acc:'dupina', apl:'dupine', gpl:'dupina', f:0, k:['dupin','delfin']},
+  {e:'🐳', n:'kit', acc:'kita', apl:'kitove', gpl:'kitova', f:0, k:['kit']},
+  {e:'🐚', n:'školjka', acc:'školjku', apl:'školjke', gpl:'školjaka', f:1, k:['skoljk']},
+  {e:'⭐', n:'zvijezda', acc:'zvijezdu', apl:'zvijezde', gpl:'zvijezda', f:1, k:['zvijezd','zvezd','zvjezd']},
+  {e:'🦈', n:'morski pas', acc:'morskog psa', apl:'morske pse', gpl:'morskih pasa', f:0, k:['morski pas','morskog psa','morski pes','ajkul','pas']}
+];
+/* riječi za imenovanje glasom i za skupine: c = skupina (z životinja, v voće, p prijevozno sredstvo) */
+const WORDS = [
+  {e:'🐶', n:'pas', acc:'psa', c:'z', k:['pas','psa','psic','peso']}, {e:'🐱', n:'mačka', acc:'mačku', c:'z', k:['mack','maca','maco']}, {e:'🐮', n:'krava', acc:'kravu', c:'z', k:['krav']},
+  {e:'🐴', n:'konj', acc:'konja', c:'z', k:['konj']}, {e:'🐰', n:'zec', acc:'zeca', c:'z', k:['zec','zek']}, {e:'🐘', n:'slon', acc:'slona', c:'z', k:['slon']},
+  {e:'🦁', n:'lav', acc:'lava', c:'z', k:['lav']}, {e:'🐻', n:'medvjed', acc:'medvjeda', c:'z', k:['medvjed','medved','medo']}, {e:'🐸', n:'žaba', acc:'žabu', c:'z', k:['zab']},
+  {e:'🐷', n:'svinja', acc:'svinju', c:'z', k:['svinj','pras']},
+  {e:'🍎', n:'jabuka', acc:'jabuku', c:'v', k:['jabuk']}, {e:'🍌', n:'banana', acc:'bananu', c:'v', k:['banan']}, {e:'🍐', n:'kruška', acc:'krušku', c:'v', k:['krusk']},
+  {e:'🍓', n:'jagoda', acc:'jagodu', c:'v', k:['jagod']}, {e:'🍇', n:'grožđe', acc:'grožđe', c:'v', k:['grozd']}, {e:'🍊', n:'naranča', acc:'naranču', c:'v', k:['naranc']},
+  {e:'🚗', n:'auto', acc:'auto', c:'p', k:['auto']}, {e:'🚂', n:'vlak', acc:'vlak', c:'p', k:['vlak']}, {e:'✈️', n:'avion', acc:'avion', c:'p', k:['avion','zrakoplov']},
+  {e:'🚢', n:'brod', acc:'brod', c:'p', k:['brod']}, {e:'🚲', n:'bicikl', acc:'bicikl', c:'p', k:['bicik']}, {e:'🚌', n:'autobus', acc:'autobus', c:'p', k:['autobus','bus']},
+  {e:'⚽', n:'lopta', acc:'loptu', k:['lopt']}, {e:'☀️', n:'sunce', acc:'sunce', k:['sunc']}, {e:'🏠', n:'kuća', acc:'kuću', k:['kuc']}, {e:'🌳', n:'drvo', acc:'drvo', k:['drv','stabl']},
+  {e:'🌙', n:'mjesec', acc:'mjesec', k:['mjesec','mesec']}, {e:'🌸', n:'cvijet', acc:'cvijet', k:['cvijet','cvjet','cvet']}
+];
+const CATS = [{c:'z', all:'sve životinje', one:'životinja'}, {c:'v', all:'sve voće', one:'voće'}, {c:'p', all:'sva vozila', one:'vozilo'}];
+const LETTERS = 'AEIOUMTSKRBLPDNV'.split('');
+/* prvo slovo riječi */
+const FIRST = [['🚗','Auto'],['🍌','Banana'],['🌳','Drvo'],['🍇','Grožđe'],['🍎','Jabuka'],['🏠','Kuća'],['⚽','Lopta'],['🐱','Mačka'],['👃','Nos'],['☁️','Oblak'],['🐶','Pas'],['🐟','Riba'],
+  ['🐘','Slon'],['🧀','Sir'],['🐯','Tigar'],['👂','Uho'],['🚂','Vlak'],['🦓','Zebra'],['🐙','Hobotnica'],['🦀','Rak'],['🐬','Dupin'],['🐳','Kit'],['🐢','Kornjača'],['🚢','Brod']];
+const T = {
+  hi:'Bok, ' + NAME + '! Kamo ronimo danas?',
+  menu:'Odaberi sljedeći zaron!',
+  locked:'Prvo završi prethodni zaron!',
+  sail:'Vozi podmornicu strelicama!',
+  sumGo:'Doplovi do točnog broja!',
+  sumWrong:'To nije točan broj.',
+  voice:'Sada odgovaraj glasom!',
+  what:'Što je ovo? Reci glasno!',
+  whatColor:'Koje je boje ova riba? Reci glasno!',
+  howMany:'Koliko ima bisera? Reci broj!',
+  again:'Nisam dobro čuo. Reci još jednom, glasno!',
+  byClick:'Pokaži mi klikom!',
+  micOff:'Mikrofon ne radi. Odgovaraj klikom!',
+  odd:'Što ovdje ne pripada?',
+  pat:'Što dolazi sljedeće?',
+  add:'Koliko ih je zajedno?',
+  win:'Bravo, ' + NAME + '! Pronašao si biser!',
+  winZone:'Bravo, ' + NAME + '! Istražio si ovaj dio mora! Ronimo dublje!',
+  winAll:NAME + ', istražio si cijelo more! Ti si pravi kapetan!'
+};
+const PRAISE = ['Bravo!', 'Tako je!', 'Odlično!', 'Izvrsno!', 'Točno!', 'Sjajno!'];
+const NOPE = ['Pokušaj ponovno!', 'Pogledaj još jednom!', 'Zamalo! Pokušaj ponovno.'];
+const S = {
+  colGo:c => 'Skupi sve ' + c.pl + ' mjehuriće!', colNo:c => 'To nije ' + c.m + ' mjehurić.',
+  shGo:s => 'Skupi ' + s.all + '!', isNot:n => 'To nije ' + n + '.',
+  catGo:c => 'Skupi ' + c.all + '!',
+  digGo:n => 'Skupi sve mjehuriće s brojem ' + NUM[n-1] + '!', digNo:n => 'To nije broj ' + NUM[n-1] + '.',
+  letGo:l => 'Skupi sve mjehuriće sa slovom ' + l + '!', letNo:l => 'To nije slovo ' + l + '.',
+  sumAsk:(a, b) => 'Koliko je ' + NUM[a-1] + ' plus ' + NUM[b-1] + '?', sumAns:(a, b) => cap(NUM[a-1]) + ' plus ' + NUM[b-1] + ' je ' + NUM[a+b-1] + '.',
+  count:s => 'Koliko ima ' + s.gpl + '?', all:s => 'Klikni na sve ' + s.apl + '!',
+  size:(s, big) => 'Klikni na ' + (big ? (s.f ? 'najveću' : 'najvećeg') : (s.f ? 'najmanju' : 'najmanjeg')) + ' ' + s.acc + '!',
+  more:(s, less) => 'Gdje ima ' + (less ? 'manje' : 'više') + ' ' + s.gpl + '?',
+  name:w => cap(w.n) + '!', click:w => 'Klikni na ' + w.acc + '!',
+  colSay:c => 'Riba je ' + c.f + '!', colClick:c => 'Klikni na ' + c.af + ' boju!',
+  numSay:n => cap(NUM[n-1]) + '!', numClick:n => 'Klikni na broj ' + NUM[n-1] + '!',
+  askLetter:w => 'Kojim slovom počinje riječ ' + w[1] + '?', ansLetter:w => w[1] + ' počinje slovom ' + w[1][0] + '.'
+};
+function allLines(){
+  const out = Object.values(T).concat(PRAISE, NOPE);
+  COLORS.forEach(c => out.push(S.colGo(c), S.colNo(c), S.colSay(c), S.colClick(c)));
+  SHAPES.forEach(s => out.push(S.shGo(s), S.isNot(s.n)));
+  CATS.forEach(c => out.push(S.catGo(c), S.isNot(c.one)));
+  for(let n = 1; n <= 10; n++) out.push(S.digGo(n), S.digNo(n), S.numSay(n), S.numClick(n));
+  LETTERS.forEach(l => out.push(S.letGo(l), S.letNo(l)));
+  for(let a = 1; a <= 9; a++) for(let b = 1; a + b <= 10; b++) out.push(S.sumAsk(a, b), S.sumAns(a, b));
+  SEA.forEach(s => out.push(S.count(s), S.all(s), S.isNot(s.n), S.size(s, true), S.size(s, false), S.more(s, false), S.more(s, true), S.name(s), S.click(s)));
+  WORDS.forEach(w => out.push(S.name(w), S.click(w)));
+  FIRST.forEach(w => out.push(S.askLetter(w), S.ansLetter(w)));
+  return out;
+}
+/*@END*/
+
+/* ---------- razine: 5 dubina po 6 zarona; svaki zaron = plovidba strelicama, dva zadatka mišem, dva odgovora glasom ---------- */
+const ZONES = [{n:'Plićak', i:'🏝️'}, {n:'Koraljni greben', i:'🐠'}, {n:'Šuma algi', i:'🌿'}, {n:'Potopljeni brod', i:'⚓'}, {n:'Morska dubina', i:'🐙'}];
+const PLAN_A = [['color','color','shape','color','shape','cat'], ['shape','cat','digit','color','cat','digit'], ['digit','cat','letter','digit','letter','cat'], ['letter','digit','letter','sum','letter','sum'], ['sum','letter','sum','sum','letter','sum']];
+const PLAN_B = [
+  [['count','all'],['size','count'],['all','count'],['count','size'],['all','more'],['size','count']],
+  [['count','odd'],['more','size'],['odd','all'],['pattern','count'],['more','odd'],['pattern','all']],
+  [['odd','pattern'],['count','more'],['pattern','letter'],['all','odd'],['letter','pattern'],['more','letter']],
+  [['letter','pattern'],['add','letter'],['pattern','all'],['add','more'],['letter','add'],['pattern','add']],
+  [['add','letter'],['pattern','add'],['letter','all'],['add','more'],['add','pattern'],['letter','add']]];
+const PLAN_C = [
+  [['sea','sea'],['color','sea'],['sea','count'],['color','sea'],['count','color'],['sea','count']],
+  [['word','sea'],['color','word'],['count','word'],['word','color'],['word','count'],['sea','word']],
+  [['word','count'],['word','word'],['color','word'],['count','word'],['word','sea'],['word','count']],
+  [['word','word'],['count','word'],['word','color'],['word','count'],['sea','word'],['count','word']],
+  [['word','count'],['word','word'],['count','color'],['word','count'],['word','word'],['count','word']]];
+const MAXN = [4, 6, 8, 9, 10], LEVELS = 30;
+
+/* ---------- oblici i sličice ---------- */
+const SHP = {krug:'<circle cx="50" cy="50" r="42"/>', kvadrat:'<rect x="10" y="10" width="80" height="80" rx="9"/>', trokut:'<path d="M50 8 L94 90 L6 90 Z"/>',
+  zvijezda:'<path d="M50 5 L62 36 L96 38 L70 60 L79 94 L50 75 L21 94 L30 60 L4 38 L38 36 Z"/>', srce:'<path d="M50 90 C10 60 2 38 14 22 C26 8 44 12 50 28 C56 12 74 8 86 22 C98 38 90 60 50 90 Z"/>'};
+const shape = (id, col) => '<svg viewBox="0 0 100 100" fill="' + col + '" stroke="#fff" stroke-width="5" stroke-linejoin="round">' + SHP[id] + '</svg>';
+const fish = col => '<svg viewBox="0 0 200 130" aria-hidden="true"><path d="M150 65 L196 22 Q186 65 196 108 Z" fill="' + col + '" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>' +
+  '<path d="M70 22 Q96 -6 118 24 Z M78 108 Q100 132 116 104 Z" fill="' + col + '" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>' +
+  '<ellipse cx="88" cy="65" rx="76" ry="46" fill="' + col + '" stroke="#fff" stroke-width="5"/><path d="M96 34 Q112 65 96 96" fill="none" stroke="#ffffff80" stroke-width="5" stroke-linecap="round"/>' +
+  '<circle cx="46" cy="52" r="13" fill="#fff"/><circle cx="43" cy="53" r="6.5" fill="#0b2545"/><path d="M30 80 Q42 90 56 82" fill="none" stroke="#0b2545" stroke-width="4.5" stroke-linecap="round"/></svg>';
+const SUB = '<svg viewBox="0 0 220 156" aria-hidden="true"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe169"/><stop offset="1" stop-color="#ffab1f"/></linearGradient></defs>' +
+  '<g class="prop"><rect x="4" y="50" width="12" height="60" rx="6" fill="#ff5d6c"/></g><rect x="12" y="72" width="22" height="16" rx="5" fill="#0b2545"/>' +
+  '<rect x="98" y="8" width="12" height="34" rx="5" fill="#0b2545"/><rect x="98" y="6" width="34" height="13" rx="6" fill="#0b2545"/><circle cx="130" cy="12" r="5" fill="#8fe9ff"/>' +
+  '<rect x="78" y="30" width="56" height="26" rx="12" fill="#ff8a1f"/>' +
+  '<rect x="26" y="40" width="184" height="88" rx="44" fill="url(#sg)" stroke="#0b2545" stroke-width="5"/><path d="M48 112 Q118 136 190 112" fill="none" stroke="#ff8a1f" stroke-width="7" stroke-linecap="round" opacity=".7"/>' +
+  '<path d="M52 128 l-10 20 h40 l-8 -20 Z" fill="#ff5d6c" stroke="#0b2545" stroke-width="4" stroke-linejoin="round"/>' +
+  '<circle cx="160" cy="80" r="26" fill="#0b2545"/><circle cx="160" cy="80" r="20" fill="#8fe9ff"/><path d="M148 72 q8 -10 20 -6" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>' +
+  '<circle cx="100" cy="82" r="14" fill="#0b2545"/><circle cx="100" cy="82" r="9.5" fill="#8fe9ff"/><circle cx="60" cy="82" r="11" fill="#0b2545"/><circle cx="60" cy="82" r="7" fill="#8fe9ff"/>' +
+  '<circle cx="207" cy="92" r="7" fill="#fff6b0" stroke="#0b2545" stroke-width="3"/></svg>';
+
+/* ---------- morsko dno i mjehurići ---------- */
+(function scenery(){
+  const weed = (x, h, c) => '<path class="weed" d="M' + x + ' 200 q-14 -' + h*.3 + ' 0 -' + h*.5 + ' q14 -' + h*.25 + ' 0 -' + h*.5 + ' q10 ' + h*.3 + ' 6 ' + h*.5 + ' q-8 ' + h*.25 + ' 8 ' + h*.5 + ' Z" fill="' + c + '"/>';
+  const coral = (x, c) => '<g fill="none" stroke="' + c + '" stroke-width="9" stroke-linecap="round"><path d="M' + x + ' 196 v-46 M' + x + ' 170 q-16 -4 -18 -26 M' + x + ' 160 q18 -6 20 -30 M' + (x-18) + ' 150 q-8 -6 -6 -16 M' + (x+20) + ' 140 q8 -4 8 -14"/></g>';
+  $('#floor').innerHTML = '<svg viewBox="0 0 1000 200" preserveAspectRatio="none">' +
+    weed(60,120,'#1f9d7a') + weed(96,80,'#2fbf8f') + weed(250,140,'#167a66') + weed(700,110,'#1f9d7a') + weed(742,150,'#2fbf8f') + weed(930,100,'#167a66') +
+    coral(170,'#ff7ac3') + coral(430,'#ff8a1f') + coral(840,'#ff5d6c') +
+    '<path d="M0 170 C120 140 220 150 340 172 S560 196 700 168 S900 140 1000 166 L1000 200 L0 200Z" fill="#f3d58a"/><path d="M0 186 C160 168 300 176 460 188 S760 196 1000 180 L1000 200 L0 200Z" fill="#e3bd66"/></svg>';
+  let h = '';
+  for(let i = 0; i < 16; i++){ const s = 1 + Math.random()*2.6; h += '<i class="bb" style="left:' + (Math.random()*98).toFixed(1) + '%;width:calc(var(--u)*' + s.toFixed(1) + ');height:calc(var(--u)*' + s.toFixed(1) + ');animation-duration:' + (7 + Math.random()*10).toFixed(1) + 's;animation-delay:-' + (Math.random()*14).toFixed(1) + 's"></i>'; }
+  $('#bbs').innerHTML = h;
+})();
+
+/* ---------- zvuk i glas ---------- */
+let ac = null, muted = false;
+function ensureAc(){ try{ ac = ac || new (window.AudioContext||window.webkitAudioContext)(); if(ac.state === 'suspended') ac.resume(); }catch(e){} return ac; }
+function tone(f, d, type, v, when, f2){
+  if(muted) return;
+  try{
+    ensureAc();
+    const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + (when||0);
+    o.type = type||'sine'; o.frequency.setValueAtTime(f,t);
+    if(f2) o.frequency.exponentialRampToValueAtTime(f2, t+d);
+    g.gain.setValueAtTime(v||.2, t); g.gain.exponentialRampToValueAtTime(.001, t+d);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+d+.03);
+  }catch(e){}
+}
+const sfx = {
+  pop(){ tone(420,.1,'sine',.16,0,1100); },
+  ok(){ tone(784,.14,'sine',.18); tone(1175,.18,'sine',.18,.1); tone(1568,.3,'sine',.16,.2); },
+  nope(){ tone(260,.22,'sine',.12,0,170); },
+  ping(){ tone(1320,.5,'sine',.1); tone(1320,.5,'sine',.05,.25); },
+  dive(){ tone(520,.7,'sine',.1,0,150); },
+  fanfare(){ [523,659,784,1047,1319,1047,1568].forEach((f,i)=>tone(f,.28,'triangle',.18,i*.13)); }
+};
+const synth = window.speechSynthesis; let voice = null;
+function pickVoice(){
+  if(!synth) return;
+  const vs = synth.getVoices(); let best = null, bs = -1;
+  for(const v of vs){
+    const l = (v.lang||'').toLowerCase().replace('_','-'), li = ['hr','bs','sr','sl'].findIndex(p => l.startsWith(p));
+    if(li < 0) continue;
+    const n = (v.name||'').toLowerCase(); let s = (4-li)*100;
+    if(/natural|neural|online|premium|enhanced|wavenet/.test(n)) s += 50;
+    if(n.includes('google')) s += 30;
+    if(s > bs){ bs = s; best = v; }
+  }
+  voice = best;
+}
+if(synth){ pickVoice(); try{ synth.addEventListener('voiceschanged', pickVoice); }catch(e){} }
+const SPLIT = /(?<=[.!?])\s+/, ptext = $('#ptext');
+let pack = null, packBin = null, curSrc = null, packUrl = '', packSize = 0, probe = null, sayId = 0, lastSay = 0;
+const bufCache = new Map(); window.__miss = [];
+async function loadPack(){
+  try{
+    const idx = await (await fetch('glas5.json', {cache:'no-cache'})).json();
+    packUrl = 'glas5.mp3?v=' + idx.v; packSize = idx.size; pack = idx.clips;
+  }catch(e){ pack = null; }
+}
+async function clipBytes(s){
+  const off = pack[s][0], len = pack[s][1];
+  if(probe) await probe;
+  if(packBin) return packBin.slice(off, off+len);
+  const job = (async () => {
+    const r = await fetch(packUrl, {headers:{Range:'bytes='+off+'-'+(off+len-1)}});
+    const ab = await r.arrayBuffer();
+    if(r.status === 206 && ab.byteLength === len) return ab;
+    if(ab.byteLength >= packSize){ packBin = ab; return ab.slice(off, off+len); }
+    throw new Error('range');
+  })();
+  if(!probe) probe = job.then(() => {}, () => {});
+  return job;
+}
+function clipBuf(s){
+  if(bufCache.has(s)) return bufCache.get(s);
+  const p = clipBytes(s).then(ab => new Promise((res, rej) => ac.decodeAudioData(ab, res, rej)));
+  bufCache.set(s, p); p.catch(() => bufCache.delete(s));
+  return p;
+}
+function trimOf(b){
+  if(b._t) return b._t;
+  const d = b.getChannelData(0), n = d.length, sr = b.sampleRate; let a = 0, e = n-1;
+  while(a < n && Math.abs(d[a]) < .012) a++;
+  while(e > a && Math.abs(d[e]) < .012) e--;
+  const s = Math.max(0, a/sr - .03);
+  return b._t = [s, Math.min(b.duration - s, (e-a)/sr + .25)];
+}
+function playBuf(b){
+  return new Promise(res => { const src = ac.createBufferSource(), t = trimOf(b); src.buffer = b; src.connect(ac.destination); src.onended = res; curSrc = src; src.start(0, t[0], t[1]); });
+}
+function stopVoice(){
+  if(curSrc){ try{ curSrc.onended = null; curSrc.stop(); }catch(e){} curSrc = null; }
+  if(synth){ try{ synth.cancel(); }catch(e){} }
+}
+function speakTTS(s){
+  return new Promise(res => {
+    const ms = 700 + s.length*65;
+    if(voice && synth){
+      try{ const u = new SpeechSynthesisUtterance(s); u.voice = voice; u.lang = voice.lang; u.pitch = 1.05; u.rate = .9; u.onend = u.onerror = res; synth.speak(u); }catch(e){}
+      setTimeout(res, ms + 4000);
+    } else setTimeout(res, ms);
+  });
+}
+/* say vraća obećanje koje se ispuni kad glas završi (ili kad ga prekine nova rečenica) */
+function say(text){
+  ptext.textContent = text; lastSay = performance.now();
+  stopVoice();
+  const id = ++sayId;
+  if(muted) return Promise.resolve();
+  return (async () => {
+    const parts = text.split(SPLIT);
+    if(pack && ensureAc()) parts.forEach(s => { if(pack[s]) clipBuf(s).catch(() => {}); });
+    for(const s of parts){
+      if(id !== sayId) return;
+      if(pack && pack[s] && ensureAc()){
+        try{ const b = await clipBuf(s); if(id !== sayId) return; await playBuf(b); continue; }catch(e){}
+      } else if(pack) window.__miss.push(s);
+      if(id !== sayId) return;
+      await speakTTS(s);
+    }
+  })();
+}
+
+/* ---------- pomoćno ---------- */
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const rnd = (a, b) => a + Math.floor(Math.random()*(b-a+1));
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; }
+const sample = (a, n, not) => shuffle(a.filter(x => x !== not)).slice(0, n);
+const el = (tag, cls, html) => { const e = document.createElement(tag); if(cls) e.className = cls; if(html != null) e.innerHTML = html; return e; };
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const U = () => Math.min(innerHeight/100, innerWidth/200);
+let save = {};
+try{ save = JSON.parse(localStorage.getItem('teo-more')) || {}; }catch(e){}
+function store(){ try{ localStorage.setItem('teo-more', JSON.stringify(save)); }catch(e){} }
+const stars = i => save[i] || 0, open = i => i % 6 === 0 || stars(i-1) > 0;
+const starHtml = n => [0,1,2].map(j => '<i' + (j < n ? ' class="on"' : '') + '>⭐</i>').join('');
+
+let screen = 'map', level = 0, zone = 0, step = 0, steps = [], errors = 0, tErr = 0, busy = true, run = 0, sel = 0, greeted = false, toldSail = false, toldVoice = false, toldMic = false;
+let mode = '', movers = [], sail = null;
+const field = $('#field'), keys = {};
+const HOW = {sail:'⌨️', mouse:'🖱️', voice:'🎤'};
+function setHow(k){ $('#how').textContent = HOW[k]; }
+function drawPips(){ $('#pips').innerHTML = steps.map((_, i) => '<i class="' + (i < step ? 'on' : i === step ? 'now' : '') + '"></i>').join(''); }
+function sparkle(x, y){
+  for(let i = 0; i < 7; i++){ const s = el('i', 'spark emo', pick(['✨','⭐','💛','🔵'])), a = Math.random()*6.28, d = U()*(8 + Math.random()*8);
+    s.style.transform = 'translate(' + x + 'px,' + y + 'px)'; s.style.left = '-2.5vh'; s.style.top = '-2.5vh';
+    s.style.setProperty('--dx', (x + Math.cos(a)*d) + 'px'); s.style.setProperty('--dy', (y + Math.sin(a)*d) + 'px');
+    s.animate([{transform:'translate(' + x + 'px,' + y + 'px) scale(1)', opacity:1}, {transform:'translate(' + (x + Math.cos(a)*d) + 'px,' + (y + Math.sin(a)*d) + 'px) scale(.3)', opacity:0}], {duration:700, easing:'ease-out'});
+    s.style.animation = 'none'; field.appendChild(s); setTimeout(() => s.remove(), 680); }
+}
+function wrong(node, line){
+  errors++; tErr++; sfx.nope();
+  if(line || performance.now() - lastSay > 1200) say(line || pick(NOPE));
+  if(node){ node.classList.remove('no'); void node.offsetWidth; node.classList.add('no'); }
+  if(tErr >= 2){ const h = field.querySelector('[data-ok]'); if(h) h.classList.add('hint'); }
+}
+async function solved(extra, node){
+  if(busy) return;
+  const my = run; busy = true; sfx.ok();
+  if(node){ const r = node.getBoundingClientRect(); sparkle(r.left + r.width/2, r.top + r.height/2); node.classList.add('right'); }
+  field.querySelectorAll('.hint').forEach(e => e.classList.remove('hint'));
+  step++; drawPips();
+  const p = say((extra ? extra + ' ' : '') + pick(PRAISE));
+  await Promise.all([wait(1300), Promise.race([p, wait(6000)])]);
+  if(my !== run) return;
+  nextStep();
+}
+function board(){ const b = el('div'); b.id = 'board'; field.appendChild(b); return b; }
+function options(parent, list, cls, html, isRight, onRight){
+  const row = el('div', 'opts'); parent.appendChild(row);
+  list.forEach(v => { const b = el('button', 'opt ' + cls, html(v)); b.setAttribute('aria-label', 'Odgovor'); if(isRight(v)) b.dataset.ok = 1;
+    b.onclick = () => { if(busy) return; ensureAc(); isRight(v) ? onRight(b) : wrong(b); }; row.appendChild(b); });
+  return row;
+}
+function numOpts(c, max){
+  const s = new Set([c]); let g = 0;
+  while(s.size < 3 && g++ < 60){ const v = c + pick([-2,-1,1,2]); if(v >= 1 && v <= max) s.add(v); }
+  return shuffle([...s]);
+}
+const crs = (e, n, s) => Array.from({length:n}, () => '<span class="cr emo" style="--s:' + s + ';animation-delay:-' + (Math.random()*3).toFixed(2) + 's">' + e + '</span>').join('');
+
+/* ---------- 1. plovidba strelicama ---------- */
+function bubble(html, good, cls){
+  const u = U(), W = innerWidth, H = innerHeight, b = {good, r:7*u, t:Math.random()*6, el:el('div', 'bub ' + (cls||''), '<span class="in">' + html + '</span>')};
+  let ok = false;
+  for(let k = 0; k < 80 && !ok; k++){
+    b.x = 12*u + Math.random()*(W - 24*u); b.y = 28*u + Math.random()*(H - 40*u);
+    ok = Math.hypot(b.x - sail.x, b.y - sail.y) > 30*u && movers.every(m => Math.hypot(b.x - m.x, b.y - m.y) > 17*u);
+  }
+  const a = Math.random()*6.28, sp = (3 + zone*1.2 + Math.random()*3)*u; b.vx = Math.cos(a)*sp; b.vy = Math.sin(a)*sp*.6;
+  field.appendChild(b.el); movers.push(b); return b;
+}
+function startSail(kind){
+  mode = 'sail'; setHow('sail'); $('#pad').hidden = false; movers = [];
+  const u = U(), sub = el('div', '', SUB); sub.id = 'sub'; field.appendChild(sub);
+  sail = {x:innerWidth/2, y:innerHeight*.56, vx:0, vy:0, dir:1, el:sub, left:0, kind, no:'', round:0};
+  const nT = 3 + (zone >= 2 ? 1 : 0), nD = 4 + Math.min(zone, 2);
+  let line;
+  if(kind === 'color'){ const c = pick(COLORS), o = sample(COLORS, 3, c); const dot = x => '<i style="display:block;width:64%;height:64%;border-radius:50%;background:' + x.hex + ';box-shadow:inset 0 0 0 calc(var(--u)*.6) #fff"></i>';
+    for(let i = 0; i < nT; i++) bubble(dot(c), true, 'col'); for(let i = 0; i < nD; i++) bubble(dot(o[i % o.length]), false, 'col'); line = S.colGo(c); sail.no = S.colNo(c); }
+  else if(kind === 'shape'){ const s = pick(SHAPES), o = sample(SHAPES, 3, s);
+    for(let i = 0; i < nT; i++) bubble(shape(s.id, pick(COLORS).hex), true); for(let i = 0; i < nD; i++) bubble(shape(o[i % o.length].id, pick(COLORS).hex), false); line = S.shGo(s); sail.no = S.isNot(s.n); }
+  else if(kind === 'cat'){ const c = pick(CATS), ins = shuffle(WORDS.filter(w => w.c === c.c)), outs = shuffle(WORDS.filter(w => w.c !== c.c));
+    for(let i = 0; i < nT; i++) bubble('<span class="emo">' + ins[i].e + '</span>', true); for(let i = 0; i < nD; i++) bubble('<span class="emo">' + outs[i].e + '</span>', false); line = S.catGo(c); sail.no = S.isNot(c.one); }
+  else if(kind === 'digit'){ const max = zone < 2 ? 5 : 9, n = rnd(1, max), o = sample([...Array(max).keys()].map(i => i+1), 4, n);
+    for(let i = 0; i < nT; i++) bubble(n, true); for(let i = 0; i < nD; i++) bubble(o[i % o.length], false); line = S.digGo(n); sail.no = S.digNo(n); }
+  else if(kind === 'letter'){ const l = pick(LETTERS), o = sample(LETTERS, 4, l);
+    for(let i = 0; i < nT; i++) bubble(l, true); for(let i = 0; i < nD; i++) bubble(o[i % o.length], false); line = S.letGo(l); sail.no = S.letNo(l); }
+  else { line = sumRound(); }
+  sail.left = movers.filter(m => m.good).length;
+  busy = false; say(line + (toldSail ? '' : ' ' + T.sail)); toldSail = true;
+}
+function sumRound(){
+  movers.forEach(m => m.el.remove()); movers = [];
+  const max = zone < 4 ? 6 : 10, a = rnd(1, max-1), b = rnd(1, max-a), c = a + b, o = sample([...Array(10).keys()].map(i => i+1), 4, c);
+  bubble(c, true); o.forEach(v => bubble(v, false));
+  sail.a = a; sail.b = b; sail.no = T.sumWrong; sail.left = 1;
+  return S.sumAsk(a, b) + ' ' + T.sumGo;
+}
+function hit(m){
+  const u = U();
+  if(m.good){
+    m.dead = true; m.el.classList.add('pop'); sfx.pop(); sparkle(m.x, m.y); setTimeout(() => m.el.remove(), 360); movers = movers.filter(x => x !== m);
+    if(--sail.left > 0) return;
+    if(sail.kind === 'sum' && ++sail.round < 3){ const my = run, ans = S.sumAns(sail.a, sail.b); busy = true; sfx.ok();
+      Promise.race([say(ans), wait(5000)]).then(() => wait(300)).then(() => { if(my !== run) return; busy = false; say(sumRound()); }); return; }
+    mode = ''; $('#pad').hidden = true; solved(sail.kind === 'sum' ? S.sumAns(sail.a, sail.b) : '', null);
+  } else {
+    const dx = m.x - sail.x, dy = m.y - sail.y, d = Math.hypot(dx, dy) || 1; m.vx = dx/d*26*u; m.vy = dy/d*26*u; sail.vx *= -.4; sail.vy *= -.4;
+    m.el.classList.remove('bad'); void m.el.offsetWidth; m.el.classList.add('bad');
+    if(performance.now() - (m.last||0) > 1500){ m.last = performance.now(); errors++; sfx.nope(); if(performance.now() - lastSay > 2200) say(sail.no); }
+  }
+}
+function stepSail(dt){
+  const u = U(), W = innerWidth, H = innerHeight, s = sail, ax = (keys.r ? 1 : 0) - (keys.l ? 1 : 0), ay = (keys.d ? 1 : 0) - (keys.u ? 1 : 0);
+  if(!busy){ s.vx += ax*300*u*dt; s.vy += ay*300*u*dt; }
+  const f = Math.pow(.03, dt); if(!ax || busy) s.vx *= f; if(!ay || busy) s.vy *= f;
+  const sp = Math.hypot(s.vx, s.vy), mx = 62*u; if(sp > mx){ s.vx *= mx/sp; s.vy *= mx/sp; }
+  s.x = Math.max(10*u, Math.min(W - 10*u, s.x + s.vx*dt)); s.y = Math.max(24*u, Math.min(H - 9*u, s.y + s.vy*dt));
+  if(ax) s.dir = ax;
+  s.el.style.transform = 'translate(' + s.x + 'px,' + s.y + 'px) translate(-50%,-50%) scaleX(' + s.dir + ') rotate(' + Math.max(-14, Math.min(14, s.vy/u*.3)) + 'deg)';
+  for(const m of movers.slice()){
+    m.t += dt; m.x += m.vx*dt; m.y += (m.vy + Math.sin(m.t*1.3)*2*u)*dt;
+    const sp2 = Math.hypot(m.vx, m.vy), base = (5 + zone*1.2)*u; if(sp2 > base){ const k = Math.pow(.25, dt); m.vx *= k; m.vy *= k; }
+    if(m.x < 8*u){ m.x = 8*u; m.vx = Math.abs(m.vx); } if(m.x > W - 8*u){ m.x = W - 8*u; m.vx = -Math.abs(m.vx); }
+    if(m.y < 24*u){ m.y = 24*u; m.vy = Math.abs(m.vy); } if(m.y > H - 9*u){ m.y = H - 9*u; m.vy = -Math.abs(m.vy); }
+    m.el.style.transform = 'translate(' + m.x + 'px,' + m.y + 'px)';
+    if(!busy && !m.dead && Math.hypot(m.x - s.x, m.y - s.y) < m.r + 6.2*u) hit(m);
+  }
+}
+
+/* ---------- 2. zadaci mišem ---------- */
+const MOUSE = {
+  count(){
+    const s = pick(SEA), n = rnd(zone ? 3 : 1, MAXN[zone]), b = board(), t = el('div', 'tank glass', crs(s.e, n, 9)); t.style.maxWidth = 'calc(var(--u)*' + (n > 5 ? 74 : 90) + ')'; b.appendChild(t);
+    options(b, numOpts(n, 10), '', v => v, v => v === n, o => solved(S.numSay(n), o));
+    return S.count(s);
+  },
+  all(){
+    const s = pick(SEA), others = sample(SEA, 3, s), b = board(), t = el('div', 'tank glass'); t.style.cssText = 'width:calc(var(--u)*150);height:calc(var(--u)*62);padding:0'; b.appendChild(t);
+    const nT = 3 + (zone > 1 ? 1 : 0), nO = 4 + Math.min(zone, 2), u = U(), W = 150*u, H = 62*u; let left = nT; mode = 'swim'; movers = [];
+    for(let i = 0; i < nT + nO; i++){
+      const good = i < nT, c = good ? s : others[i % others.length], m = {x:8*u + Math.random()*(W - 16*u), y:8*u + Math.random()*(H - 16*u), W, H, el:el('button', 'mv emo', c.e)};
+      const a = Math.random()*6.28, sp = (5 + zone*2.2 + Math.random()*4)*u; m.vx = Math.cos(a)*sp; m.vy = Math.sin(a)*sp*.7; m.el.setAttribute('aria-label', c.n); if(good) m.el.dataset.ok = 1;
+      m.el.onclick = () => { if(busy) return; ensureAc();
+        if(!good) return wrong(m.el, S.isNot(c.n));
+        m.el.classList.add('gone'); delete m.el.dataset.ok; movers = movers.filter(x => x !== m); sfx.pop(); const r = m.el.getBoundingClientRect(); sparkle(r.left + r.width/2, r.top + r.height/2);
+        if(--left === 0){ mode = ''; solved('', null); } };
+      t.appendChild(m.el); movers.push(m);
+    }
+    return S.all(s);
+  },
+  size(){
+    const s = pick(SEA), big = Math.random() < .5, sizes = shuffle([6.5, 10, 14, 19]), want = big ? 19 : 6.5, b = board(), t = el('div', 'tank glass'); t.style.cssText = 'gap:calc(var(--u)*6);padding:calc(var(--u)*3) calc(var(--u)*7);min-height:calc(var(--u)*34)'; b.appendChild(t);
+    sizes.forEach(z => { const c = el('button', 'cr emo pick', s.e); c.style.setProperty('--s', z); c.setAttribute('aria-label', s.n); if(z === want) c.dataset.ok = 1;
+      c.onclick = () => { if(busy) return; ensureAc(); z === want ? solved('', c) : wrong(c); }; t.appendChild(c); });
+    return S.size(s, big);
+  },
+  more(){
+    let a, c; do{ a = rnd(1, MAXN[zone]); c = rnd(1, MAXN[zone]); }while(a === c || (zone < 2 && Math.abs(a-c) < 2));
+    const s = pick(SEA), less = zone > 0 && Math.random() < .5, want = less ? Math.min(a, c) : Math.max(a, c), b = board(), row = el('div', 'row'); row.style.gap = 'calc(var(--u)*6)'; b.appendChild(row);
+    [a, c].forEach(n => { const t = el('button', 'tank glass pick', crs(s.e, n, 8)); t.style.cssText = 'width:calc(var(--u)*66);min-height:calc(var(--u)*40)'; t.setAttribute('aria-label', 'Skupina'); if(n === want) t.dataset.ok = 1;
+      t.onclick = () => { if(busy) return; ensureAc(); n === want ? solved('', t) : wrong(t); }; row.appendChild(t); });
+    return S.more(s, less);
+  },
+  odd(){
+    const c = pick(CATS), ins = sample(WORDS.filter(w => w.c === c.c), 3), out = pick(WORDS.filter(w => w.c && w.c !== c.c)), b = board();
+    options(b, shuffle(ins.concat(out)), 'card emo', w => w.e, w => w === out, o => solved('', o));
+    return T.odd;
+  },
+  pattern(){
+    const cols = shuffle(COLORS.slice()), ids = shuffle(SHAPES.slice()), sym = [0,1,2].map(i => shape(ids[i].id, cols[i].hex)), A = sym[0], B = sym[1], C = sym[2];
+    const p = pick(zone < 2 ? [[A,B]] : zone < 4 ? [[A,B],[A,B,B],[A,A,B],[A,B,C]] : [[A,B,C],[A,A,B],[A,B,B],[A,A,B,B]]), len = zone < 2 ? 5 : 6, seq = Array.from({length:len + 1}, (_, i) => p[i % p.length]);
+    const b = board(), row = el('div', 'row'); b.appendChild(row);
+    seq.forEach((h, i) => row.appendChild(i === len ? el('div', 'tile glass q', '?') : el('div', 'tile glass', h)));
+    options(b, shuffle(sym.slice()), '', v => v, v => v === seq[len], o => { row.lastChild.innerHTML = seq[len]; row.lastChild.classList.remove('q'); solved('', o); });
+    return T.pat;
+  },
+  letter(){
+    const w = pick(FIRST), L0 = w[1][0], all = [...new Set(FIRST.map(x => x[1][0]))], b = board();
+    const c = el('div', 'pic sq glass', '<span class="emo">' + w[0] + '</span><span class="word">_' + w[1].slice(1).toUpperCase() + '</span>'); b.appendChild(c);
+    options(b, shuffle([L0].concat(sample(all, zone > 3 ? 3 : 2, L0))), '', v => v, v => v === L0, o => { c.querySelector('.word').textContent = w[1].toUpperCase(); solved(S.ansLetter(w), o); });
+    return S.askLetter(w);
+  },
+  add(){
+    const max = zone < 4 ? 6 : 10, a = rnd(1, max-1), c = rnd(1, max-a), s = pick(SEA), b = board(), row = el('div', 'row'); row.style.gap = 'calc(var(--u)*3)'; row.style.marginBottom = 'calc(var(--u)*2)'; b.appendChild(row);
+    [a, c].forEach((n, i) => { if(i) row.appendChild(el('span', 'plus', '+')); const t = el('div', 'tank glass', crs(s.e, n, 7) + '<span class="badge">' + n + '</span>'); t.style.cssText = 'width:calc(var(--u)*56);min-height:calc(var(--u)*30)'; row.appendChild(t); });
+    options(b, numOpts(a + c, 10), '', v => v, v => v === a + c, o => solved(S.sumAns(a, c), o));
+    return T.add;
+  }
+};
+function stepSwim(dt){
+  const u = U();
+  for(const m of movers){
+    m.x += m.vx*dt; m.y += m.vy*dt;
+    if(m.x < 7*u){ m.x = 7*u; m.vx = Math.abs(m.vx); } if(m.x > m.W - 7*u){ m.x = m.W - 7*u; m.vx = -Math.abs(m.vx); }
+    if(m.y < 7*u){ m.y = 7*u; m.vy = Math.abs(m.vy); } if(m.y > m.H - 7*u){ m.y = m.H - 7*u; m.vy = -Math.abs(m.vy); }
+    m.el.style.transform = 'translate(' + m.x + 'px,' + m.y + 'px) scaleX(' + (m.vx > 0 ? -1 : 1) + ')';
+  }
+}
+
+/* ---------- 3. odgovori glasom ---------- */
+const getSR = () => window.SpeechRecognition || window.webkitSpeechRecognition;
+let micOff = !getSR(), rec = null;
+const norm = s => ' ' + String(s).toLowerCase().replace(/[čć]/g, 'c').replace(/š/g, 's').replace(/ž/g, 'z').replace(/đ/g, 'd').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim() + ' ';
+const NUMK = [['jedan','jedna','jedno','1'],['dva','dvije','dve','2'],['tri','3'],['cetiri','4'],['pet','5'],['sest','6'],['sedam','7'],['osam','8'],['devet','9'],['deset','10']];
+const hasRoot = k => t => k.some(r => t.includes(r));
+const hasNum = n => t => NUMK[n-1].some(w => t.includes(' ' + w + ' '));
+function stopRec(){ if(rec){ try{ rec.onresult = rec.onend = rec.onerror = null; rec.abort(); }catch(e){} rec = null; } const m = $('#mic'); if(m) m.classList.remove('on'); }
+function listen(match, ms){
+  return new Promise(res => {
+    if(micOff) return res('off');
+    let r, done = false; try{ r = new (getSR())(); }catch(e){ micOff = true; return res('off'); }
+    const fin = v => { if(done) return; done = true; clearTimeout(t); stopRec(); res(v); };
+    rec = r; r.lang = 'hr-HR'; r.interimResults = true; r.maxAlternatives = 3; r.continuous = false;
+    r.onresult = e => { for(let i = 0; i < e.results.length; i++) for(let j = 0; j < e.results[i].length; j++){ const tr = e.results[i][j].transcript; const h = $('#heard'); if(h) h.textContent = '„' + tr.trim() + '”'; if(match(norm(tr))) return fin('ok'); } };
+    r.onerror = e => { if(['not-allowed','service-not-allowed','audio-capture'].includes(e.error)){ micOff = true; fin('off'); } else fin('miss'); };
+    r.onend = () => fin('miss');
+    const t = setTimeout(() => fin('miss'), ms);
+    try{ r.start(); const m = $('#mic'); if(m) m.classList.add('on'); sfx.ping(); }catch(e){ fin('miss'); }
+  });
+}
+function voiceSpec(kind){
+  if(kind === 'sea' || kind === 'word'){ const w = pick(kind === 'sea' ? SEA : WORDS), pool = kind === 'sea' ? SEA : WORDS;
+    return {pic:'<span class="emo">' + w.e + '</span>', q:T.what, match:hasRoot(w.k), ans:S.name(w), fb:S.click(w), opts:shuffle([w].concat(sample(pool, 2, w))), cls:'card emo', html:x => x.e, right:x => x === w}; }
+  if(kind === 'color'){ const c = pick(COLORS);
+    return {pic:fish(c.hex), q:T.whatColor, match:hasRoot(c.k), ans:S.colSay(c), fb:S.colClick(c), opts:shuffle([c].concat(sample(COLORS, 2, c))), cls:'sw', html:x => '<i style="display:block;width:74%;height:74%;border-radius:50%;background:' + x.hex + '"></i>', right:x => x === c}; }
+  const n = rnd(1, Math.min(10, MAXN[zone] + 1));
+  return {pic:'<i class="pearl"></i>'.repeat(n), q:T.howMany, match:hasNum(n), ans:S.numSay(n), fb:S.numClick(n), opts:numOpts(n, 10), cls:'', html:x => x, right:x => x === n};
+}
+async function startVoice(kind){
+  const my = run, v = voiceSpec(kind), b = board(); mode = 'voice'; setHow('voice');
+  const pic = el('div', 'pic glass', v.pic); b.appendChild(pic);
+  const mic = el('div', '', '<div id="micDot" class="emo">🎤</div><div id="heard"></div><button id="skip" class="emo" aria-label="Odgovori klikom">🖱️</button>'); mic.id = 'mic'; b.appendChild(mic);
+  let fell = false;
+  const fallback = line => { if(fell || my !== run) return; fell = true; stopRec(); mic.remove(); setHow('mouse'); busy = false;
+    options(b, v.opts, v.cls, v.html, v.right, o => solved(v.ans, o)); say(line + ' ' + v.fb); };
+  $('#skip').onclick = () => { ensureAc(); fallback(T.byClick); };
+  busy = false;
+  await Promise.race([say((toldVoice ? '' : T.voice + ' ') + v.q), wait(9000)]); toldVoice = true;
+  for(let att = 0; att < 2 && !micOff && !fell && my === run; att++){
+    const r = await listen(v.match, 7000);
+    if(my !== run || fell) return;
+    if(r === 'ok'){ mic.classList.remove('on'); return solved(v.ans, pic); }
+    if(r === 'off') break;
+    if(att === 0) await Promise.race([say(T.again), wait(6000)]);
+  }
+  if(my !== run || fell) return;
+  const line = micOff && !toldMic ? T.micOff : T.byClick; if(micOff) toldMic = true;
+  fallback(line);
+}
+
+/* ---------- tijek zarona ---------- */
+function clearField(){ stopRec(); mode = ''; movers = []; sail = null; field.innerHTML = ''; $('#pad').hidden = true; }
+function nextStep(){
+  clearField(); tErr = 0;
+  if(step >= steps.length) return win();
+  drawPips(); const s = steps[step];
+  if(s[0] === 'A') startSail(s[1]);
+  else if(s[0] === 'B'){ setHow('mouse'); const line = MOUSE[s[1]](); busy = false; say(line); }
+  else startVoice(s[1]);
+}
+function startLevel(i){
+  ensureAc(); run++; level = i; zone = Math.floor(i/6); const k = i % 6; step = 0; errors = 0; greeted = true; screen = 'game';
+  steps = [['A', PLAN_A[zone][k]], ['B', PLAN_B[zone][k][0]], ['C', PLAN_C[zone][k][0]], ['B', PLAN_B[zone][k][1]], ['C', PLAN_C[zone][k][1]]];
+  document.body.className = 'z' + zone;
+  $('#map').hidden = true; $('#win').hidden = true; field.hidden = false; $('#prompt').hidden = false; $('#pips').hidden = false; $('#back').hidden = false;
+  ['#home','#l1','#l2','#l3'].forEach(s => $(s).hidden = true);
+  sfx.dive(); nextStep();
+}
+function win(){
+  const st = errors <= 1 ? 3 : errors <= 4 ? 2 : 1; save[level] = Math.max(stars(level), st); store();
+  screen = 'win'; clearField(); field.hidden = true; $('#prompt').hidden = true; $('#pips').hidden = true; $('#back').hidden = true;
+  $('#wstars').innerHTML = starHtml(st); $('#wnext').hidden = level >= LEVELS-1; $('#win').hidden = false; sfx.fanfare();
+  const my = run; setTimeout(() => { if(my === run && screen === 'win') say(level === LEVELS-1 ? T.winAll : level % 6 === 5 ? T.winZone : T.win); }, 800);
+}
+function showMap(quiet){
+  run++; screen = 'map'; busy = true; stopVoice(); clearField(); field.hidden = true;
+  document.body.className = 'zm';
+  $('#map').hidden = false; $('#win').hidden = true; $('#prompt').hidden = true; $('#pips').hidden = true; $('#back').hidden = true;
+  ['#home','#l1','#l2','#l3'].forEach(s => $(s).hidden = false);
+  const nextUp = [...Array(LEVELS).keys()].find(i => !stars(i)), box = $('#zones'); box.innerHTML = '';
+  if(sel < 0 || sel >= LEVELS) sel = 0;
+  ZONES.forEach((z, zi) => {
+    const row = el('div', 'zone glass', '<div class="zn"><span class="emo">' + z.i + '</span>' + z.n + '</div>'); row.style.marginTop = zi ? 'calc(var(--u)*1.5)' : '0';
+    for(let k = 0; k < 6; k++){ const i = zi*6 + k, o = open(i), b = el('button', 'node' + (o ? '' : ' lock') + (i === nextUp && o ? ' next' : '') + (i === sel ? ' sel' : ''), o ? (i+1) + '<span class="st emo">' + starHtml(stars(i)) + '</span>' : '<span class="emo">🔒</span>');
+      b.setAttribute('aria-label', 'Zaron ' + (i+1)); b.dataset.i = i; b.onclick = () => { ensureAc(); sel = i; o ? startLevel(i) : (sfx.nope(), say(T.locked)); }; row.appendChild(b); }
+    box.appendChild(row);
+  });
+  if(!quiet) say(T.menu);
+}
+$('#wagain').onclick = () => startLevel(level);
+$('#wnext').onclick = () => startLevel(Math.min(LEVELS-1, level+1));
+$('#wmap').onclick = () => { sel = Math.min(LEVELS-1, level+1); showMap(); };
+$('#back').onclick = () => { sel = level; showMap(true); };
+$('#mute').onclick = () => { muted = !muted; $('#mute').textContent = muted ? '🔇' : '🔊'; if(muted) stopVoice(); $('#mute').blur(); };
+addEventListener('pointerdown', e => { if(!greeted && screen === 'map' && !e.target.closest('.node,a,button')){ greeted = true; ensureAc(); say(T.hi); } });
+
+/* tipke: strelice voze podmornicu; na karti biraju zaron */
+const KEY = {ArrowLeft:'l', ArrowRight:'r', ArrowUp:'u', ArrowDown:'d', KeyA:'l', KeyD:'r', KeyW:'u', KeyS:'d'};
+function padLight(){ document.querySelectorAll('#pad button').forEach(b => b.classList.toggle('on', !!keys[b.dataset.k])); }
+addEventListener('keydown', e => {
+  const k = e.code, d = KEY[k];
+  if(k === 'Space' || k.startsWith('Arrow')) e.preventDefault();
+  if(screen === 'game'){
+    if(k === 'Escape'){ sel = level; showMap(true); return; }
+    if(d){ keys[d] = true; padLight(); ensureAc(); }
+  } else if(screen === 'map'){
+    if(e.repeat) return;
+    if(d){ sel = d === 'l' ? Math.max(0, sel-1) : d === 'r' ? Math.min(LEVELS-1, sel+1) : d === 'u' ? Math.max(0, sel-6) : Math.min(LEVELS-1, sel+6);
+      document.querySelectorAll('.node').forEach(n => n.classList.toggle('sel', +n.dataset.i === sel));
+      if(!greeted){ greeted = true; ensureAc(); say(T.hi); } }
+    else if(k === 'Enter' || k === 'Space'){ const n = document.querySelector('.node.sel'); if(n) n.click(); }
+  } else if(screen === 'win'){
+    if(e.repeat) return;
+    if(k === 'Enter' || k === 'Space') level < LEVELS-1 ? startLevel(level+1) : showMap(); else if(k === 'Escape') showMap(true);
+  }
+});
+addEventListener('keyup', e => { const d = KEY[e.code]; if(d){ keys[d] = false; padLight(); } });
+addEventListener('blur', () => { for(const k in keys) keys[k] = false; padLight(); });
+document.querySelectorAll('#pad button').forEach(b => {
+  const on = v => e => { e.preventDefault(); keys[b.dataset.k] = v; padLight(); ensureAc(); };
+  b.addEventListener('pointerdown', on(true)); ['pointerup','pointerleave','pointercancel'].forEach(n => b.addEventListener(n, on(false)));
+});
+let lastT = 0;
+function frame(t){
+  const dt = Math.min(.05, (t - lastT)/1000 || 0); lastT = t;
+  if(mode === 'sail' && sail) stepSail(dt); else if(mode === 'swim') stepSwim(dt);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+$('#map').insertAdjacentHTML('beforeend', '<div id="mapsub">' + SUB + '</div>');
+loadPack().then(() => { $('#loading').textContent = ''; });
+setTimeout(() => { $('#loading').textContent = ''; }, 8000);
+showMap(true);
+</script>
+</body>
+</html>

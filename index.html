@@ -10,12 +10,12 @@ html,body{margin:0; height:100%; font-family:system-ui,"Segoe UI",Roboto,sans-se
 body{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5vh; background:linear-gradient(#7cc8ff,#c9ecff 60%,#ffe9b8); overflow:hidden}
 h1{margin:0; font-size:clamp(32px,13vh,104px); font-weight:800; line-height:1; text-shadow:0 .5vh 0 #fff}
 h1 b{color:#ff8a1f}
-nav{display:flex; gap:4vh; flex-wrap:wrap; justify-content:center}
-a{width:42vh; height:46vh; min-width:150px; min-height:160px; border-radius:6vh; background:#fff; color:inherit; text-decoration:none; box-shadow:0 1.4vh 0 #b9cbe6;
+nav{display:flex; gap:3.5vh; flex-wrap:wrap; justify-content:center}
+a{width:40vh; height:46vh; min-width:150px; min-height:160px; border-radius:6vh; background:#fff; color:inherit; text-decoration:none; box-shadow:0 1.4vh 0 #b9cbe6;
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.5vh; transition:transform .12s}
 a:hover,a.sel{transform:translateY(-1.2vh); outline:1.2vh solid #ff8a1f}
-a .ic{font-size:20vh; line-height:1}
-a .nm{font-size:clamp(15px,4.4vh,32px); font-weight:800}
+a .ic{font-size:18vh; line-height:1}
+a .nm{font-size:clamp(15px,4vh,30px); font-weight:800}
 a .ds{font-size:clamp(11px,2.5vh,18px); font-weight:600; opacity:.7}
 </style>
 </head>
@@ -25,13 +25,14 @@ a .ds{font-size:clamp(11px,2.5vh,18px); font-weight:600; opacity:.7}
   <a href="planeti.html"><span class="ic">🪐</span><span class="nm">Bibini planeti</span><span class="ds">zadaci, boje, brojevi, pamćenje</span></a>
   <a href="memori.html"><span class="ic">🃏</span><span class="nm">Bibino pamćenje</span><span class="ds">pronađi dvije iste kartice</span></a>
   <a href="vlak.html"><span class="ic">🚂</span><span class="nm">Bibin vlak</span><span class="ds">brojanje, nizovi, zbrajanje, slova</span></a>
+  <a href="more.html"><span class="ic">🐠</span><span class="nm">Morska pustolovina</span><span class="ds">strelice, miš i govor · 30 zarona</span></a>
 </nav>
 <script>
 const as = [...document.querySelectorAll('a')]; let sel = -1;
 addEventListener('keydown', e => {
   if(e.code === 'ArrowRight' || e.code === 'ArrowLeft'){ sel = Math.max(0, Math.min(as.length-1, sel + (e.code === 'ArrowRight' ? 1 : -1))); as.forEach((a,i) => a.classList.toggle('sel', i === sel)); }
   else if((e.code === 'Enter' || e.code === 'Space') && sel >= 0) location.href = as[sel].href;
-  else if(e.code === 'Digit1' || e.code === 'Digit2' || e.code === 'Digit3') location.href = as[+e.code[5]-1].href;
+  else if(e.code === 'Digit1' || e.code === 'Digit2' || e.code === 'Digit3' || e.code === 'Digit4') location.href = as[+e.code[5]-1].href;
 });
 </script>
 </body>

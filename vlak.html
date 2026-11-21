@@ -95,7 +95,7 @@ body.moving .layer, body.moving #ties, body.moving .spin{animation-play-state:ru
 /* ---------- gornja traka ---------- */
 .round{position:fixed; top:calc(var(--u)*2); width:calc(var(--u)*8.5); height:calc(var(--u)*8.5); min-width:38px; min-height:38px; border-radius:50%; background:#fff; font-size:calc(var(--u)*4.2);
   box-shadow:0 calc(var(--u)*.6) 0 #00000026; display:flex; align-items:center; justify-content:center; text-decoration:none; z-index:20; font-family:system-ui,sans-serif}
-#home,#back{left:calc(var(--u)*2)} #lnk1{left:calc(var(--u)*12.5)} #lnk2{left:calc(var(--u)*23)} #mute{right:calc(var(--u)*2)}
+#home,#back{left:calc(var(--u)*2)} #lnk1{left:calc(var(--u)*12.5)} #lnk2{left:calc(var(--u)*23)} #lnk3{left:calc(var(--u)*33.5)} #mute{right:calc(var(--u)*2)}
 #bubble{position:fixed; top:calc(var(--u)*2); left:50%; transform:translateX(-50%); max-width:calc(var(--u)*120); background:#fff; border-radius:calc(var(--u)*4.5); padding:calc(var(--u)*1.2) calc(var(--u)*3.4);
   font-size:calc(var(--u)*3.6); font-weight:700; line-height:1.25; box-shadow:0 calc(var(--u)*.6) 0 #00000022; text-align:center; z-index:15}
 #bubble:empty{display:none}
@@ -170,6 +170,7 @@ h1 b{color:#ffd84a}
 <a id="home" class="round" href="index.html" aria-label="Sve igre">🏠</a>
 <a id="lnk1" class="round" href="planeti.html" aria-label="Bibini planeti">🪐</a>
 <a id="lnk2" class="round" href="memori.html" aria-label="Bibino pamćenje">🃏</a>
+<a id="lnk3" class="round" href="more.html" aria-label="Morska pustolovina">🐠</a>
 <button id="back" class="round" aria-label="Natrag na izbor putovanja" hidden>⬅️</button>
 <button id="mute" class="round" aria-label="Zvuk">🔊</button>
 
@@ -564,14 +565,14 @@ function arrive(){
 function startTrip(d){
   ensureAc(); run++; dest = d; step = 0; errors = 0; plan = makePlan(d); screen = 'game'; greeted = true;
   setTheme(d); $('#menu').hidden = true; $('#win').hidden = true; $('#prog').hidden = false; $('#back').hidden = false;
-  ['#home','#lnk1','#lnk2'].forEach(s => $(s).hidden = true);
+  ['#home','#lnk1','#lnk2','#lnk3'].forEach(s => $(s).hidden = true);
   wagons.innerHTML = ''; slide('-140vw', 0); drawProg(); sfx.whistle();
   nextTask(say(GO[d]));
 }
 function showMenu(quiet){
   run++; screen = 'menu'; busy = true; moving(false); stopVoice();
   $('#menu').hidden = false; $('#win').hidden = true; $('#prog').hidden = true; $('#back').hidden = true; stage.hidden = true;
-  ['#home','#lnk1','#lnk2'].forEach(s => $(s).hidden = false);
+  ['#home','#lnk1','#lnk2','#lnk3'].forEach(s => $(s).hidden = false);
   slide('-140vw', 0); wagons.innerHTML = ''; bubble.textContent = '';
   const box = $('#dests'); box.innerHTML = '';
   DEST.forEach((d, i) => { const b = el('button', 'dest' + (i === sel ? ' sel' : ''), '<span class="ic">' + d.icon + '</span><span class="nm">' + d.name + '</span><span class="lv">' + d.lv + '</span><span class="st">' + starHtml(save[d.id]||0) + '</span>');
