@@ -41,7 +41,7 @@ body.z4 .ray{opacity:.25; animation:none}
 .round{position:fixed; top:calc(var(--u)*2); width:calc(var(--u)*8.5); height:calc(var(--u)*8.5); min-width:38px; min-height:38px; border-radius:50%; font-size:calc(var(--u)*4.2); display:flex; align-items:center; justify-content:center;
   text-decoration:none; z-index:30; background:#ffffffe8; box-shadow:0 calc(var(--u)*.7) 0 #0003; transition:transform .12s}
 .round:hover{transform:scale(1.1)}
-#home,#back{left:calc(var(--u)*2)} #l1{left:calc(var(--u)*12.5)} #l2{left:calc(var(--u)*23)} #l3{left:calc(var(--u)*33.5)} #mute{right:calc(var(--u)*2)}
+#home,#back{left:calc(var(--u)*2)} #l1{left:calc(var(--u)*12.5)} #l2{left:calc(var(--u)*23)} #l3{left:calc(var(--u)*33.5)} #l4{left:calc(var(--u)*44)} #mute{right:calc(var(--u)*2)}
 #prompt{position:fixed; top:calc(var(--u)*2); left:50%; transform:translateX(-50%); width:max-content; max-width:calc(var(--u)*150); min-height:calc(var(--u)*8.5); border-radius:calc(var(--u)*5); padding:calc(var(--u)*.8) calc(var(--u)*3.4) calc(var(--u)*.8) calc(var(--u)*1.2);
   display:flex; align-items:center; gap:calc(var(--u)*1.8); font-size:calc(var(--u)*3.7); font-weight:600; line-height:1.2; z-index:25; text-shadow:0 1px 3px #0006}
 #how{flex:none; width:calc(var(--u)*6.6); height:calc(var(--u)*6.6); border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:calc(var(--u)*3.6); text-shadow:none; animation:bob 1.6s ease-in-out infinite}
@@ -160,6 +160,7 @@ h1 b{color:var(--gold)}
 <a id="l1" class="round emo" href="planeti.html" aria-label="Bibini planeti">🪐</a>
 <a id="l2" class="round emo" href="memori.html" aria-label="Bibino pamćenje">🃏</a>
 <a id="l3" class="round emo" href="vlak.html" aria-label="Bibin vlak">🚂</a>
+<a id="l4" class="round emo" href="dino.html" aria-label="Dino dolina">🦖</a>
 <button id="back" class="round emo" aria-label="Natrag na kartu" hidden>⬅️</button>
 <button id="mute" class="round emo" aria-label="Zvuk">🔊</button>
 <div id="pad" hidden><button data-k="u" aria-label="Gore">▲</button><button data-k="l" aria-label="Lijevo">◀</button><button data-k="d" aria-label="Dolje">▼</button><button data-k="r" aria-label="Desno">▶</button></div>
@@ -702,7 +703,7 @@ function startLevel(i){
   steps = [['A', PLAN_A[zone][k]], ['B', PLAN_B[zone][k][0]], ['C', PLAN_C[zone][k][0]], ['B', PLAN_B[zone][k][1]], ['C', PLAN_C[zone][k][1]]];
   document.body.className = 'z' + zone;
   $('#map').hidden = true; $('#win').hidden = true; field.hidden = false; $('#prompt').hidden = false; $('#pips').hidden = false; $('#back').hidden = false;
-  ['#home','#l1','#l2','#l3'].forEach(s => $(s).hidden = true);
+  ['#home','#l1','#l2','#l3','#l4'].forEach(s => $(s).hidden = true);
   sfx.dive(); nextStep();
 }
 function win(){
@@ -715,7 +716,7 @@ function showMap(quiet){
   run++; screen = 'map'; busy = true; stopVoice(); clearField(); field.hidden = true;
   document.body.className = 'zm';
   $('#map').hidden = false; $('#win').hidden = true; $('#prompt').hidden = true; $('#pips').hidden = true; $('#back').hidden = true;
-  ['#home','#l1','#l2','#l3'].forEach(s => $(s).hidden = false);
+  ['#home','#l1','#l2','#l3','#l4'].forEach(s => $(s).hidden = false);
   const nextUp = [...Array(LEVELS).keys()].find(i => !stars(i)), box = $('#zones'); box.innerHTML = '';
   if(sel < 0 || sel >= LEVELS) sel = 0;
   ZONES.forEach((z, zi) => {

@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Dino dolina</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap">
+<style>
+/* --u: stoti dio visine, a na uskim zaslonima dvjestoti dio sirine. Sve velicine idu preko njega. */
+:root{--u:min(1vh,.5vw); --ink:#17332b; --gold:#ffcf3f; --ok:#35d07f; --s1:#8fdcff; --s2:#d4f3ff; --s3:#fff3c9; --g1:#8bd45a; --g2:#4fae4a; --h1:#7cc7a0; --h2:#55b07a}
+*{box-sizing:border-box}
+html,body{margin:0; height:100%; overflow:hidden; font-family:"Fredoka",system-ui,"Segoe UI",Roboto,sans-serif; color:#fff; user-select:none; -webkit-user-select:none; background:#17332b}
+[hidden]{display:none!important}
+button{font:inherit; color:inherit; border:0; padding:0; cursor:pointer; background:none}
+.emo{font-family:system-ui,"Segoe UI Emoji","Noto Color Emoji",sans-serif}
+
+/* ---------- dolina ---------- */
+body.s0{--s1:#ffb199; --s2:#ffd9b0; --s3:#fff1c4; --h1:#e7a98f; --h2:#9cc98a}
+body.s1{--s1:#58c4f6; --s2:#b4ecff; --s3:#eafbe0; --h1:#7cc7a0; --h2:#55b07a}
+body.s2{--s1:#5a4aa8; --s2:#f0789a; --s3:#ffcb7d; --h1:#a06aa8; --h2:#5f9a78; --g1:#7cc257; --g2:#3f9446}
+#scene{position:fixed; inset:0; overflow:hidden; background:linear-gradient(var(--s1),var(--s2) 38%,var(--s3) 62%)}
+#sun{position:absolute; right:14%; top:9%; width:calc(var(--u)*16); height:calc(var(--u)*16); border-radius:50%; background:radial-gradient(circle,#fffbe0,#ffe27a 60%,#ffd24a); box-shadow:0 0 calc(var(--u)*10) #fff3a8, 0 0 calc(var(--u)*26) #ffe98a90}
+body.s2 #sun{top:30%; background:radial-gradient(circle,#fff2c0,#ffb057 60%,#ff8a4a); box-shadow:0 0 calc(var(--u)*10) #ffc48a, 0 0 calc(var(--u)*26) #ff9a6a90}
+.cloud{position:absolute; height:calc(var(--u)*5); border-radius:calc(var(--u)*5); background:#ffffffd8; animation:drift linear infinite; box-shadow:calc(var(--u)*5) calc(var(--u)*-2.4) 0 calc(var(--u)*1) #ffffffd8, calc(var(--u)*11) calc(var(--u)*-.6) 0 calc(var(--u)*-.6) #ffffffd8}
+@keyframes drift{from{transform:translateX(-30vw)}to{transform:translateX(130vw)}}
+#land{position:absolute; left:0; right:0; bottom:0; height:46%; transition:height .9s cubic-bezier(.3,.9,.3,1)}
+body.run #land{height:80%}
+#volcano{position:absolute; left:6%; bottom:calc(100% - var(--u)*7); width:calc(var(--u)*56); height:calc(var(--u)*36)}
+#volcano svg{width:100%; height:100%; overflow:visible}
+.puff{animation:puff 5s ease-out infinite; transform-box:fill-box; transform-origin:center}
+.puff:nth-child(2){animation-delay:-1.7s}.puff:nth-child(3){animation-delay:-3.4s}
+@keyframes puff{0%{transform:translate(0,0) scale(.4); opacity:0}15%{opacity:.85}100%{transform:translate(40px,-110px) scale(1.8); opacity:0}}
+#hills{position:absolute; left:0; bottom:calc(100% - var(--u)*9); width:100%; height:calc(var(--u)*26)}
+#ground{position:absolute; inset:calc(var(--u)*8) 0 0 0; background:linear-gradient(var(--g1),var(--g2))}
+#ground:before{content:""; position:absolute; inset:0; background:radial-gradient(ellipse at 20% 30%,#ffffff26 0 8%,transparent 9%),radial-gradient(ellipse at 70% 55%,#ffffff1c 0 10%,transparent 11%),radial-gradient(ellipse at 42% 80%,#0000000f 0 12%,transparent 13%),radial-gradient(ellipse at 88% 18%,#0000000d 0 9%,transparent 10%)}
+#groundTop{position:absolute; left:0; top:calc(var(--u)*1); width:100%; height:calc(var(--u)*8)}
+.palm{position:absolute; bottom:calc(var(--u)*-2); width:calc(var(--u)*34); height:calc(var(--u)*52); pointer-events:none; z-index:6; transition:opacity .6s, transform .9s}
+.palm svg{width:100%; height:100%; overflow:visible}
+.palm.l{left:calc(var(--u)*-9)} .palm.r{right:calc(var(--u)*-9); transform:scaleX(-1)}
+body.play .palm{opacity:0; transform:translateY(20%)} body.play .palm.r{transform:scaleX(-1) translateY(20%)}
+.frond{transform-box:fill-box; transform-origin:0% 100%; animation:sway 5s ease-in-out infinite alternate}
+g:nth-of-type(2n) > .frond{animation-duration:6.5s; animation-delay:-2s}
+@keyframes sway{from{transform:rotate(-3deg)}to{transform:rotate(4deg)}}
+
+/* ---------- dinosauri ---------- */
+.dn{display:inline-block; width:calc(var(--u)*var(--w,16)); line-height:0; flex:none}
+.dn svg,.eg svg{width:100%; display:block; overflow:visible}
+.eg{display:inline-block; width:calc(var(--u)*var(--w,8)); line-height:0; flex:none}
+.dino .eye{transform-box:fill-box; transform-origin:center; animation:blink 4.2s infinite}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+.dino .dbody{transform-origin:50% 91%; animation:breathe 2.6s ease-in-out infinite}
+@keyframes breathe{50%{transform:scaleY(1.025) scaleX(.992)}}
+.baby{position:relative; display:inline-block; width:calc(var(--u)*var(--w,16)); line-height:0; flex:none}
+.baby .dn{width:100%} .baby .shell{position:absolute; left:20%; bottom:-7%; width:58%; overflow:visible}
+.sil svg{filter:brightness(0) opacity(.72)}
+.sil .eye{animation:none}
+
+/* ---------- zajednicko sucelje ---------- */
+.glass{background:#0f3a30b8; border:calc(var(--u)*.25) solid #ffffff59; box-shadow:0 calc(var(--u)*1.2) calc(var(--u)*4) #0005, inset 0 calc(var(--u)*.4) 0 #ffffff26; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px)}
+.panel{background:linear-gradient(#fffdf5ee,#fff4dcee); border:calc(var(--u)*.45) solid #fff; box-shadow:0 calc(var(--u)*1.4) calc(var(--u)*4) #1a3a2a55; color:var(--ink)}
+.round{position:fixed; top:calc(var(--u)*2); width:calc(var(--u)*8.5); height:calc(var(--u)*8.5); min-width:38px; min-height:38px; border-radius:50%; font-size:calc(var(--u)*4.2); display:flex; align-items:center; justify-content:center;
+  text-decoration:none; z-index:30; background:#ffffffee; box-shadow:0 calc(var(--u)*.7) 0 #0003; transition:transform .12s}
+.round:hover{transform:scale(1.1)}
+#home,#back{left:calc(var(--u)*2)} #l1{left:calc(var(--u)*12.5)} #l2{left:calc(var(--u)*23)} #l3{left:calc(var(--u)*33.5)} #l4{left:calc(var(--u)*44)} #mute{right:calc(var(--u)*2)}
+#prompt{position:fixed; top:calc(var(--u)*2); left:50%; transform:translateX(-50%); width:max-content; max-width:calc(var(--u)*150); min-height:calc(var(--u)*8.5); border-radius:calc(var(--u)*5); padding:calc(var(--u)*.8) calc(var(--u)*3.4) calc(var(--u)*.8) calc(var(--u)*1.2);
+  display:flex; align-items:center; gap:calc(var(--u)*1.8); font-size:calc(var(--u)*3.7); font-weight:600; line-height:1.2; z-index:25}
+#how{flex:none; width:calc(var(--u)*6.6); height:calc(var(--u)*6.6); border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:calc(var(--u)*3.6); animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(calc(var(--u)*-.6)) scale(1.06)}}
+#pips{position:fixed; top:calc(var(--u)*14.6); left:50%; transform:translateX(-50%); display:flex; gap:calc(var(--u)*1.4); z-index:24; align-items:center}
+#pips i{width:calc(var(--u)*5); height:calc(var(--u)*1.6); border-radius:calc(var(--u)); background:#ffffff80; box-shadow:0 1px 2px #0003}
+#pips i.on{background:var(--gold); box-shadow:0 0 calc(var(--u)*2) var(--gold)} #pips i.now{background:#fff}
+
+/* ---------- polje igre ---------- */
+#field{position:fixed; inset:0; z-index:8}
+#board{position:absolute; left:0; right:0; top:calc(var(--u)*17.5); bottom:calc(var(--u)*3); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:calc(var(--u)*3)}
+#hero{position:absolute; left:0; top:0; will-change:transform; pointer-events:none; z-index:3}
+#hero .in{display:block; transform-origin:50% 60%}
+#hero.walk .in{animation:walk .34s ease-in-out infinite}
+@keyframes walk{50%{transform:translateY(calc(var(--u)*-1.2)) rotate(-3deg)}}
+.it{position:absolute; left:0; top:0; width:calc(var(--u)*13); height:calc(var(--u)*13); margin:calc(var(--u)*-6.5) 0 0 calc(var(--u)*-6.5); display:flex; align-items:center; justify-content:center; will-change:transform; z-index:2}
+.it:before{content:""; position:absolute; left:14%; right:14%; bottom:2%; height:16%; border-radius:50%; background:#0000002e}
+.it .in{position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:calc(var(--u)*8.4); animation:hop 2.4s ease-in-out infinite}
+@keyframes hop{50%{transform:translateY(calc(var(--u)*-1))}}
+.it svg{width:74%; height:74%; filter:drop-shadow(0 calc(var(--u)*.4) 0 #0003)}
+.stone{width:82%; height:82%; border-radius:38% 42% 40% 44%; background:linear-gradient(#fdf6e3,#e7d6ad); border:calc(var(--u)*.45) solid #fff; box-shadow:0 calc(var(--u)*.7) 0 #b79f6a; color:var(--ink); font-weight:700; font-size:calc(var(--u)*7); display:flex; align-items:center; justify-content:center; line-height:1}
+.it.pop .in{animation:popout .35s forwards} .it.pop:before{opacity:0}
+.it.bad .in{animation:shake .4s}
+@keyframes popout{to{transform:scale(1.8); opacity:0}}
+@keyframes shake{20%,60%{transform:translateX(calc(var(--u)*-1.4))}40%,80%{transform:translateX(calc(var(--u)*1.4))}}
+#eq{position:fixed; top:calc(var(--u)*18.5); left:50%; transform:translateX(-50%); z-index:9; border-radius:calc(var(--u)*3); padding:calc(var(--u)*.4) calc(var(--u)*3.4); font-size:calc(var(--u)*7); font-weight:700; letter-spacing:calc(var(--u)*.6); line-height:1.2}
+.spark{position:absolute; left:0; top:0; font-size:calc(var(--u)*5); pointer-events:none; z-index:20}
+#pad{position:fixed; right:calc(var(--u)*3); bottom:calc(var(--u)*3); z-index:20; display:grid; grid-template-columns:repeat(3,calc(var(--u)*7.4)); grid-template-rows:repeat(2,calc(var(--u)*7.4)); gap:calc(var(--u)*.8)}
+#pad button{border-radius:calc(var(--u)*1.8); background:#ffffffe0; color:var(--ink); font-size:calc(var(--u)*3.6); font-weight:700; box-shadow:0 calc(var(--u)*.7) 0 #0004; transition:transform .08s, background .08s}
+#pad button.on{transform:translateY(calc(var(--u)*.5)); background:var(--gold)}
+#pad [data-k=u]{grid-column:2} #pad [data-k=l]{grid-column:1; grid-row:2} #pad [data-k=d]{grid-column:2; grid-row:2} #pad [data-k=r]{grid-column:3; grid-row:2}
+
+/* ---------- zadaci misem ---------- */
+.tank{position:relative; border-radius:calc(var(--u)*5); display:flex; flex-wrap:wrap; align-items:center; justify-content:center; align-content:center; gap:calc(var(--u)*1) calc(var(--u)*2); padding:calc(var(--u)*2.4) calc(var(--u)*3.4)}
+button.tank{transition:transform .15s} button.tank:hover{transform:scale(1.04); border-color:var(--gold)}
+.cr{font-size:calc(var(--u)*var(--s,9)); line-height:1.15; display:inline-block}
+.pk{cursor:pointer; transition:transform .12s; display:flex; align-items:flex-end} .pk:hover{transform:scale(1.07); filter:drop-shadow(0 0 calc(var(--u)*1.4) #fff)}
+.mv{position:absolute; left:0; top:0; margin:calc(var(--u)*-6.4) 0 0 calc(var(--u)*-8.5); width:calc(var(--u)*17); cursor:pointer; will-change:transform; line-height:0}
+.mv:hover{filter:drop-shadow(0 0 calc(var(--u)*1.4) #ffe27a)} .mv.gone{animation:popout .35s forwards; pointer-events:none}
+.mv .dn{width:100%}
+.opts{display:flex; gap:calc(var(--u)*3.5); justify-content:center; align-items:center}
+.opt{width:calc(var(--u)*19); height:calc(var(--u)*19); border-radius:50%; background:radial-gradient(circle at 32% 26%,#fff,#fff7e2 55%,#f3dfae); color:var(--ink); font-size:calc(var(--u)*11); font-weight:700; line-height:1;
+  display:flex; align-items:center; justify-content:center; box-shadow:0 calc(var(--u)*1.2) 0 #9c7d3a88, 0 0 0 calc(var(--u)*.7) #ffffffb0; transition:transform .12s, box-shadow .12s; animation:drop .5s backwards}
+.opt:nth-child(2){animation-delay:.08s}.opt:nth-child(3){animation-delay:.16s}.opt:nth-child(4){animation-delay:.24s}
+@keyframes drop{0%{transform:translateY(calc(var(--u)*14)) scale(.4); opacity:0}70%{transform:translateY(calc(var(--u)*-1.5)) scale(1.04)}}
+.opt:hover{transform:translateY(calc(var(--u)*-1.2)) scale(1.06); box-shadow:0 calc(var(--u)*1.2) 0 #9c7d3a88, 0 0 0 calc(var(--u)*1.1) var(--gold)}
+.opt.card{border-radius:calc(var(--u)*5); width:calc(var(--u)*34); height:calc(var(--u)*27); font-size:calc(var(--u)*14)}
+.opt.sw{font-size:0}
+.no{animation:shake .4s}
+.right{box-shadow:0 0 0 calc(var(--u)*1.2) var(--ok), 0 0 calc(var(--u)*5) var(--ok)!important}
+.hint{animation:pulse 1s infinite; outline:calc(var(--u)*.9) solid var(--ok); outline-offset:calc(var(--u)*.4)}
+@keyframes pulse{50%{transform:scale(1.08)}}
+.row{display:flex; align-items:center; justify-content:center; gap:calc(var(--u)*1.6)}
+.tile{width:calc(var(--u)*13); height:calc(var(--u)*15); border-radius:calc(var(--u)*3.2); display:flex; align-items:center; justify-content:center; font-size:calc(var(--u)*8); font-weight:700}
+.tile.q{border-style:dashed; border-color:var(--gold); color:#d79b00}
+.plus{font-size:calc(var(--u)*13); font-weight:700; text-shadow:0 calc(var(--u)*.5) 0 #0004}
+.badge{position:absolute; left:50%; bottom:calc(var(--u)*-3.4); transform:translateX(-50%); background:var(--gold); color:var(--ink); font-weight:700; font-size:calc(var(--u)*5); line-height:1; padding:calc(var(--u)*.7) calc(var(--u)*2.2); border-radius:calc(var(--u)*3); box-shadow:0 calc(var(--u)*.6) 0 #0003}
+.pic{min-width:calc(var(--u)*40); max-width:calc(var(--u)*76); min-height:calc(var(--u)*30); border-radius:calc(var(--u)*6); display:flex; align-items:center; justify-content:center; flex-wrap:wrap; align-content:center; gap:calc(var(--u)*1); font-size:calc(var(--u)*17); position:relative; padding:calc(var(--u)*2) calc(var(--u)*4)}
+.pic.sq{flex-direction:column; flex-wrap:nowrap; gap:calc(var(--u)*.6)}
+.word{font-size:calc(var(--u)*5.4); font-weight:700; letter-spacing:calc(var(--u)*.7); background:var(--ink); color:#fff; border-radius:calc(var(--u)*2); padding:0 calc(var(--u)*2.4); line-height:1.45}
+.food{position:absolute; left:0; top:0; width:calc(var(--u)*13); height:calc(var(--u)*13); font-size:calc(var(--u)*9); line-height:calc(var(--u)*13); text-align:center; border-radius:50%; background:#ffffffc0; box-shadow:0 calc(var(--u)*.7) 0 #0002; transition:transform .5s cubic-bezier(.5,-.3,.6,1), opacity .5s; cursor:pointer}
+.food:hover{box-shadow:0 0 0 calc(var(--u)*.8) var(--gold)}
+.chomp{animation:chomp .35s}
+@keyframes chomp{40%{transform:scale(1.08,.94)}}
+#mic{display:flex; align-items:center; gap:calc(var(--u)*2.5); min-height:calc(var(--u)*13)}
+#micDot{position:relative; width:calc(var(--u)*12); height:calc(var(--u)*12); border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:calc(var(--u)*6.4); opacity:.6; transition:opacity .2s}
+#mic.on #micDot{opacity:1; background:var(--gold)}
+#mic.on #micDot:before,#mic.on #micDot:after{content:""; position:absolute; inset:0; border-radius:50%; border:calc(var(--u)*.6) solid var(--gold); animation:wave 1.4s ease-out infinite}
+#mic.on #micDot:after{animation-delay:.7s}
+@keyframes wave{to{transform:scale(2.1); opacity:0}}
+#heard{font-size:calc(var(--u)*4); font-weight:600; min-width:calc(var(--u)*30); text-shadow:0 1px 3px #0008}
+#skip{font-size:calc(var(--u)*4.2); width:calc(var(--u)*9); height:calc(var(--u)*9); border-radius:50%; background:#ffffffe8}
+
+/* ---------- karta ---------- */
+.screen{position:fixed; inset:0; z-index:12; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center}
+#map{gap:calc(var(--u)*2.2); padding-top:calc(var(--u)*1)}
+h1{margin:0; font-size:calc(var(--u)*9.5); font-weight:700; line-height:1; letter-spacing:calc(var(--u)*.2); color:#fff; text-shadow:0 calc(var(--u)*.7) 0 #1c6b4c, 0 calc(var(--u)*1.4) calc(var(--u)*3) #0d3b2a80}
+h1 b{color:var(--gold)}
+#cards{display:grid; grid-template-columns:repeat(5,calc(var(--u)*34.5)); gap:calc(var(--u)*2.4) calc(var(--u)*2.2)}
+.dc{position:relative; height:calc(var(--u)*34.5); border-radius:calc(var(--u)*4.5); display:flex; flex-direction:column; align-items:center; padding:calc(var(--u)*1) 0 calc(var(--u)*1.2); cursor:pointer; transition:transform .14s, box-shadow .14s}
+.dc:hover,.dc.sel{transform:translateY(calc(var(--u)*-1)) scale(1.035); box-shadow:0 calc(var(--u)*1.6) calc(var(--u)*4) #1a3a2a66, 0 0 0 calc(var(--u)*.9) var(--gold)}
+.dc.champ{background:linear-gradient(#fff9d6,#ffe9a0)}
+.dc .art{height:calc(var(--u)*21.5); width:100%; display:flex; align-items:flex-end; justify-content:center}
+.dc .nm{font-size:calc(var(--u)*2.7); font-weight:700; text-transform:capitalize; line-height:1.3; letter-spacing:.02em}
+.dc .crown{position:absolute; right:calc(var(--u)*1.4); top:calc(var(--u)*.6); font-size:calc(var(--u)*5); transform:rotate(14deg)}
+.dc .ps{display:flex; gap:calc(var(--u)*1.6); margin-top:calc(var(--u)*.3)}
+.pp{position:relative; width:calc(var(--u)*6.4); height:calc(var(--u)*6.4); border-radius:50%; background:#fff; box-shadow:0 calc(var(--u)*.5) 0 #d8c59a, 0 0 0 calc(var(--u)*.3) #ecdcb4; font-size:calc(var(--u)*3.2); display:flex; align-items:center; justify-content:center; transition:transform .12s}
+.pp:hover{transform:scale(1.15)}
+.pp.lock{opacity:.4; box-shadow:none; background:#e9dfc8}
+.pp.done{background:var(--gold); box-shadow:0 calc(var(--u)*.5) 0 #c9971a}
+.pp.next{animation:pulse 1.4s infinite; box-shadow:0 calc(var(--u)*.5) 0 #d8c59a, 0 0 0 calc(var(--u)*.6) var(--ok)}
+.pp .st{position:absolute; bottom:calc(var(--u)*-1.5); left:50%; transform:translateX(-50%); font-size:calc(var(--u)*1.5); white-space:nowrap; letter-spacing:calc(var(--u)*-.2)}
+.st i,#wstars i{font-style:normal; opacity:.25; filter:grayscale(1)} .st i.on,#wstars i.on{opacity:1; filter:none}
+#loading{font-size:calc(var(--u)*2.4); font-weight:600; min-height:calc(var(--u)*3); color:#fff; text-shadow:0 1px 3px #0008}
+
+/* ---------- kraj razine ---------- */
+#win{background:radial-gradient(circle at 50% 42%,#2f8a63ee,#0c2b22f2 70%); z-index:28; gap:calc(var(--u)*1.6)}
+#rays{position:absolute; left:50%; top:40%; width:calc(var(--u)*150); height:calc(var(--u)*150); margin:calc(var(--u)*-75); border-radius:50%; background:repeating-conic-gradient(#ffffff14 0 12deg,transparent 12deg 24deg); animation:turn 30s linear infinite; pointer-events:none}
+@keyframes turn{to{transform:rotate(360deg)}}
+#wart{position:relative; height:calc(var(--u)*44); width:calc(var(--u)*70); display:flex; align-items:flex-end; justify-content:center}
+#wart .wob{animation:wob .28s ease-in-out infinite alternate; transform-origin:50% 90%}
+@keyframes wob{from{transform:rotate(-9deg)}to{transform:rotate(9deg)}}
+#wart .pop{animation:grow .7s cubic-bezier(.2,1.7,.4,1) backwards; transform-origin:50% 95%}
+@keyframes grow{from{transform:scale(.25)}}
+#wart .crown{position:absolute; left:50%; top:calc(var(--u)*-6); font-size:calc(var(--u)*11); transform:translateX(-50%); animation:grow .7s .5s cubic-bezier(.2,1.7,.4,1) backwards}
+#wname{position:relative; font-size:calc(var(--u)*5.4); font-weight:700; text-transform:capitalize; letter-spacing:.03em; background:#fff; color:var(--ink); border-radius:calc(var(--u)*4); padding:0 calc(var(--u)*4); line-height:1.5}
+#wstars{position:relative; font-size:calc(var(--u)*9); letter-spacing:calc(var(--u)*1.2); line-height:1.1}
+#wstars i.on{display:inline-block; animation:grow .5s backwards} #wstars i:nth-child(2){animation-delay:.25s} #wstars i:nth-child(3){animation-delay:.5s}
+#win .btns{position:relative}
+#win .btns button{font-size:calc(var(--u)*6.4); width:calc(var(--u)*17); height:calc(var(--u)*12.5); border-radius:calc(var(--u)*5); margin:0 calc(var(--u)*1.2); background:#fff; box-shadow:0 calc(var(--u)*.9) 0 #b9c9b0; transition:transform .12s}
+#win .btns button:hover{transform:scale(1.07)}
+#win .btns button.go{background:var(--gold); box-shadow:0 calc(var(--u)*.9) 0 #c79a00}
+</style>
+</head>
+<body class="s1">
+<div id="defs"></div>
+<div id="scene">
+  <div id="sun"></div>
+  <div class="cloud" style="top:8%; width:calc(var(--u)*18); animation-duration:90s; animation-delay:-20s"></div>
+  <div class="cloud" style="top:20%; width:calc(var(--u)*12); animation-duration:120s; animation-delay:-75s; opacity:.8"></div>
+  <div class="cloud" style="top:14%; width:calc(var(--u)*15); animation-duration:150s; animation-delay:-110s; opacity:.7"></div>
+  <div id="land">
+    <div id="volcano"></div>
+    <svg id="hills" viewBox="0 0 1000 200" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 200 L0 120 C90 60 170 70 260 110 C330 60 430 40 520 100 C600 60 700 70 780 110 C850 70 940 70 1000 100 L1000 200Z" fill="var(--h1)"/>
+      <path d="M0 200 L0 150 C120 100 220 120 330 150 C450 110 560 110 680 150 C790 120 900 120 1000 140 L1000 200Z" fill="var(--h2)"/>
+    </svg>
+    <div id="ground"></div>
+    <svg id="groundTop" viewBox="0 0 1000 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 80 L0 40 C140 10 300 20 460 40 C640 60 820 20 1000 34 L1000 80Z" fill="var(--g1)"/></svg>
+  </div>
+  <div class="palm l"></div><div class="palm r"></div>
+</div>
+<div id="field" hidden></div>
+
+<div id="prompt" class="glass" hidden><span id="how" class="emo"></span><span id="ptext"></span></div>
+<div id="pips" hidden></div>
+<a id="home" class="round emo" href="index.html" aria-label="Sve igre">🏠</a>
+<a id="l1" class="round emo" href="planeti.html" aria-label="Bibini planeti">🪐</a>
+<a id="l2" class="round emo" href="memori.html" aria-label="Bibino pamćenje">🃏</a>
+<a id="l3" class="round emo" href="vlak.html" aria-label="Bibin vlak">🚂</a>
+<a id="l4" class="round emo" href="more.html" aria-label="Morska pustolovina">🐠</a>
+<button id="back" class="round emo" aria-label="Natrag na kartu" hidden>⬅️</button>
+<button id="mute" class="round emo" aria-label="Zvuk">🔊</button>
+<div id="pad" hidden><button data-k="u" aria-label="Gore">▲</button><button data-k="l" aria-label="Lijevo">◀</button><button data-k="d" aria-label="Dolje">▼</button><button data-k="r" aria-label="Desno">▶</button></div>
+
+<div id="map" class="screen">
+  <h1>Dino <b>dolina</b></h1>
+  <div id="cards"></div>
+  <div id="loading">Učitavam glas…</div>
+</div>
+<div id="win" class="screen" hidden>
+  <div id="rays"></div>
+  <div id="wart"></div>
+  <div id="wname"></div>
+  <div id="wstars" class="emo"></div>
+  <div class="btns emo"><button id="wagain" aria-label="Ponovi razinu">🔁</button><button id="wnext" class="go" aria-label="Sljedeća razina">▶️</button><button id="wmap" aria-label="Karta">🗺️</button></div>
+</div>
+
+<script src="dinoart.js"></script>
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const NAME = 'Teo';
+
+/* ---------- riječi i rečenice (sve se snimaju: alat\glas.py dino) ---------- */
+/*@LINES*/
+const cap = s => s[0].toUpperCase() + s.slice(1);
+const NUM = ['jedan','dva','tri','četiri','pet','šest','sedam','osam','devet','deset'];
+/* boje: m = crveni (kristal), pl = crvene (kristale), n = crveno (jaje), af = crvenu (boju); k = korijeni za prepoznavanje govora */
+const COLORS = [
+  {hex:'#ff4d5a', m:'crveni', pl:'crvene', n:'crveno', af:'crvenu', k:['crven']},
+  {hex:'#3d8bff', m:'plavi', pl:'plave', n:'plavo', af:'plavu', k:['plav']},
+  {hex:'#ffcf24', m:'žuti', pl:'žute', n:'žuto', af:'žutu', k:['zut']},
+  {hex:'#35c46a', m:'zeleni', pl:'zelene', n:'zeleno', af:'zelenu', k:['zelen']},
+  {hex:'#ff8a1f', m:'narančasti', pl:'narančaste', n:'narančasto', af:'narančastu', k:['naranc','narand']},
+  {hex:'#a45cf0', m:'ljubičasti', pl:'ljubičaste', n:'ljubičasto', af:'ljubičastu', k:['ljubic','lila']},
+  {hex:'#ff7fb6', m:'ružičasti', pl:'ružičaste', n:'ružičasto', af:'ružičastu', k:['ruzic','roza','rozo']}];
+/* dinosauri: n = nominativ, g = genitiv i akuzativ jednine te genitiv množine (isti oblik), apl = akuzativ množine;
+   diet: b = biljojed, m = mesojed, r = jede ribe; fq/fa = pitanje o obilježju; no = tko ne smije biti ponuđen uz to pitanje */
+const DINOS = [
+  {id:'tiranosaur', n:'tiranosaur', g:'tiranosaura', apl:'tiranosaure', diet:'m', k:['tirano','rex','reks'],
+    fq:'Tko ima kratke ruke i velike zube?', fa:'Tiranosaur ima kratke ruke i velike zube.', no:['spinosaur','velociraptor'],
+    facts:['Tiranosaur je bio mesojed s velikim, oštrim zubima.', 'Tiranosaur je imao vrlo kratke ruke, ali snažne noge.', 'Tiranosaur je bio dug kao autobus.']},
+  {id:'triceratops', n:'triceratops', g:'triceratopsa', apl:'triceratopse', diet:'b', k:['tricera','ceratops'],
+    fq:'Tko ima rogove?', fa:'Triceratops ima rogove.', no:['ankilosaur'],
+    facts:['Triceratops je imao tri roga na glavi.', 'Triceratops je bio biljojed. Jeo je nisko bilje.', 'Triceratops je imao veliki koštani štit oko vrata.']},
+  {id:'stegosaur', n:'stegosaur', g:'stegosaura', apl:'stegosaure', diet:'b', k:['stego'],
+    fq:'Tko ima ploče na leđima?', fa:'Stegosaur ima ploče na leđima.', no:['ankilosaur','spinosaur'],
+    facts:['Stegosaur je imao velike ploče na leđima.', 'Stegosaur je na repu imao četiri šiljka.', 'Stegosaur je bio biljojed s vrlo malom glavom.']},
+  {id:'brahiosaur', n:'brahiosaur', g:'brahiosaura', apl:'brahiosaure', diet:'b', k:['brahio','brakio','bracio'],
+    fq:'Tko ima dug vrat?', fa:'Brahiosaur ima dug vrat.', no:['diplodok'],
+    facts:['Brahiosaur je imao jako dug vrat.', 'Brahiosaur je jeo lišće s vrhova drveća.', 'Brahiosaur je bio viši od kuće.']},
+  {id:'velociraptor', n:'velociraptor', g:'velociraptora', apl:'velociraptore', diet:'m', k:['raptor','veloci'],
+    fq:'Tko ima perje?', fa:'Velociraptor ima perje.', no:['pteranodon'],
+    facts:['Velociraptor je bio malen, ali vrlo brz.', 'Velociraptor je imao perje.', 'Velociraptor je na nozi imao veliku zakrivljenu pandžu.']},
+  {id:'ankilosaur', n:'ankilosaur', g:'ankilosaura', apl:'ankilosaure', diet:'b', k:['ankilo','anki'],
+    fq:'Tko ima toljagu na repu?', fa:'Ankilosaur ima toljagu na repu.', no:[],
+    facts:['Ankilosaur je imao čvrst oklop na leđima.', 'Ankilosaur je na repu imao tešku koštanu toljagu.', 'Ankilosaur je bio biljojed.']},
+  {id:'spinosaur', n:'spinosaur', g:'spinosaura', apl:'spinosaure', diet:'r', k:['spino'],
+    fq:'Tko ima jedro na leđima?', fa:'Spinosaur ima jedro na leđima.', no:['stegosaur'],
+    facts:['Spinosaur je imao veliko jedro na leđima.', 'Spinosaur je lovio ribe.', 'Spinosaur je bio jedan od najvećih mesojeda.']},
+  {id:'diplodok', n:'diplodok', g:'diplodoka', apl:'diplodoke', diet:'b', k:['diplo'],
+    fq:'Tko ima dug vrat?', fa:'Diplodok ima dug vrat.', no:['brahiosaur'],
+    facts:['Diplodok je imao jako dug vrat i jako dug rep.', 'Diplodok je bio biljojed.', 'Diplodok je bio dug kao dva autobusa.']},
+  {id:'parasaurolof', n:'parasaurolof', g:'parasaurolofa', apl:'parasaurolofe', diet:'b', k:['parasau','saurolof','paraso'],
+    fq:'Tko ima krestu na glavi?', fa:'Parasaurolof ima krestu na glavi.', no:['pteranodon','velociraptor'],
+    facts:['Parasaurolof je imao dugu krestu na glavi.', 'Parasaurolof se glasao kroz krestu, poput trube.', 'Parasaurolof je bio biljojed.']},
+  {id:'pteranodon', n:'pteranodon', g:'pteranodona', apl:'pteranodone', diet:'r', k:['pterano','teranodon','terano','pterodaktil'],
+    fq:'Tko ima krila?', fa:'Pteranodon ima krila.', no:[],
+    facts:['Pteranodon nije bio dinosaur, nego leteći gmaz.', 'Pteranodon je imao velika krila i letio je iznad mora.', 'Pteranodon je jeo ribe.']}];
+const FOOD = {b:{e:'🌿', all:'lišće', is:'je biljojed', ins:'lišćem'}, m:{e:'🍖', all:'meso', is:'je mesojed', ins:'mesom'}, r:{e:'🐟', all:'ribe', is:'jede ribe', ins:'ribom', one:'riba'}};
+const THINGS = [{egg:1, g:'jaja'}, {e:'🦴', g:'kostiju'}, {e:'🌋', g:'vulkana'}, {e:'🌴', g:'palmi'}];
+const LETTERS = 'AEIOUMTSKRBLPDNV'.split('');
+const WORDS = DINOS.map(d => [d.id, cap(d.n)]).concat([['🥚','Jaje'],['🦴','Kost'],['🌋','Vulkan'],['🌿','List'],['🌴','Palma'],['🐟','Riba'],['🍖','Meso'],['🦷','Zub'],['🪨','Kamen'],['🪺','Gnijezdo']]);
+const T = {
+  hi:'Bok, ' + NAME + '! Dobro došao u Dino dolinu! Odaberi jaje!',
+  menu:'Odaberi dinosaura!',
+  locked:'Prvo završi prethodnu razinu!',
+  roll:'Kotrljaj jaje strelicama!',
+  walk:'Hodaj strelicama!',
+  sumGo:'Dođi do točnog broja!',
+  sumWrong:'To nije točan broj.',
+  voice:'Sada odgovaraj glasom!',
+  who:'Tko je ovo? Reci glasno!',
+  whatColor:'Koje je boje ovo jaje? Reci glasno!',
+  howMany:'Koliko ima jaja? Reci broj!',
+  again:'Nisam dobro čuo. Reci još jednom, glasno!',
+  byClick:'Pokaži mi klikom!',
+  micOff:'Mikrofon ne radi. Odgovaraj klikom!',
+  pat:'Koje jaje dolazi sljedeće?',
+  add:'Koliko je jaja zajedno?',
+  shadow:'Čija je ovo sjena?',
+  whoMeat:'Tko je mesojed?',
+  whoPlant:'Tko je biljojed?',
+  winAll:NAME + ', svi su dinosauri prvaci doline! Ti si pravi čuvar dinosaura!'
+};
+const PRAISE = ['Bravo!', 'Tako je!', 'Odlično!', 'Izvrsno!', 'Točno!', 'Sjajno!'];
+const NOPE = ['Pokušaj ponovno!', 'Pogledaj još jednom!', 'Zamalo! Pokušaj ponovno.'];
+const S = {
+  intro0:d => 'U ovom je jajetu mali ' + d.n + '. Pomozi mu da se izlegne!',
+  intro1:d => 'Mali ' + d.n + ' želi narasti. Pomozi mu!',
+  intro2:d => cap(d.n) + ' želi postati prvak doline. Pomozi mu!',
+  win0:d => 'Bravo, ' + NAME + '! Izlegao se mali ' + d.n + '!',
+  win1:d => 'Bravo, ' + NAME + '! ' + cap(d.n) + ' je narastao!',
+  win2:d => 'Bravo, ' + NAME + '! ' + cap(d.n) + ' je prvak doline!',
+  colGo:c => 'Skupi sve ' + c.pl + ' kristale!', colNo:c => 'To nije ' + c.m + ' kristal.',
+  digGo:n => 'Skupi sve kamenčiće s brojem ' + NUM[n-1] + '!', digNo:n => 'To nije broj ' + NUM[n-1] + '.',
+  letGo:l => 'Skupi sve kamenčiće sa slovom ' + l + '!', letNo:l => 'To nije slovo ' + l + '.',
+  foodGo:d => cap(d.n) + ' je gladan. Skupi sve ' + FOOD[d.diet].all + '!',
+  feed:d => cap(d.n) + ' ' + FOOD[d.diet].is + '. Nahrani ga ' + FOOD[d.diet].ins + '!',
+  notFood:k => 'To nije ' + (FOOD[k].one || FOOD[k].all) + '.',
+  sumAsk:(a, b) => 'Koliko je ' + NUM[a-1] + ' plus ' + NUM[b-1] + '?', sumAns:(a, b) => cap(NUM[a-1]) + ' plus ' + NUM[b-1] + ' je ' + NUM[a+b-1] + '.',
+  count:s => 'Koliko ima ' + s.g + '?', all:d => 'Klikni na sve ' + d.apl + '!', isNot:n => 'To nije ' + n + '.',
+  size:(d, big) => 'Klikni na ' + (big ? 'najvećeg' : 'najmanjeg') + ' ' + d.g + '!',
+  more:(s, less) => 'Gdje ima ' + (less ? 'manje' : 'više') + ' ' + s.g + '?',
+  name:d => cap(d.n) + '!', click:d => 'Klikni na ' + d.g + '!',
+  shadowAns:d => 'To je sjena ' + d.g + '.',
+  isDiet:d => cap(d.n) + ' ' + FOOD[d.diet].is + '.',
+  colSay:c => 'Jaje je ' + c.n + '!', colClick:c => 'Klikni na ' + c.af + ' boju!',
+  numSay:n => cap(NUM[n-1]) + '!', numClick:n => 'Klikni na broj ' + NUM[n-1] + '!',
+  askLetter:w => 'Kojim slovom počinje riječ ' + w[1] + '?', ansLetter:w => w[1] + ' počinje slovom ' + w[1][0] + '.'
+};
+function allLines(){
+  const out = Object.values(T).concat(PRAISE, NOPE);
+  COLORS.forEach(c => out.push(S.colGo(c), S.colNo(c), S.colSay(c), S.colClick(c)));
+  for(let n = 1; n <= 10; n++) out.push(S.digGo(n), S.digNo(n), S.numSay(n), S.numClick(n));
+  LETTERS.forEach(l => out.push(S.letGo(l), S.letNo(l)));
+  for(let a = 1; a <= 9; a++) for(let b = 1; a + b <= 10; b++) out.push(S.sumAsk(a, b), S.sumAns(a, b));
+  ['b','m','r'].forEach(k => out.push(S.notFood(k)));
+  DINOS.forEach(d => { out.push(S.intro0(d), S.intro1(d), S.intro2(d), S.win0(d), S.win1(d), S.win2(d), S.foodGo(d), S.feed(d), S.count(d), S.all(d), S.isNot(d.n),
+    S.size(d, true), S.size(d, false), S.more(d, false), S.more(d, true), S.name(d), S.click(d), S.shadowAns(d), S.isDiet(d), d.fq, d.fa); d.facts.forEach(f => out.push(f)); });
+  THINGS.forEach(t => out.push(S.count(t), S.more(t, false), S.more(t, true)));
+  WORDS.forEach(w => out.push(S.askLetter(w), S.ansLetter(w)));
+  return out;
+}
+/*@END*/
+
+/* ---------- razine: 10 dinosaura po 3 razine (jaje, mladunče, prvak); razina = hodanje strelicama, tri zadatka mišem, jedan odgovor glasom ---------- */
+const LEVELS = 30, MAXN = [5, 7, 10];
+const PLAN_A = [['color','digit'], ['food','digit','letter'], ['sum','letter','food','sum']];
+const PLAN_B = [['count','shadow','size','all','feat','more'], ['diet','pattern','count','feat','letter','more','shadow','all'], ['add','letter','pattern','diet','feed','more','feat']];
+const PLAN_C = [['color','count'], ['name'], ['count','name','color']];
+const STAGE = ['🥚','🐣','👑'];
+
+/* ---------- crteži ---------- */
+const ART = DINO_ART; $('#defs').innerHTML = ART.defs();
+const byId = id => DINOS.find(d => d.id === id);
+const dn = (id, w, cls) => '<span class="dn ' + (cls||'') + '" style="--w:' + w + '">' + ART.svg(id) + '</span>';
+const eg = (id, w) => '<span class="eg" style="--w:' + w + '">' + ART.egg(id) + '</span>';
+const baby = (id, w) => '<span class="baby" style="--w:' + w + '">' + dn(id, w) + ART.shell() + '</span>';
+const plainEgg = hex => '<svg viewBox="0 0 120 150" aria-hidden="true"><ellipse cx="60" cy="140" rx="40" ry="7" fill="#0003"/><path d="M60 8 C92 8 108 58 108 90 C108 122 86 140 60 140 C34 140 12 122 12 90 C12 58 28 8 60 8 Z" fill="' + hex +
+  '" stroke="#fff" stroke-width="5"/><path d="M32 34 C40 22 50 17 58 16" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".8"/><circle cx="76" cy="96" r="12" fill="#ffffff40"/><circle cx="44" cy="76" r="8" fill="#ffffff40"/></svg>';
+const gem = hex => '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 6 L92 38 L50 95 L8 38Z" fill="' + hex + '" stroke="#fff" stroke-width="6" stroke-linejoin="round"/><path d="M8 38 L92 38 M50 6 L34 38 L50 95 L66 38Z" fill="none" stroke="#ffffffa0" stroke-width="3" stroke-linejoin="round"/></svg>';
+(function scenery(){
+  $('#volcano').innerHTML = '<svg viewBox="0 0 300 200" aria-hidden="true"><defs><linearGradient id="vg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b98a7a"/><stop offset="1" stop-color="#7a5a6a"/></linearGradient></defs>' +
+    '<g fill="#fff" opacity=".9"><circle class="puff" cx="150" cy="20" r="16"/><circle class="puff" cx="150" cy="20" r="13"/><circle class="puff" cx="150" cy="20" r="18"/></g>' +
+    '<path d="M0 200 L108 34 Q150 18 192 34 L300 200Z" fill="url(#vg)"/><path d="M108 34 Q150 18 192 34 L204 54 Q186 46 178 62 Q166 44 152 66 Q140 46 126 60 Q116 46 96 54Z" fill="#ff7a3d"/><path d="M118 36 Q150 26 182 36 Q150 46 118 36Z" fill="#ffd24a"/></svg>';
+  const frond = (r, c) => '<g transform="rotate(' + r + ' 150 120)"><path class="frond" d="M150 120 C176 62 250 34 320 52 C262 66 210 92 150 120Z" fill="' + c + '"/></g>';
+  const palm = '<svg viewBox="0 0 300 460" aria-hidden="true"><path d="M150 460 C140 360 136 240 150 120 L166 122 C158 240 164 360 178 460Z" fill="#a9743c"/>' +
+    '<g fill="none" stroke="#8a5a2a" stroke-width="4" opacity=".6"><path d="M144 200 h18 M143 250 h20 M144 300 h22 M146 350 h24 M148 400 h26"/></g>' +
+    frond(-150, '#2f9a4f') + frond(-110, '#3fb45c') + frond(-70, '#2f9a4f') + frond(-30, '#4cc468') + frond(10, '#3fb45c') + frond(40, '#2f9a4f') + '<circle cx="156" cy="124" r="10" fill="#7a4a22"/><circle cx="144" cy="130" r="8" fill="#8a5a2a"/></svg>';
+  document.querySelectorAll('.palm').forEach(p => p.innerHTML = palm);
+})();
+
+let ac = null, muted = false;
+function ensureAc(){ try{ ac = ac || new (window.AudioContext||window.webkitAudioContext)(); if(ac.state === 'suspended') ac.resume(); }catch(e){} return ac; }
+function tone(f, d, type, v, when, f2){
+  if(muted) return;
+  try{
+    ensureAc();
+    const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + (when||0);
+    o.type = type||'sine'; o.frequency.setValueAtTime(f,t);
+    if(f2) o.frequency.exponentialRampToValueAtTime(f2, t+d);
+    g.gain.setValueAtTime(v||.2, t); g.gain.exponentialRampToValueAtTime(.001, t+d);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+d+.03);
+  }catch(e){}
+}
+const sfx = {
+  pop(){ tone(420,.1,'sine',.16,0,1100); },
+  ok(){ tone(784,.14,'sine',.18); tone(1175,.18,'sine',.18,.1); tone(1568,.3,'sine',.16,.2); },
+  nope(){ tone(260,.22,'sine',.12,0,170); },
+  ping(){ tone(1320,.5,'sine',.1); tone(1320,.5,'sine',.05,.25); },
+  dive(){ tone(520,.7,'sine',.1,0,150); },
+  fanfare(){ [523,659,784,1047,1319,1047,1568].forEach((f,i)=>tone(f,.28,'triangle',.18,i*.13)); }
+};
+const synth = window.speechSynthesis; let voice = null;
+function pickVoice(){
+  if(!synth) return;
+  const vs = synth.getVoices(); let best = null, bs = -1;
+  for(const v of vs){
+    const l = (v.lang||'').toLowerCase().replace('_','-'), li = ['hr','bs','sr','sl'].findIndex(p => l.startsWith(p));
+    if(li < 0) continue;
+    const n = (v.name||'').toLowerCase(); let s = (4-li)*100;
+    if(/natural|neural|online|premium|enhanced|wavenet/.test(n)) s += 50;
+    if(n.includes('google')) s += 30;
+    if(s > bs){ bs = s; best = v; }
+  }
+  voice = best;
+}
+if(synth){ pickVoice(); try{ synth.addEventListener('voiceschanged', pickVoice); }catch(e){} }
+const SPLIT = /(?<=[.!?])\s+/, ptext = $('#ptext');
+let pack = null, packBin = null, curSrc = null, packUrl = '', packSize = 0, probe = null, sayId = 0, lastSay = 0;
+const bufCache = new Map(); window.__miss = [];
+async function loadPack(){
+  try{
+    const idx = await (await fetch('glas6.json', {cache:'no-cache'})).json();
+    packUrl = 'glas6.mp3?v=' + idx.v; packSize = idx.size; pack = idx.clips;
+  }catch(e){ pack = null; }
+}
+async function clipBytes(s){
+  const off = pack[s][0], len = pack[s][1];
+  if(probe) await probe;
+  if(packBin) return packBin.slice(off, off+len);
+  const job = (async () => {
+    const r = await fetch(packUrl, {headers:{Range:'bytes='+off+'-'+(off+len-1)}});
+    const ab = await r.arrayBuffer();
+    if(r.status === 206 && ab.byteLength === len) return ab;
+    if(ab.byteLength >= packSize){ packBin = ab; return ab.slice(off, off+len); }
+    throw new Error('range');
+  })();
+  if(!probe) probe = job.then(() => {}, () => {});
+  return job;
+}
+function clipBuf(s){
+  if(bufCache.has(s)) return bufCache.get(s);
+  const p = clipBytes(s).then(ab => new Promise((res, rej) => ac.decodeAudioData(ab, res, rej)));
+  bufCache.set(s, p); p.catch(() => bufCache.delete(s));
+  return p;
+}
+function trimOf(b){
+  if(b._t) return b._t;
+  const d = b.getChannelData(0), n = d.length, sr = b.sampleRate; let a = 0, e = n-1;
+  while(a < n && Math.abs(d[a]) < .012) a++;
+  while(e > a && Math.abs(d[e]) < .012) e--;
+  const s = Math.max(0, a/sr - .03);
+  return b._t = [s, Math.min(b.duration - s, (e-a)/sr + .25)];
+}
+function playBuf(b){
+  return new Promise(res => { const src = ac.createBufferSource(), t = trimOf(b); src.buffer = b; src.connect(ac.destination); src.onended = res; curSrc = src; src.start(0, t[0], t[1]); });
+}
+function stopVoice(){
+  if(curSrc){ try{ curSrc.onended = null; curSrc.stop(); }catch(e){} curSrc = null; }
+  if(synth){ try{ synth.cancel(); }catch(e){} }
+}
+function speakTTS(s){
+  return new Promise(res => {
+    const ms = 700 + s.length*65;
+    if(voice && synth){
+      try{ const u = new SpeechSynthesisUtterance(s); u.voice = voice; u.lang = voice.lang; u.pitch = 1.05; u.rate = .9; u.onend = u.onerror = res; synth.speak(u); }catch(e){}
+      setTimeout(res, ms + 4000);
+    } else setTimeout(res, ms);
+  });
+}
+/* say vraća obećanje koje se ispuni kad glas završi (ili kad ga prekine nova rečenica) */
+function say(text){
+  ptext.textContent = text; lastSay = performance.now();
+  stopVoice();
+  const id = ++sayId;
+  if(muted) return Promise.resolve();
+  return (async () => {
+    const parts = text.split(SPLIT);
+    if(pack && ensureAc()) parts.forEach(s => { if(pack[s]) clipBuf(s).catch(() => {}); });
+    for(const s of parts){
+      if(id !== sayId) return;
+      if(pack && pack[s] && ensureAc()){
+        try{ const b = await clipBuf(s); if(id !== sayId) return; await playBuf(b); continue; }catch(e){}
+      } else if(pack) window.__miss.push(s);
+      if(id !== sayId) return;
+      await speakTTS(s);
+    }
+  })();
+}
+sfx.crack = () => { tone(900,.06,'square',.08); tone(600,.08,'square',.08,.09); tone(1200,.1,'square',.07,.2); };
+sfx.chomp = () => { tone(220,.09,'square',.1,0,120); tone(200,.09,'square',.1,.13,110); };
+sfx.roar = () => { tone(160,.5,'sawtooth',.09,0,70); tone(240,.4,'sawtooth',.05,.05,90); };
+sfx.go = () => { tone(330,.12,'triangle',.14); tone(494,.2,'triangle',.14,.1); };
+
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const rnd = (a, b) => a + Math.floor(Math.random()*(b-a+1));
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; }
+const sample = (a, n, not) => shuffle(a.filter(x => x !== not)).slice(0, n);
+const el = (tag, cls, html) => { const e = document.createElement(tag); if(cls) e.className = cls; if(html != null) e.innerHTML = html; return e; };
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const U = () => Math.min(innerHeight/100, innerWidth/200);
+let save = {};
+try{ save = JSON.parse(localStorage.getItem('teo-dino')) || {}; }catch(e){}
+function store(){ try{ localStorage.setItem('teo-dino', JSON.stringify(save)); }catch(e){} }
+const stars = i => save[i] || 0, open = i => i % 3 === 0 || stars(i-1) > 0;
+const prog = d => [0,1,2].filter(s => stars(d*3 + s) > 0).length;
+const starHtml = n => [0,1,2].map(j => '<i' + (j < n ? ' class="on"' : '') + '>⭐</i>').join('');
+/* lik prema napretku: jaje, mladunče u ljusci, odrasli */
+const form = (id, p, w) => p === 0 ? eg(id, w*.5) : p === 1 ? baby(id, w*.68) : dn(id, w);
+
+let screen = 'map', level = 0, di = 0, stage = 0, dino = DINOS[0], step = 0, steps = [], errors = 0, tErr = 0, busy = true, run = 0, sel = 0, greeted = false, toldRun = false, toldVoice = false, toldMic = false, intro = '';
+let mode = '', movers = [], hero = null;
+const field = $('#field'), keys = {};
+const HOW = {run:'⌨️', mouse:'🖱️', voice:'🎤'};
+function setHow(k){ $('#how').textContent = HOW[k]; }
+function drawPips(){ $('#pips').innerHTML = steps.map((_, i) => '<i class="' + (i < step ? 'on' : i === step ? 'now' : '') + '"></i>').join(''); }
+function sparkle(x, y){
+  for(let i = 0; i < 7; i++){ const s = el('i', 'spark emo', pick(['✨','⭐','💛','🌟'])), a = Math.random()*6.28, d = U()*(8 + Math.random()*8);
+    s.style.marginLeft = s.style.marginTop = '-2.5vh';
+    s.animate([{transform:'translate(' + x + 'px,' + y + 'px) scale(1)', opacity:1}, {transform:'translate(' + (x + Math.cos(a)*d) + 'px,' + (y + Math.sin(a)*d) + 'px) scale(.3)', opacity:0}], {duration:700, easing:'ease-out', fill:'forwards'});
+    field.appendChild(s); setTimeout(() => s.remove(), 690); }
+}
+/* prva rečenica razine ide uz kratak uvod o dinosauru */
+function tell(line){ const t = intro ? intro + ' ' + line : line; intro = ''; return say(t); }
+function wrong(node, line){
+  errors++; tErr++; sfx.nope();
+  if(line || performance.now() - lastSay > 1200) say(line || pick(NOPE));
+  if(node){ node.classList.remove('no'); void node.offsetWidth; node.classList.add('no'); }
+  if(tErr >= 2){ const h = field.querySelector('[data-ok]'); if(h) h.classList.add('hint'); }
+}
+async function solved(extra, node){
+  if(busy) return;
+  const my = run; busy = true; sfx.ok();
+  if(node){ const r = node.getBoundingClientRect(); sparkle(r.left + r.width/2, r.top + r.height/2); node.classList.add('right'); }
+  field.querySelectorAll('.hint').forEach(e => e.classList.remove('hint'));
+  step++; drawPips();
+  const p = say((extra ? extra + ' ' : '') + pick(PRAISE));
+  await Promise.all([wait(1300), Promise.race([p, wait(7000)])]);
+  if(my !== run) return;
+  nextStep();
+}
+function board(){ const b = el('div'); b.id = 'board'; field.appendChild(b); return b; }
+function options(parent, list, cls, html, isRight, onRight){
+  const row = el('div', 'opts'); parent.appendChild(row);
+  list.forEach(v => { const b = el('button', 'opt ' + cls, html(v)); b.setAttribute('aria-label', 'Odgovor'); if(isRight(v)) b.dataset.ok = 1;
+    b.onclick = () => { if(busy) return; ensureAc(); isRight(v) ? onRight(b) : wrong(b); }; row.appendChild(b); });
+  return row;
+}
+function numOpts(c, max){
+  const s = new Set([c]); let g = 0;
+  while(s.size < 3 && g++ < 60){ const v = c + pick([-2,-1,1,2]); if(v >= 1 && v <= max) s.add(v); }
+  return shuffle([...s]);
+}
+/* n sličica iste stvari: dinosaur, jaje ili znak */
+const thing = (t, w) => t.id ? dn(t.id, w) : t.egg ? eg(t.egg === 1 ? 'triceratops' : t.egg, w*.5) : '<span class="cr emo" style="--s:' + (w*.56).toFixed(1) + '">' + t.e + '</span>';
+const things = (t, n, w) => Array.from({length:n}, () => thing(t, w)).join('');
+function pickThing(){ if(Math.random() < .55) return pick(DINOS); const t = pick(THINGS); return t.egg ? {egg:pick(DINOS).id, g:t.g} : t; }
+
+/* ---------- 1. hodanje strelicama ---------- */
+function item(html, good){
+  const u = U(), W = innerWidth, H = innerHeight, b = {good, r:6*u, vx:0, vy:0, el:el('div', 'it', '<span class="in">' + html + '</span>')};
+  let ok = false;
+  for(let k = 0; k < 120 && !ok; k++){
+    b.x = 12*u + Math.random()*(W - 24*u); b.y = 34*u + Math.random()*(H - 46*u);
+    ok = Math.hypot(b.x - hero.x, b.y - hero.y) > 30*u && !(b.x > W - 34*u && b.y > H - 26*u) && movers.every(m => Math.hypot(b.x - m.x, b.y - m.y) > 17*u);
+  }
+  b.el.querySelector('.in').style.animationDelay = '-' + (Math.random()*2.4).toFixed(2) + 's';
+  field.appendChild(b.el); movers.push(b); return b;
+}
+const stoneHtml = v => '<span class="stone">' + v + '</span>';
+function startRun(kind){
+  mode = 'run'; setHow('run'); $('#pad').hidden = false; movers = []; document.body.classList.add('run');
+  const u = U(), w = stage === 0 ? 11 : stage === 1 ? 17 : 25, h = el('div', '', '<span class="in">' + (stage === 0 ? eg(dino.id, w) : dn(dino.id, w)) + '</span>'); h.id = 'hero'; field.appendChild(h);
+  hero = {x:innerWidth/2, y:innerHeight*.6, vx:0, vy:0, dir:1, rot:0, el:h, left:0, kind, no:'', round:0, r:(stage === 0 ? 6 : stage === 1 ? 6.5 : 8.5)*u};
+  const nT = 3 + (stage ? 1 : 0), nD = 3 + stage;
+  let line;
+  if(kind === 'color'){ const c = pick(COLORS), o = sample(COLORS, 3, c);
+    for(let i = 0; i < nT; i++) item(gem(c.hex), true); for(let i = 0; i < nD; i++) item(gem(o[i % o.length].hex), false); line = S.colGo(c); hero.no = S.colNo(c); }
+  else if(kind === 'food'){ const k = dino.diet, o = ['b','m','r'].filter(x => x !== k);
+    for(let i = 0; i < nT; i++) item('<span class="emo">' + FOOD[k].e + '</span>', true); for(let i = 0; i < nD; i++) item('<span class="emo">' + FOOD[o[i % 2]].e + '</span>', false); line = S.foodGo(dino); hero.no = S.notFood(k); }
+  else if(kind === 'digit'){ const max = stage === 0 ? 5 : 9, n = rnd(1, max), o = sample([...Array(max).keys()].map(i => i+1), 4, n);
+    for(let i = 0; i < nT; i++) item(stoneHtml(n), true); for(let i = 0; i < nD; i++) item(stoneHtml(o[i % o.length]), false); line = S.digGo(n); hero.no = S.digNo(n); }
+  else if(kind === 'letter'){ const l = pick(LETTERS), o = sample(LETTERS, 4, l);
+    for(let i = 0; i < nT; i++) item(stoneHtml(l), true); for(let i = 0; i < nD; i++) item(stoneHtml(o[i % o.length]), false); line = S.letGo(l); hero.no = S.letNo(l); }
+  else { line = sumRound(); }
+  hero.left = movers.filter(m => m.good).length;
+  busy = false; tell(line + (toldRun ? '' : ' ' + (stage === 0 ? T.roll : T.walk))); toldRun = true;
+}
+function sumRound(){
+  movers.forEach(m => m.el.remove()); movers = [];
+  const max = di < 5 ? 7 : 10, a = rnd(1, max-1), b = rnd(1, max-a), c = a + b, o = sample([...Array(10).keys()].map(i => i+1), 4, c);
+  item(stoneHtml(c), true); o.forEach(v => item(stoneHtml(v), false));
+  hero.a = a; hero.b = b; hero.no = T.sumWrong; hero.left = 1;
+  let q = $('#eq'); if(!q){ q = el('div', 'panel'); q.id = 'eq'; field.appendChild(q); } q.textContent = a + ' + ' + b + ' = ?';
+  return S.sumAsk(a, b) + ' ' + T.sumGo;
+}
+function hit(m){
+  const u = U();
+  if(m.good){
+    m.dead = true; m.el.classList.add('pop'); sfx.pop(); sparkle(m.x, m.y); setTimeout(() => m.el.remove(), 360); movers = movers.filter(x => x !== m);
+    if(--hero.left > 0) return;
+    if(hero.kind === 'sum'){ $('#eq').textContent = hero.a + ' + ' + hero.b + ' = ' + (hero.a + hero.b);
+      if(++hero.round < 2){ const my = run, ans = S.sumAns(hero.a, hero.b); busy = true; sfx.ok();
+        Promise.race([say(ans), wait(5000)]).then(() => wait(300)).then(() => { if(my !== run) return; busy = false; say(sumRound()); }); return; } }
+    mode = ''; $('#pad').hidden = true; hero.el.classList.remove('walk'); solved(hero.kind === 'sum' ? S.sumAns(hero.a, hero.b) : '', null);
+  } else {
+    const dx = m.x - hero.x, dy = m.y - hero.y, d = Math.hypot(dx, dy) || 1; m.vx = dx/d*30*u; m.vy = dy/d*30*u; hero.vx *= -.4; hero.vy *= -.4;
+    m.el.classList.remove('bad'); void m.el.offsetWidth; m.el.classList.add('bad');
+    if(performance.now() - (m.last||0) > 1500){ m.last = performance.now(); errors++; sfx.nope(); if(performance.now() - lastSay > 2200) say(hero.no); }
+  }
+}
+function stepRun(dt){
+  const u = U(), W = innerWidth, H = innerHeight, s = hero, ax = (keys.r ? 1 : 0) - (keys.l ? 1 : 0), ay = (keys.d ? 1 : 0) - (keys.u ? 1 : 0);
+  if(!busy){ s.vx += ax*340*u*dt; s.vy += ay*340*u*dt; }
+  const f = Math.pow(.004, dt); if(!ax || busy) s.vx *= f; if(!ay || busy) s.vy *= f;
+  const sp = Math.hypot(s.vx, s.vy), mx = 58*u; if(sp > mx){ s.vx *= mx/sp; s.vy *= mx/sp; }
+  s.x = Math.max(10*u, Math.min(W - 10*u, s.x + s.vx*dt)); s.y = Math.max(30*u, Math.min(H - 9*u, s.y + s.vy*dt));
+  if(ax) s.dir = ax;
+  if(stage === 0){ s.rot += (s.vx + s.vy*.5)*dt/(5.5*u)*57.3; s.el.style.transform = 'translate(' + s.x + 'px,' + s.y + 'px) translate(-50%,-50%) rotate(' + s.rot.toFixed(1) + 'deg)'; }
+  else { s.el.style.transform = 'translate(' + s.x + 'px,' + s.y + 'px) translate(-50%,-50%) scaleX(' + s.dir + ')'; s.el.classList.toggle('walk', sp > 6*u); }
+  s.el.style.zIndex = 3;
+  for(const m of movers.slice()){
+    const k = Math.pow(.02, dt); m.vx *= k; m.vy *= k; m.x += m.vx*dt; m.y += m.vy*dt;
+    if(m.x < 8*u){ m.x = 8*u; m.vx = Math.abs(m.vx); } if(m.x > W - 8*u){ m.x = W - 8*u; m.vx = -Math.abs(m.vx); }
+    if(m.y < 32*u){ m.y = 32*u; m.vy = Math.abs(m.vy); } if(m.y > H - 9*u){ m.y = H - 9*u; m.vy = -Math.abs(m.vy); }
+    m.el.style.transform = 'translate(' + m.x + 'px,' + m.y + 'px)';
+    if(!busy && !m.dead && Math.hypot(m.x - s.x, m.y - s.y) < m.r + s.r) hit(m);
+  }
+}
+
+/* ---------- 2. zadaci mišem ---------- */
+const MOUSE = {
+  count(){
+    const s = pickThing(), n = rnd(stage ? 3 : 1, MAXN[stage]), b = board(), w = s.id ? (n > 6 ? 17 : n > 3 ? 21 : 26) : 15, t = el('div', 'tank panel', things(s, n, w)); t.style.maxWidth = 'calc(var(--u)*' + (n > 8 ? 110 : n > 6 ? 96 : n === 4 ? 60 : 100) + ')'; b.appendChild(t);
+    options(b, numOpts(n, 10), '', v => v, v => v === n, o => solved(S.numSay(n), o));
+    return S.count(s);
+  },
+  all(){
+    const s = pick(DINOS), others = sample(DINOS, 2, s), b = board(), t = el('div', 'tank panel'); t.style.cssText = 'width:calc(var(--u)*156);height:calc(var(--u)*66);padding:0;overflow:hidden'; b.appendChild(t);
+    const nT = 3 + (stage > 1 ? 1 : 0), nO = 3 + stage, u = U(), W = 156*u, H = 66*u; let left = nT; mode = 'swim'; movers = [];
+    for(let i = 0; i < nT + nO; i++){
+      const good = i < nT, c = good ? s : others[i % others.length], m = {x:10*u + Math.random()*(W - 20*u), y:9*u + Math.random()*(H - 18*u), W, H, el:el('button', 'mv', dn(c.id, 17))};
+      const a = Math.random()*6.28, sp = (4 + stage*2.4 + Math.random()*4)*u; m.vx = Math.cos(a)*sp || 1; m.vy = Math.sin(a)*sp*.6; m.el.setAttribute('aria-label', c.n); if(good) m.el.dataset.ok = 1;
+      m.el.onclick = () => { if(busy) return; ensureAc();
+        if(!good) return wrong(m.el, S.isNot(c.n));
+        m.el.classList.add('gone'); delete m.el.dataset.ok; movers = movers.filter(x => x !== m); sfx.pop(); const r = m.el.getBoundingClientRect(); sparkle(r.left + r.width/2, r.top + r.height/2);
+        if(--left === 0){ mode = ''; solved('', null); } };
+      t.appendChild(m.el); movers.push(m);
+    }
+    return S.all(s);
+  },
+  size(){
+    const s = pick(DINOS), big = Math.random() < .5, sizes = shuffle([13, 20, 28, 38]), want = big ? 38 : 13, b = board(), t = el('div', 'tank panel'); t.style.cssText = 'gap:calc(var(--u)*5);padding:calc(var(--u)*3) calc(var(--u)*6);min-height:calc(var(--u)*38);align-items:flex-end;flex-wrap:nowrap'; b.appendChild(t);
+    sizes.forEach(z => { const c = el('button', 'pk', dn(s.id, z)); c.setAttribute('aria-label', s.n); if(z === want) c.dataset.ok = 1;
+      c.onclick = () => { if(busy) return; ensureAc(); z === want ? solved('', c) : wrong(c); }; t.appendChild(c); });
+    return S.size(s, big);
+  },
+  more(){
+    const mx = Math.min(MAXN[stage], 8); let a, c; do{ a = rnd(1, mx); c = rnd(1, mx); }while(a === c || (stage < 1 && Math.abs(a-c) < 2));
+    const s = pickThing(), less = stage > 0 && Math.random() < .5, want = less ? Math.min(a, c) : Math.max(a, c), b = board(), row = el('div', 'row'); row.style.gap = 'calc(var(--u)*6)'; b.appendChild(row);
+    [a, c].forEach(n => { const t = el('button', 'tank panel', things(s, n, s.id ? 15.5 : 13)); t.style.cssText = 'width:calc(var(--u)*76);min-height:calc(var(--u)*46)'; t.setAttribute('aria-label', 'Skupina'); if(n === want) t.dataset.ok = 1;
+      t.onclick = () => { if(busy) return; ensureAc(); n === want ? solved('', t) : wrong(t); }; row.appendChild(t); });
+    return S.more(s, less);
+  },
+  shadow(){
+    const s = Math.random() < .5 ? dino : pick(DINOS), b = board(), p = el('div', 'pic panel sil', dn(s.id, 38)); b.appendChild(p);
+    options(b, shuffle([s].concat(sample(DINOS, 2, s))), 'card', v => dn(v.id, 28), v => v === s, o => { p.classList.remove('sil'); solved(S.shadowAns(s), o); });
+    return T.shadow;
+  },
+  feat(){
+    const s = Math.random() < .5 ? dino : pick(DINOS), pool = DINOS.filter(d => d !== s && !s.no.includes(d.id)), b = board();
+    options(b, shuffle([s].concat(sample(pool, 2))), 'card', v => dn(v.id, 28), v => v === s, o => solved(s.fa, o));
+    return s.fq;
+  },
+  diet(){
+    const meat = DINOS.filter(d => d.diet === 'm'), plant = DINOS.filter(d => d.diet === 'b'), askMeat = Math.random() < .5, s = pick(askMeat ? meat : plant), b = board();
+    options(b, shuffle([s].concat(sample(askMeat ? plant : meat, 2))), 'card', v => dn(v.id, 28), v => v === s, o => solved(S.isDiet(s), o));
+    return askMeat ? T.whoMeat : T.whoPlant;
+  },
+  feed(){
+    const k = dino.diet, b = board(), t = el('div', 'tank panel'); t.style.cssText = 'width:calc(var(--u)*156);height:calc(var(--u)*66);padding:0'; b.appendChild(t);
+    const u = U(), d = el('div', '', stage === 1 ? dn(dino.id, 40) : dn(dino.id, 62)); d.style.cssText = 'position:absolute;left:calc(var(--u)*' + (stage === 1 ? 14 : 4) + ');bottom:calc(var(--u)*' + (stage === 1 ? 8 : 5) + ')'; t.appendChild(d);
+    const o = ['b','m','r'].filter(x => x !== k), spots = shuffle([[84,8],[106,6],[128,10],[86,28],[108,30],[130,28],[96,48],[120,48]]); let left = 3;
+    [k, k, k, o[0], o[1], o[0], o[1]].slice(0, 5 + stage).forEach((kind, i) => { const f = el('button', 'food emo', FOOD[kind].e), sp = spots[i]; f.style.transform = 'translate(calc(var(--u)*' + sp[0] + '),calc(var(--u)*' + sp[1] + '))'; f.setAttribute('aria-label', 'Hrana');
+      if(kind === k) f.dataset.ok = 1;
+      f.onclick = () => { if(busy || f.dataset.gone) return; ensureAc();
+        if(kind !== k) return wrong(f, S.notFood(k));
+        f.dataset.gone = 1; delete f.dataset.ok; const head = d.querySelector('svg').getBoundingClientRect(), box = t.getBoundingClientRect();
+        f.style.transform = 'translate(' + (head.left + head.width*.8 - box.left - 6.5*u) + 'px,' + (head.top + head.height*.28 - box.top - 6.5*u) + 'px) scale(.3)'; f.style.opacity = 0; f.style.pointerEvents = 'none';
+        setTimeout(() => { sfx.chomp(); d.classList.remove('chomp'); void d.offsetWidth; d.classList.add('chomp'); }, 420);
+        if(--left === 0) setTimeout(() => solved(S.isDiet(dino), null), 500); };
+      t.appendChild(f); });
+    return S.feed(dino);
+  },
+  pattern(){
+    const ids = sample(['tiranosaur','triceratops','brahiosaur','spinosaur','velociraptor','parasaurolof'], 3), A = ids[0], B = ids[1], C = ids[2];
+    const p = pick(stage < 2 ? [[A,B],[A,B,B],[A,A,B]] : [[A,B,C],[A,A,B],[A,B,B],[A,A,B,B]]), len = stage < 2 ? 5 : 6, seq = Array.from({length:len + 1}, (_, i) => p[i % p.length]);
+    const b = board(), row = el('div', 'row'); b.appendChild(row);
+    seq.forEach((h, i) => row.appendChild(i === len ? el('div', 'tile panel q', '?') : el('div', 'tile panel', eg(h, 9))));
+    options(b, shuffle(ids.slice()), '', v => eg(v, 11), v => v === seq[len], o => { row.lastChild.innerHTML = eg(seq[len], 9); row.lastChild.classList.remove('q'); solved('', o); });
+    return T.pat;
+  },
+  letter(){
+    const w = Math.random() < .4 ? WORDS[di] : pick(WORDS), L0 = w[1][0], all = [...new Set(WORDS.map(x => x[1][0]).concat(['M','L','N','O']))], b = board(), isD = byId(w[0]);
+    const c = el('div', 'pic sq panel', (isD ? dn(w[0], 34) : '<span class="emo">' + w[0] + '</span>') + '<span class="word">_' + w[1].slice(1).toUpperCase() + '</span>'); b.appendChild(c);
+    options(b, shuffle([L0].concat(sample(all, stage > 1 ? 3 : 2, L0))), '', v => v, v => v === L0, o => { c.querySelector('.word').textContent = w[1].toUpperCase(); solved(S.ansLetter(w), o); });
+    return S.askLetter(w);
+  },
+  add(){
+    const max = di < 5 ? 7 : 10, a = rnd(1, max-1), c = rnd(1, max-a), id = pick(DINOS).id, b = board(), row = el('div', 'row'); row.style.gap = 'calc(var(--u)*3)'; row.style.marginBottom = 'calc(var(--u)*2)'; b.appendChild(row);
+    [a, c].forEach((n, i) => { if(i) row.appendChild(el('span', 'plus', '+')); const t = el('div', 'tank panel', Array.from({length:n}, () => eg(id, 7.6)).join('') + '<span class="badge">' + n + '</span>'); t.style.cssText = 'width:calc(var(--u)*60);min-height:calc(var(--u)*32)'; row.appendChild(t); });
+    options(b, numOpts(a + c, 10), '', v => v, v => v === a + c, o => solved(S.sumAns(a, c), o));
+    return T.add;
+  }
+};
+function stepSwim(dt){
+  const u = U();
+  for(const m of movers){
+    m.x += m.vx*dt; m.y += m.vy*dt;
+    if(m.x < 9*u){ m.x = 9*u; m.vx = Math.abs(m.vx); } if(m.x > m.W - 9*u){ m.x = m.W - 9*u; m.vx = -Math.abs(m.vx); }
+    if(m.y < 7*u){ m.y = 7*u; m.vy = Math.abs(m.vy); } if(m.y > m.H - 7*u){ m.y = m.H - 7*u; m.vy = -Math.abs(m.vy); }
+    m.el.style.transform = 'translate(' + m.x + 'px,' + m.y + 'px) scaleX(' + (m.vx > 0 ? 1 : -1) + ')';
+  }
+}
+
+/* ---------- 3. odgovori glasom ---------- */
+const getSR = () => window.SpeechRecognition || window.webkitSpeechRecognition;
+let micOff = !getSR(), rec = null;
+const norm = s => ' ' + String(s).toLowerCase().replace(/[čć]/g, 'c').replace(/š/g, 's').replace(/ž/g, 'z').replace(/đ/g, 'd').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim() + ' ';
+const NUMK = [['jedan','jedna','jedno','1'],['dva','dvije','dve','2'],['tri','3'],['cetiri','4'],['pet','5'],['sest','6'],['sedam','7'],['osam','8'],['devet','9'],['deset','10']];
+const hasRoot = k => t => k.some(r => t.includes(r));
+const hasNum = n => t => NUMK[n-1].some(w => t.includes(' ' + w + ' '));
+function stopRec(){ if(rec){ try{ rec.onresult = rec.onend = rec.onerror = null; rec.abort(); }catch(e){} rec = null; } const m = $('#mic'); if(m) m.classList.remove('on'); }
+function listen(match, ms){
+  return new Promise(res => {
+    if(micOff) return res('off');
+    let r, done = false; try{ r = new (getSR())(); }catch(e){ micOff = true; return res('off'); }
+    const fin = v => { if(done) return; done = true; clearTimeout(t); stopRec(); res(v); };
+    rec = r; r.lang = 'hr-HR'; r.interimResults = true; r.maxAlternatives = 3; r.continuous = false;
+    r.onresult = e => { for(let i = 0; i < e.results.length; i++) for(let j = 0; j < e.results[i].length; j++){ const tr = e.results[i][j].transcript; const h = $('#heard'); if(h) h.textContent = '„' + tr.trim() + '”'; if(match(norm(tr))) return fin('ok'); } };
+    r.onerror = e => { if(['not-allowed','service-not-allowed','audio-capture'].includes(e.error)){ micOff = true; fin('off'); } else fin('miss'); };
+    r.onend = () => fin('miss');
+    const t = setTimeout(() => fin('miss'), ms);
+    try{ r.start(); const m = $('#mic'); if(m) m.classList.add('on'); sfx.ping(); }catch(e){ fin('miss'); }
+  });
+}
+function voiceSpec(kind){
+  if(kind === 'name'){ const w = stage === 1 || Math.random() < .5 ? dino : pick(DINOS);
+    return {pic:dn(w.id, 40), q:T.who, match:hasRoot(w.k), ans:S.name(w), fb:S.click(w), opts:shuffle([w].concat(sample(DINOS, 2, w))), cls:'card', html:x => dn(x.id, 28), right:x => x === w}; }
+  if(kind === 'color'){ const c = pick(COLORS);
+    return {pic:'<span class="eg" style="--w:19">' + plainEgg(c.hex) + '</span>', q:T.whatColor, match:hasRoot(c.k), ans:S.colSay(c), fb:S.colClick(c), opts:shuffle([c].concat(sample(COLORS, 2, c))), cls:'sw', html:x => '<i style="display:block;width:74%;height:74%;border-radius:50%;background:' + x.hex + '"></i>', right:x => x === c}; }
+  const n = rnd(1, Math.min(10, MAXN[stage])), id = pick(DINOS).id;
+  return {pic:Array.from({length:n}, () => eg(id, 8.4)).join(''), q:T.howMany, match:hasNum(n), ans:S.numSay(n), fb:S.numClick(n), opts:numOpts(n, 10), cls:'', html:x => x, right:x => x === n};
+}
+async function startVoice(kind){
+  const my = run, v = voiceSpec(kind), b = board(); mode = 'voice'; setHow('voice');
+  const pic = el('div', 'pic panel', v.pic); b.appendChild(pic);
+  const mic = el('div', '', '<div id="micDot" class="emo">🎤</div><div id="heard"></div><button id="skip" class="emo" aria-label="Odgovori klikom">🖱️</button>'); mic.id = 'mic'; b.appendChild(mic);
+  let fell = false;
+  const fallback = line => { if(fell || my !== run) return; fell = true; stopRec(); mic.remove(); setHow('mouse'); busy = false;
+    options(b, v.opts, v.cls, v.html, v.right, o => solved(v.ans, o)); say(line + ' ' + v.fb); };
+  $('#skip').onclick = () => { ensureAc(); fallback(T.byClick); };
+  busy = false;
+  await Promise.race([say((toldVoice ? '' : T.voice + ' ') + v.q), wait(9000)]); toldVoice = true;
+  for(let att = 0; att < 2 && !micOff && !fell && my === run; att++){
+    const r = await listen(v.match, 7000);
+    if(my !== run || fell) return;
+    if(r === 'ok'){ mic.classList.remove('on'); return solved(v.ans, pic); }
+    if(r === 'off') break;
+    if(att === 0) await Promise.race([say(T.again), wait(6000)]);
+  }
+  if(my !== run || fell) return;
+  const line = micOff && !toldMic ? T.micOff : T.byClick; if(micOff) toldMic = true;
+  fallback(line);
+}
+
+/* ---------- tijek razine ---------- */
+function clearField(){ stopRec(); mode = ''; movers = []; hero = null; field.innerHTML = ''; $('#pad').hidden = true; document.body.classList.remove('run'); }
+function nextStep(){
+  clearField(); tErr = 0;
+  if(step >= steps.length) return win();
+  drawPips(); const s = steps[step];
+  if(s[0] === 'A') startRun(s[1]);
+  else if(s[0] === 'B'){ setHow('mouse'); const line = MOUSE[s[1]](); busy = false; tell(line); }
+  else startVoice(s[1]);
+}
+function startLevel(i){
+  ensureAc(); run++; level = i; di = Math.floor(i/3); stage = i % 3; dino = DINOS[di]; step = 0; errors = 0; greeted = true; screen = 'game';
+  const pool = PLAN_B[stage], rot = k => pool[(di + k) % pool.length], A = PLAN_A[stage], C = PLAN_C[stage];
+  const bs = stage === 1 ? ['feed', rot(0), rot(3)] : [rot(0), rot(2), rot(4)];
+  steps = [['A', A[di % A.length]], ['B', bs[0]], ['C', C[di % C.length]], ['B', bs[1]], ['B', bs[2]]];
+  intro = S['intro' + stage](dino);
+  document.body.className = 's' + stage + ' play';
+  $('#map').hidden = true; $('#win').hidden = true; field.hidden = false; $('#prompt').hidden = false; $('#pips').hidden = false; $('#back').hidden = false;
+  ['#home','#l1','#l2','#l3','#l4'].forEach(s => $(s).hidden = true);
+  sfx.go(); nextStep();
+}
+function win(){
+  const st = errors <= 1 ? 3 : errors <= 4 ? 2 : 1, my = run, id = dino.id; save[level] = Math.max(stars(level), st); store();
+  screen = 'win'; clearField(); field.hidden = true; $('#prompt').hidden = true; $('#pips').hidden = true; $('#back').hidden = true;
+  const art = $('#wart'); $('#wname').textContent = dino.n; $('#wstars').innerHTML = ''; $('#wnext').hidden = stage === 2; $('#win').hidden = false;
+  const done = () => { if(my !== run || screen !== 'win') return; $('#wstars').innerHTML = starHtml(st); sfx.fanfare();
+    const all = [...Array(LEVELS).keys()].every(k => stars(k) > 0);
+    say(S['win' + stage](dino) + ' ' + dino.facts[stage] + (all && stage === 2 ? ' ' + T.winAll : '')); };
+  if(stage === 0){ art.innerHTML = '<div class="wob">' + eg(id, 26) + '</div>'; sfx.crack(); setTimeout(() => { if(my !== run) return; sfx.crack(); }, 600);
+    setTimeout(() => { if(my !== run) return; art.innerHTML = '<div class="pop">' + baby(id, 44) + '</div>'; sfx.pop(); done(); }, 1300); }
+  else if(stage === 1){ art.innerHTML = '<div>' + baby(id, 30) + '</div>';
+    setTimeout(() => { if(my !== run) return; art.innerHTML = '<div class="pop">' + dn(id, 60) + '</div>'; sfx.roar(); done(); }, 1100); }
+  else { art.innerHTML = '<div class="pop">' + dn(id, 60) + '</div><span class="crown emo">👑</span>'; sfx.roar(); setTimeout(done, 500); }
+}
+function showMap(quiet){
+  run++; screen = 'map'; busy = true; stopVoice(); clearField(); field.hidden = true;
+  document.body.className = 's1';
+  $('#map').hidden = false; $('#win').hidden = true; $('#prompt').hidden = true; $('#pips').hidden = true; $('#back').hidden = true;
+  ['#home','#l1','#l2','#l3','#l4'].forEach(s => $(s).hidden = false);
+  const box = $('#cards'); box.innerHTML = '';
+  if(sel < 0 || sel >= DINOS.length) sel = 0;
+  DINOS.forEach((d, k) => {
+    const p = prog(k), nxt = Math.min(2, p), c = el('div', 'dc panel' + (k === sel ? ' sel' : '') + (p === 3 ? ' champ' : ''));
+    c.innerHTML = '<div class="art">' + form(d.id, p, 27) + '</div><div class="nm">' + (p ? d.n : '? ? ?') + '</div><div class="ps"></div>' + (p === 3 ? '<span class="crown emo">👑</span>' : '');
+    c.dataset.k = k; c.onclick = () => { ensureAc(); sel = k; startLevel(k*3 + nxt); };
+    [0,1,2].forEach(s => { const i = k*3 + s, o = open(i), b = el('button', 'pp emo' + (o ? '' : ' lock') + (stars(i) ? ' done' : '') + (s === p && o ? ' next' : ''), STAGE[s] + (stars(i) ? '<span class="st">' + starHtml(stars(i)) + '</span>' : ''));
+      b.setAttribute('aria-label', d.n + ', razina ' + (s+1)); b.onclick = e => { e.stopPropagation(); ensureAc(); sel = k; o ? startLevel(i) : (sfx.nope(), say(T.locked)); }; c.querySelector('.ps').appendChild(b); });
+    box.appendChild(c);
+  });
+  if(!quiet) say(T.menu);
+}
+$('#wagain').onclick = () => startLevel(level);
+$('#wnext').onclick = () => stage < 2 ? startLevel(level+1) : showMap();
+$('#wmap').onclick = () => { sel = di; showMap(); };
+$('#back').onclick = () => { sel = di; showMap(true); };
+$('#mute').onclick = () => { muted = !muted; $('#mute').textContent = muted ? '🔇' : '🔊'; if(muted) stopVoice(); $('#mute').blur(); };
+addEventListener('pointerdown', e => { if(!greeted && screen === 'map' && !e.target.closest('.dc,a,button')){ greeted = true; ensureAc(); say(T.hi); } });
+
+/* tipke: strelice vode dinosaura; na karti biraju karticu */
+const KEY = {ArrowLeft:'l', ArrowRight:'r', ArrowUp:'u', ArrowDown:'d', KeyA:'l', KeyD:'r', KeyW:'u', KeyS:'d'};
+function padLight(){ document.querySelectorAll('#pad button').forEach(b => b.classList.toggle('on', !!keys[b.dataset.k])); }
+addEventListener('keydown', e => {
+  const k = e.code, d = KEY[k];
+  if(k === 'Space' || k.startsWith('Arrow')) e.preventDefault();
+  if(screen === 'game'){
+    if(k === 'Escape'){ sel = di; showMap(true); return; }
+    if(d){ keys[d] = true; padLight(); ensureAc(); }
+  } else if(screen === 'map'){
+    if(e.repeat) return;
+    const N = DINOS.length;
+    if(d){ sel = d === 'l' ? Math.max(0, sel-1) : d === 'r' ? Math.min(N-1, sel+1) : d === 'u' ? (sel >= 5 ? sel-5 : sel) : (sel < 5 ? sel+5 : sel);
+      document.querySelectorAll('.dc').forEach(n => n.classList.toggle('sel', +n.dataset.k === sel));
+      if(!greeted){ greeted = true; ensureAc(); say(T.hi); } }
+    else if(k === 'Enter' || k === 'Space'){ const n = document.querySelector('.dc.sel'); if(n) n.click(); }
+  } else if(screen === 'win'){
+    if(e.repeat) return;
+    if(k === 'Enter' || k === 'Space') stage < 2 ? startLevel(level+1) : showMap(); else if(k === 'Escape') showMap(true);
+  }
+});
+addEventListener('keyup', e => { const d = KEY[e.code]; if(d){ keys[d] = false; padLight(); } });
+addEventListener('blur', () => { for(const k in keys) keys[k] = false; padLight(); });
+document.querySelectorAll('#pad button').forEach(b => {
+  const on = v => e => { e.preventDefault(); keys[b.dataset.k] = v; padLight(); ensureAc(); };
+  b.addEventListener('pointerdown', on(true)); ['pointerup','pointerleave','pointercancel'].forEach(n => b.addEventListener(n, on(false)));
+});
+let lastT = 0;
+function frame(t){
+  const dt = Math.min(.05, (t - lastT)/1000 || 0); lastT = t;
+  if(mode === 'run' && hero) stepRun(dt); else if(mode === 'swim') stepSwim(dt);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+loadPack().then(() => { $('#loading').textContent = ''; });
+setTimeout(() => { $('#loading').textContent = ''; }, 8000);
+showMap(true);
+</script>
+</body>
+</html>
